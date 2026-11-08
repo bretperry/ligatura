@@ -1,0 +1,8 @@
+{
+  "name": "ligatura",
+  "version": "0.0.1",
+  "description": "Ligature tool. Name reserved; first release coming.",
+  "author": "Bret Perry",
+  "license": "MIT",
+  "files": ["README.md"]
+}
