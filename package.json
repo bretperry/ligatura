@@ -1,8 +1,27 @@
 {
   "name": "ligatura",
-  "version": "0.0.1",
-  "description": "Ligature tool. Name reserved; first release coming.",
+  "version": "0.1.0",
+  "description": "Find where one text quotes, paraphrases or alludes to another. Local models by default; every link is a suggestion for a person to confirm.",
+  "keywords": ["intertextuality", "allusion", "text-reuse", "digital-humanities", "embeddings", "reranker", "bible", "cli"],
   "author": "Bret Perry",
   "license": "MIT",
-  "files": ["README.md"]
+  "type": "module",
+  "bin": { "ligatura": "dist/cli.js" },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": { ".": "./dist/index.js" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test 'test/*.test.js'",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
+  }
 }
