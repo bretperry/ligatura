@@ -28,6 +28,9 @@ export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
   'nomic-embed-text-v1.5': { id: 'nomic-ai/nomic-embed-text-v1.5', revision: 'main', pooling: 'mean', query: 'search_query: ', doc: 'search_document: ' },
   'bge-small-en-v1.5': { id: 'Xenova/bge-small-en-v1.5', revision: 'main', pooling: 'cls' },
   'bge-large-en-v1.5': { id: 'Xenova/bge-large-en-v1.5', revision: 'main', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ' },
+  // Multilingual (MIT): the default for Latin and Greek, and for any run across two languages.
+  // ONNX export of BAAI/bge-m3, pinned to the commit measured in the README.
+  'bge-m3': { id: 'Xenova/bge-m3', revision: '4de13258303883538bd53b696b452bf8099f0858', pooling: 'cls' },
 }
 export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5'
 const LOCAL_DTYPE = 'q8'
