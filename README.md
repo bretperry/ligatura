@@ -68,8 +68,14 @@ One JSON object per suggested link:
 
 ## Measure before you trust it
 
+The test fixture lives in the repository, not the npm package. To run it:
+
 ```
-ligatura eval fixtures/kempis-gospels --neighbours 1
+git clone https://github.com/bretperry/ligatura
+cd ligatura
+npm install
+npm run build
+node dist/cli.js eval fixtures/kempis-gospels --neighbours 1
 ```
 
 `eval` runs the pipeline on a fixture (`source.jsonl`, `target.jsonl`, and `gold.jsonl` of known

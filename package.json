@@ -1,20 +1,42 @@
 {
   "name": "ligatura",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Find where one text quotes, paraphrases or alludes to another. Local models by default; every link is a suggestion for a person to confirm.",
-  "keywords": ["intertextuality", "allusion", "text-reuse", "digital-humanities", "embeddings", "reranker", "bible", "cli"],
+  "keywords": [
+    "intertextuality",
+    "allusion",
+    "text-reuse",
+    "digital-humanities",
+    "embeddings",
+    "reranker",
+    "bible",
+    "cli"
+  ],
   "author": "Bret Perry",
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/bretperry/ligatura.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bretperry/ligatura.git"
+  },
   "homepage": "https://github.com/bretperry/ligatura#readme",
   "bugs": "https://github.com/bretperry/ligatura/issues",
   "type": "module",
-  "bin": { "ligatura": "dist/cli.js" },
+  "bin": {
+    "ligatura": "dist/cli.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": { ".": "./dist/index.js" },
-  "files": ["dist", "README.md", "LICENSE"],
-  "engines": { "node": ">=20" },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "test": "tsc && node --test 'test/*.test.js'",
