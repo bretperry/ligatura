@@ -4,7 +4,7 @@ import { makeEmbedder, DEFAULT_EMBEDDER } from './embed.js'
 import { lexicalScorer, sharedWords } from './lexical.js'
 import { makeReranker, DEFAULT_RERANKER } from './rerank.js'
 import type { Unit } from './units.js'
-import { dot, fuse, log, ranks, topK } from './util.js'
+import { checkInt, checkUnique, dot, fuse, log, ranks, topK } from './util.js'
 
 export interface LinkOptions {
   embed?: string
@@ -34,10 +34,13 @@ export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, poo
 export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = {}): AsyncGenerator<UnitResult> {
   const embedder = makeEmbedder(opts.embed ?? DEFAULTS.embed)
   const reranker = makeReranker(opts.rerank ?? DEFAULTS.rerank, opts.task)
-  const pool = opts.pool ?? DEFAULTS.pool
+  const pool = checkInt('pool', opts.pool, 1) ?? DEFAULTS.pool
+  checkUnique('source', source.map((u) => u.ref))
+  checkUnique('target', target.map((u) => u.ref))
   log(`embedding ${target.length} target and ${source.length} source units with ${embedder.name}`)
   const tVec = await embedder.embed(target.map((u) => u.text), 'doc')
   const sVec = await embedder.embed(source.map((u) => u.text), 'query')
+  if (sVec[0] && tVec[0] && sVec[0].length !== tVec[0].length) throw new Error(`source and target vectors differ in length (${sVec[0].length}, ${tVec[0].length})`)
   const lex = lexicalScorer(target.map((u) => u.text))
   const started = Date.now()
   for (const [i, s] of source.entries()) {
@@ -79,6 +82,8 @@ export interface Link {
 
 // The links a person reviews: the top n of each pool, at or above a score if one is set.
 export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top: number; minScore?: number }): Link[] {
+  checkInt('top', opts.top, 0)
+  if (opts.minScore !== undefined && !Number.isFinite(opts.minScore)) throw new Error(`min-score must be a number, got ${opts.minScore}`)
   const date = new Date().toISOString().slice(0, 10)
   const round = (x: number) => Math.round(x * 1000) / 1000
   return r.ranked

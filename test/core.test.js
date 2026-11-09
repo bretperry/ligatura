@@ -2,13 +2,17 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { splitText, lexicalScorer, sharedWords } from '../dist/index.js'
-import { fuse, ranks } from '../dist/util.js'
+import { fuse, ranks, checkInt, checkUnique } from '../dist/util.js'
+import { judgeRefs } from '../dist/rerank.js'
+import { loadUnits } from '../dist/units.js'
+import { writeFileSync, mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
-test('splitText splits sentences and drops fragments', () => {
-  assert.deepEqual(splitText('He that followeth me shall not walk in darkness. Vanity of vanities, all is vanity!\n\nOk.'), [
-    'He that followeth me shall not walk in darkness.',
-    'Vanity of vanities, all is vanity!',
-  ])
+test('splitText keeps short sentences; minWords drops fragments on request', () => {
+  const raw = 'He that followeth me shall not walk in darkness. Jesus wept.\n\nOk.'
+  assert.deepEqual(splitText(raw), ['He that followeth me shall not walk in darkness.', 'Jesus wept.', 'Ok.'])
+  assert.deepEqual(splitText(raw, 'auto', 3), ['He that followeth me shall not walk in darkness.'])
 })
 
 test('splitText paragraph and line modes', () => {
@@ -31,4 +35,37 @@ test('ranks and reciprocal rank fusion', () => {
   // Item 2 is 2nd and 1st; item 0 is 1st and 3rd; item 1 is 3rd and 2nd.
   const f = fuse(Float32Array.from([0.9, 0.1, 0.5]), Float32Array.from([0.1, 0.2, 0.9]))
   assert.deepEqual([...ranks(f)], [2, 3, 1])
+})
+
+test('tied scores share a rank, and an all-equal list adds nothing to fusion', () => {
+  assert.deepEqual([...ranks(Float32Array.from([0, 0.5, 0, 0.5, 0.9]))], [4, 2, 4, 2, 1])
+  // Dense picks item 3; lexical is all zero. File order must not demote item 3.
+  const f = fuse(Float32Array.from([0, 0, 0, 1]), Float32Array.from([0, 0, 0, 0]))
+  assert.equal([...ranks(f)][3], 1)
+  // Zero-overlap items tie with each other instead of ranking by position.
+  const g = fuse(Float32Array.from([0.4, 0.3, 0.2, 0.1]), Float32Array.from([0, 0, 0, 0.5]))
+  assert.ok(g[0] > g[1] && g[1] > g[2])
+})
+
+test('judgeRefs keeps only candidate refs, once each, and survives bad replies', () => {
+  const c = ['MAT.1.1', 'JHN.3.16']
+  assert.deepEqual(judgeRefs('{"refs": ["JHN.3.16", "X", "JHN.3.16", "MAT.1.1"]}', c), ['JHN.3.16', 'MAT.1.1'])
+  assert.equal(judgeRefs('{"refs": {}}', c), undefined)
+  assert.equal(judgeRefs('{"refs": "MAT.1.1"}', c), undefined)
+  assert.deepEqual(judgeRefs('<think>{"refs":["MAT.1.1"]}</think> note {"a": "}"} then {"refs": ["JHN.3.16"], "why": "quote"}', c), ['JHN.3.16'])
+  assert.equal(judgeRefs('no json here', c), undefined)
+})
+
+test('numbers and refs are checked', () => {
+  assert.throws(() => checkInt('pool', 0, 1), /pool/)
+  assert.throws(() => checkInt('top', -1, 0), /top/)
+  assert.throws(() => checkInt('neighbours', 1.5, 0), /neighbours/)
+  assert.equal(checkInt('pool', undefined, 1), undefined)
+  assert.throws(() => checkUnique('target', ['a', 'b', 'a']), /"a"/)
+  const dir = mkdtempSync(join(tmpdir(), 'ligatura-'))
+  const f = join(dir, 'u.jsonl')
+  writeFileSync(f, '{"ref":"a","text":"x"}\n\n{"ref":"a","text":"y"}\n')
+  assert.throws(() => loadUnits(f), /:3: ref "a" already used on line 1/)
+  writeFileSync(f, '{"ref":"a","text":"x"}\nnot json\n')
+  assert.throws(() => loadUnits(f), /:2: not valid JSON/)
 })

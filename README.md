@@ -37,7 +37,8 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 - **JSONL**, one unit per line: `{"ref": "MAT.5.3", "text": "Blessed are the poor in spirit..."}`.
   `ref` is any stable id: a verse, a Stephanus number, `book.chapter.sentence`.
 - **Plain text**, split into sentences, or paragraphs or lines with `--split`. Refs are the unit
-  numbers.
+  numbers. Every nonempty unit is kept; `--min-words 3` drops fragments such as headings.
+- **Refs must be unique** in each file. A repeated ref is an error that names both lines.
 
 ## Output
 
@@ -48,8 +49,17 @@ One JSON object per suggested link:
  "shared":["breaking","bread","way"],"status":"suggested","method":{"embed":"nomic-embed-text-v1.5","rerank":"none"},"date":"2026-11-08"}
 ```
 
-`score` is the reranker's P(yes) when a reranker ran, else the embedding cosine. `--top` (default
-3) and `--min-score` decide how many links reach review.
+`score` depends on what ranked the link:
+
+- **No reranker (default):** the embedding cosine. With the default model it falls roughly in 0 to 1,
+  but it isn't a probability.
+- **`qwen3-reranker-0.6b`:** the model's P(yes) that the pair is a link, 0 to 1.
+- **`api:`:** the server's relevance score, on whatever scale that server uses.
+- **`chat:`:** rank order only: 1 for the judge's first pick, 0.99 for the second, and so on; 0 if
+  not picked.
+
+`--top` (default 3) and `--min-score` decide how many links reach review. Set `--min-score` per
+backend, since the scales differ.
 
 ## Models and servers
 
@@ -62,7 +72,15 @@ One JSON object per suggested link:
 - **Speed:** the in-process reranker runs on the CPU at 0.5 to 0.75 s per pair. A 2,400-sentence
   book at `--pool 30` takes many hours. A reranker server on a GPU is much faster: the same model
   under MLX on an Apple M3 took 0.17 s per pair. Lowering `--pool` trades recall for time.
-- **Keys:** a server that needs one gets `LIGATURA_API_KEY` as a bearer token.
+- **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
+  server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura
+  refuses to send it to two different servers. Keys go only over https, or to this machine.
+- **Long passages** are cut to 256 tokens (the source unit) and 384 tokens (each candidate) before
+  the in-process reranker reads them.
+- **Cache:** vectors from the built-in models are cached in `~/.cache/ligatura` (or
+  `LIGATURA_CACHE`), private to your user, keyed by model, prefixes and text. Vectors from a
+  server aren't cached, since a server can change the model behind a name. `LIGATURA_NO_CACHE=1`
+  turns the cache off.
 - **Paid APIs bill your API account, not a chat subscription** such as Claude Pro or ChatGPT Plus.
   ligatura has no paid backend built in. If you point it at one, you pay that provider per call.
 
@@ -87,15 +105,16 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
 | Retrieval (embedding + overlap) | 35 | 40 | 42 | 44 |
-| Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 28 | 38 | 43 | 44 |
-| Reranked, q8, `--task` naming the two texts | 29 | 41 | 43 | 44 |
+| Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
+| Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
 
 Recall counts a link found when the gold verse or its neighbour is in the top k (`--neighbours 1`),
-of 49. Runs from 2026-11-08 on an Apple M3 CPU; the q8 reranker took 710 to 980 s for the 1,320 pairs.
+of 49. Runs from 2026-11-09 on an Apple M3 CPU; the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
 
 Reranking costs R@1 here, so it's off by default. The cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the
-Python (MLX) run but still reached only 32 / 43 / 44 / 45.
+Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
+shared a rank; not re-run).
 
 ## Limits
 
