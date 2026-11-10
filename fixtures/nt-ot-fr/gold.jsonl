@@ -1,0 +1,269 @@
+{"source": "MAT.1.23", "target": "ISA.7.14", "note": "Synoptic table: Mt. i. 23 / Isa. vii. 14; LXX ISA.7.14"}
+{"source": "LUK.2.23", "target": "EXO.13.12", "note": "Synoptic table: Lc. ii. 23 / Exod. xiii. 12; LXX EXO.13.12"}
+{"source": "MAT.2.6", "target": "MIC.5.2", "note": "Synoptic table: Mt. ii. 6 / Mic. v. 2; LXX MIC.5.2"}
+{"source": "MAT.2.15", "target": "HOS.11.1", "note": "Synoptic table: Mt. ii. 15 / Hos. xi. 1; LXX HOS.11.1"}
+{"source": "MAT.2.18", "target": "JER.31.15", "note": "Synoptic table: Mt. ii. 18 / Jer. xxxviii. 15; LXX JER.38.15"}
+{"source": "MAT.3.3", "target": "ISA.40.3", "note": "Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.); LXX ISA.40.3"}
+{"source": "MRK.1.3", "target": "ISA.40.3", "note": "Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.); LXX ISA.40.3"}
+{"source": "LUK.3.4", "target": "ISA.40.3", "note": "Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.); LXX ISA.40.3"}
+{"source": "MAT.4.4", "target": "DEU.8.3", "note": "Synoptic table: Mt. iv. 4, Lc. iv. 4 / Deut. viii. 3; LXX DEU.8.3"}
+{"source": "LUK.4.4", "target": "DEU.8.3", "note": "Synoptic table: Mt. iv. 4, Lc. iv. 4 / Deut. viii. 3; LXX DEU.8.3"}
+{"source": "MAT.4.6", "target": "PSA.91.11", "note": "Synoptic table: Mt. iv. 6, Lc. iv. 10 f. / Ps. xc. 11 f.; from-master; LXX PSA.90.11"}
+{"source": "LUK.4.10", "target": "PSA.91.11", "note": "Synoptic table: Mt. iv. 6, Lc. iv. 10 f. / Ps. xc. 11 f.; from-master; LXX PSA.90.11"}
+{"source": "MAT.4.7", "target": "DEU.6.16", "note": "Synoptic table: Mt. iv. 7, Lc. iv. 12 / Deut. vi. 16; LXX DEU.6.16"}
+{"source": "LUK.4.12", "target": "DEU.6.16", "note": "Synoptic table: Mt. iv. 7, Lc. iv. 12 / Deut. vi. 16; LXX DEU.6.16"}
+{"source": "MAT.4.10", "target": "DEU.6.13", "note": "Synoptic table: Mt. iv. 10, Lc. iv. 8 / Deut. vi. 13; LXX DEU.6.13"}
+{"source": "LUK.4.8", "target": "DEU.6.13", "note": "Synoptic table: Mt. iv. 10, Lc. iv. 8 / Deut. vi. 13; LXX DEU.6.13"}
+{"source": "MAT.4.15", "target": "ISA.8.23", "note": "Synoptic table: Mt. iv. 15 f. / Isa. ix. 1 f.; LXX ISA.9.1"}
+{"source": "MAT.5.21", "target": "EXO.20.13", "note": "Synoptic table: Mt. v. 21 / Exod. xx. 13; verse-fixed: LXX order has οὐ φονεύσεις at xx. 15; LXX EXO.20.15"}
+{"source": "MAT.5.27", "target": "EXO.20.14", "note": "Synoptic table: Mt. v. 27 / Exod. xx. 14; verse-fixed: LXX order has οὐ μοιχεύσεις at xx. 13 (target text garbled); LXX EXO.20.13"}
+{"source": "MAT.5.31", "target": "DEU.24.1", "note": "Synoptic table: Mt. v. 31 / Deut. xxiv. 1; LXX DEU.24.1"}
+{"source": "MAT.5.33", "target": "NUM.30.3", "note": "Synoptic table: Mt. v. 33 / Num. xxx. 3; LXX NUM.30.3"}
+{"source": "MAT.5.38", "target": "EXO.21.24", "note": "Synoptic table: Mt. v. 38 / Exod. xxi. 24; LXX EXO.21.24"}
+{"source": "MAT.5.43", "target": "LEV.19.18", "note": "Synoptic table: Mt. v. 43 / Lev. xix. 18; ocr-fixed; LXX LEV.19.18"}
+{"source": "MAT.8.17", "target": "ISA.53.4", "note": "Synoptic table: Mt. viii. 17 / Isa. liii. 4; ocr-fixed; LXX ISA.53.4"}
+{"source": "MAT.9.13", "target": "HOS.6.6", "note": "Synoptic table: Mt. ix. 13 (xii. 7) / Hos. vi. 6; LXX HOS.6.6"}
+{"source": "MAT.12.7", "target": "HOS.6.6", "note": "Synoptic table: Mt. ix. 13 (xii. 7) / Hos. vi. 6; LXX HOS.6.6"}
+{"source": "MAT.11.10", "target": "MAL.3.1", "note": "Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1; LXX MAL.3.1"}
+{"source": "MRK.1.2", "target": "MAL.3.1", "note": "Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1; LXX MAL.3.1"}
+{"source": "LUK.7.27", "target": "MAL.3.1", "note": "Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1; LXX MAL.3.1"}
+{"source": "MAT.12.18", "target": "ISA.42.1", "note": "Synoptic table: Mt. xii. 18-21 / Isa. xlii. 1-4; LXX ISA.42.1"}
+{"source": "MAT.13.14", "target": "ISA.6.9", "note": "Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.); LXX ISA.6.9"}
+{"source": "MRK.4.12", "target": "ISA.6.9", "note": "Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.); LXX ISA.6.9"}
+{"source": "LUK.8.10", "target": "ISA.6.9", "note": "Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.); LXX ISA.6.9"}
+{"source": "MAT.13.35", "target": "PSA.78.2", "note": "Synoptic table: Mt. xiii. 35 / Ps. lxxvii. 2; LXX PSA.77.2"}
+{"source": "LUK.4.18", "target": "ISA.61.1", "note": "Synoptic table: Lc. iv. 18 f. / Isa. lxi. 1 f. + lviii. 6; LXX ISA.61.1"}
+{"source": "LUK.4.18", "target": "ISA.58.6", "note": "Synoptic table: Lc. iv. 18 f. / Isa. lxi. 1 f. + lviii. 6; LXX ISA.58.6"}
+{"source": "MAT.15.4", "target": "EXO.20.12", "note": "Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16; LXX EXO.20.12"}
+{"source": "MAT.15.4", "target": "EXO.21.17", "note": "Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16; LXX EXO.21.16"}
+{"source": "MRK.7.10", "target": "EXO.20.12", "note": "Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16; LXX EXO.20.12"}
+{"source": "MRK.7.10", "target": "EXO.21.17", "note": "Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16; LXX EXO.21.16"}
+{"source": "MAT.15.8", "target": "ISA.29.13", "note": "Synoptic table: Mt. xv. 8 f., Mc. vii. 6 f. / Isa. xxix. 13; LXX ISA.29.13"}
+{"source": "MRK.7.6", "target": "ISA.29.13", "note": "Synoptic table: Mt. xv. 8 f., Mc. vii. 6 f. / Isa. xxix. 13; LXX ISA.29.13"}
+{"source": "MRK.9.48", "target": "ISA.66.24", "note": "Synoptic table: Mc. ix. 48 / Isa. lxvi. 24; LXX ISA.66.24"}
+{"source": "MAT.19.4", "target": "GEN.1.27", "note": "Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; from-master (Mt.); LXX GEN.1.27"}
+{"source": "MAT.19.5", "target": "GEN.2.24", "note": "Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; NT verse 5 of range; from-master (Mt.); LXX GEN.2.24"}
+{"source": "MRK.10.6", "target": "GEN.1.27", "note": "Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; from-master (Mt.); LXX GEN.1.27"}
+{"source": "MRK.10.7", "target": "GEN.2.24", "note": "Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; NT verse 7 of range; from-master (Mt.); LXX GEN.2.24"}
+{"source": "MAT.19.19", "target": "EXO.20.12", "note": "Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17; NT verse 19 of range; LXX EXO.20.12"}
+{"source": "MRK.10.19", "target": "EXO.20.12", "note": "Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17; LXX EXO.20.12"}
+{"source": "LUK.18.20", "target": "EXO.20.12", "note": "Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17; LXX EXO.20.12"}
+{"source": "MAT.21.5", "target": "ZEC.9.9", "note": "Synoptic table: Mt. xxi. 5 / Zech. ix. 9 + Isa. lxii. 11; LXX ZEC.9.9"}
+{"source": "MAT.21.5", "target": "ISA.62.11", "note": "Synoptic table: Mt. xxi. 5 / Zech. ix. 9 + Isa. lxii. 11; LXX ISA.62.11"}
+{"source": "MAT.21.13", "target": "ISA.56.7", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX ISA.56.7"}
+{"source": "MAT.21.13", "target": "JER.7.11", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX JER.7.11"}
+{"source": "MRK.11.17", "target": "ISA.56.7", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX ISA.56.7"}
+{"source": "MRK.11.17", "target": "JER.7.11", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX JER.7.11"}
+{"source": "LUK.19.46", "target": "ISA.56.7", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX ISA.56.7"}
+{"source": "LUK.19.46", "target": "JER.7.11", "note": "Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11; LXX JER.7.11"}
+{"source": "MAT.21.16", "target": "PSA.8.3", "note": "Synoptic table: Mt. xxi. 16 / Ps. viii. 2; verse-fixed: target counts the title as v. 1; LXX PSA.8.3"}
+{"source": "MAT.21.42", "target": "PSA.118.22", "note": "Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.; LXX PSA.117.22"}
+{"source": "MRK.12.10", "target": "PSA.118.22", "note": "Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.; LXX PSA.117.22"}
+{"source": "LUK.20.17", "target": "PSA.118.22", "note": "Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.; LXX PSA.117.22"}
+{"source": "MAT.22.24", "target": "DEU.25.5", "note": "Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5; LXX DEU.25.5"}
+{"source": "MRK.12.19", "target": "DEU.25.5", "note": "Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5; LXX DEU.25.5"}
+{"source": "LUK.20.28", "target": "DEU.25.5", "note": "Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5; LXX DEU.25.5"}
+{"source": "MAT.22.32", "target": "EXO.3.6", "note": "Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6; LXX EXO.3.6"}
+{"source": "MRK.12.26", "target": "EXO.3.6", "note": "Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6; LXX EXO.3.6"}
+{"source": "LUK.20.37", "target": "EXO.3.6", "note": "Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6; LXX EXO.3.6"}
+{"source": "MAT.22.37", "target": "DEU.6.5", "note": "Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; ocr-fixed; LXX DEU.6.5"}
+{"source": "MRK.12.30", "target": "DEU.6.5", "note": "Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; NT verse 30 of range; ocr-fixed; LXX DEU.6.5"}
+{"source": "LUK.10.27", "target": "DEU.6.5", "note": "Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; ocr-fixed; LXX DEU.6.5"}
+{"source": "MAT.22.39", "target": "LEV.19.18", "note": "Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18; LXX LEV.19.18"}
+{"source": "MRK.12.31", "target": "LEV.19.18", "note": "Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18; LXX LEV.19.18"}
+{"source": "LUK.10.27", "target": "LEV.19.18", "note": "Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18; LXX LEV.19.18"}
+{"source": "MAT.22.44", "target": "PSA.110.1", "note": "Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1; LXX PSA.109.1"}
+{"source": "MRK.12.36", "target": "PSA.110.1", "note": "Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1; LXX PSA.109.1"}
+{"source": "LUK.20.42", "target": "PSA.110.1", "note": "Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1; LXX PSA.109.1"}
+{"source": "MRK.12.29", "target": "DEU.6.4", "note": "Synoptic table: Mc. xii. 29 / Deut. vi. 4; LXX DEU.6.4"}
+{"source": "MRK.12.32", "target": "DEU.4.35", "note": "Synoptic table: Mc. xii. 32 / Deut. iv. 35; LXX DEU.4.35"}
+{"source": "MAT.24.15", "target": "DAN.12.11", "note": "Synoptic table: Mt. xxiv. 15, Mc. xiii. 14 / Dan. xii. 11; LXX DAN.12.11"}
+{"source": "MRK.13.14", "target": "DAN.12.11", "note": "Synoptic table: Mt. xxiv. 15, Mc. xiii. 14 / Dan. xii. 11; LXX DAN.12.11"}
+{"source": "LUK.22.37", "target": "ISA.53.12", "note": "Synoptic table: Lc. xxii. 37 / Isa. liii. 12; LXX ISA.53.12"}
+{"source": "MAT.26.31", "target": "ZEC.13.7", "note": "Synoptic table: Mt. xxvi. 31, Mc. xiv. 27 / Zech. xiii. 7; LXX ZEC.13.7"}
+{"source": "MRK.14.27", "target": "ZEC.13.7", "note": "Synoptic table: Mt. xxvi. 31, Mc. xiv. 27 / Zech. xiii. 7; LXX ZEC.13.7"}
+{"source": "MAT.27.9", "target": "ZEC.11.13", "note": "Synoptic table: Mt. xxvii. 9 f. / Zech. xi. 13; ocr-fixed; LXX ZEC.11.13"}
+{"source": "MAT.27.46", "target": "PSA.22.2", "note": "Synoptic table: Mt. xxvii. 46, Mc. xv. 34 / Ps. xxi. 1; verse-fixed: target counts the title as v. 1; LXX PSA.21.2"}
+{"source": "MRK.15.34", "target": "PSA.22.2", "note": "Synoptic table: Mt. xxvii. 46, Mc. xv. 34 / Ps. xxi. 1; verse-fixed: target counts the title as v. 1; LXX PSA.21.2"}
+{"source": "JHN.1.23", "target": "ISA.40.3", "note": "Fourth Gospel table: Jo. i. 23 / Isa. xl. 3; ocr-fixed; LXX ISA.40.3"}
+{"source": "JHN.2.17", "target": "PSA.69.10", "note": "Fourth Gospel table: Jo. ii. 17 / Ps. lxviii. 10; LXX PSA.68.10"}
+{"source": "JHN.6.31", "target": "EXO.16.4", "note": "Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.); LXX EXO.16.4"}
+{"source": "JHN.6.31", "target": "EXO.16.15", "note": "Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.); LXX EXO.16.15"}
+{"source": "JHN.6.31", "target": "PSA.78.24", "note": "Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.); alt; LXX PSA.77.24"}
+{"source": "JHN.6.45", "target": "ISA.54.13", "note": "Fourth Gospel table: Jo. vi. 45 / Isa. liv. 13; LXX ISA.54.13"}
+{"source": "JHN.10.34", "target": "PSA.82.6", "note": "Fourth Gospel table: Jo. x. 34 / Ps. lxxxi. 6; LXX PSA.81.6"}
+{"source": "JHN.12.15", "target": "ZEC.9.9", "note": "Fourth Gospel table: Jo. xii. 15 / Zech. ix. 9; LXX ZEC.9.9"}
+{"source": "JHN.12.38", "target": "ISA.53.1", "note": "Fourth Gospel table: Jo. xii. 38 / Isa. liii. 1; LXX ISA.53.1"}
+{"source": "JHN.12.40", "target": "ISA.6.10", "note": "Fourth Gospel table: Jo. xii. 40 / Isa. vi. 10; LXX ISA.6.10"}
+{"source": "JHN.15.25", "target": "PSA.35.19", "note": "Fourth Gospel table: Jo. xv. 25 / Ps. xxxiv. 19 (lxviii. 5); LXX PSA.34.19"}
+{"source": "JHN.15.25", "target": "PSA.69.5", "note": "Fourth Gospel table: Jo. xv. 25 / Ps. xxxiv. 19 (lxviii. 5); alt; LXX PSA.68.5"}
+{"source": "JHN.19.24", "target": "PSA.22.19", "note": "Fourth Gospel table: Jo. xix. 24 / Ps. xxi. 19; LXX PSA.21.19"}
+{"source": "JHN.19.36", "target": "EXO.12.46", "note": "Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21); LXX EXO.12.46"}
+{"source": "JHN.19.36", "target": "NUM.9.12", "note": "Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21); alt; LXX NUM.9.12"}
+{"source": "JHN.19.36", "target": "PSA.34.21", "note": "Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21); alt; LXX PSA.33.21"}
+{"source": "JHN.19.37", "target": "ZEC.12.10", "note": "Fourth Gospel table: Jo. xix. 37 / Zech. xii. 10; LXX ZEC.12.10"}
+{"source": "ACT.1.20", "target": "PSA.69.26", "note": "Acts table: Acts i. 20 / Ps. lxviii. 26 + cviii. 8; LXX PSA.68.26"}
+{"source": "ACT.1.20", "target": "PSA.109.8", "note": "Acts table: Acts i. 20 / Ps. lxviii. 26 + cviii. 8; LXX PSA.108.8"}
+{"source": "ACT.2.17", "target": "JOL.2.28", "note": "Acts table: Acts ii. 17-21 / Joel ii. 28-32; LXX JOL.2.28"}
+{"source": "ACT.2.25", "target": "PSA.16.8", "note": "Acts table: Acts ii. 25-28 / Ps. xv. 8-11; LXX PSA.15.8"}
+{"source": "ACT.2.34", "target": "PSA.110.1", "note": "Acts table: Acts ii. 34 f. / Ps. cix. 1; LXX PSA.109.1"}
+{"source": "ACT.3.22", "target": "DEU.18.15", "note": "Acts table: Acts iii. 22 f. / Deut. xviii. 15, 18 f.; LXX DEU.18.15"}
+{"source": "ACT.3.22", "target": "DEU.18.18", "note": "Acts table: Acts iii. 22 f. / Deut. xviii. 15, 18 f.; LXX DEU.18.18"}
+{"source": "ACT.3.25", "target": "GEN.12.3", "note": "Acts table: Acts iii. 25 / Gen. xii. 3 + xxii. 18; LXX GEN.12.3"}
+{"source": "ACT.3.25", "target": "GEN.22.18", "note": "Acts table: Acts iii. 25 / Gen. xii. 3 + xxii. 18; LXX GEN.22.18"}
+{"source": "ACT.4.25", "target": "PSA.2.1", "note": "Acts table: Acts iv. 25 f. / Ps. ii. 1 f.; ocr-fixed; LXX PSA.2.1"}
+{"source": "ACT.7.3", "target": "GEN.12.1", "note": "Acts table: Acts vii. 3 / Gen. xii. 1; LXX GEN.12.1"}
+{"source": "ACT.7.6", "target": "GEN.15.13", "note": "Acts table: Acts vii. 6 f. / Gen. xv. 13 f.; ocr-fixed; LXX GEN.15.13"}
+{"source": "ACT.7.27", "target": "EXO.2.14", "note": "Acts table: Acts vii. 27 f. / Exod. ii. 14; ocr-fixed; LXX EXO.2.14"}
+{"source": "ACT.7.32", "target": "EXO.3.6", "note": "Acts table: Acts vii. 32 ff. / Exod. iii. 6-8; ocr-fixed; LXX EXO.3.6"}
+{"source": "ACT.7.40", "target": "EXO.32.23", "note": "Acts table: Acts vii. 40 / Exod. xxxii. 23; ocr-fixed; LXX EXO.32.23"}
+{"source": "ACT.7.42", "target": "AMO.5.25", "note": "Acts table: Acts vii. 42 f. / Amos v. 25-27; LXX AMO.5.25"}
+{"source": "ACT.7.49", "target": "ISA.66.1", "note": "Acts table: Acts vii. 49 f. / Isa. lxvi. 1 f.; LXX ISA.66.1"}
+{"source": "ACT.8.32", "target": "ISA.53.7", "note": "Acts table: Acts viii. 32 f. / Isa. liii. 7 f.; ocr-fixed; LXX ISA.53.7"}
+{"source": "ACT.13.22", "target": "PSA.89.21", "note": "Acts table: Acts xiii. 22 / Ps. lxxxviii. 21 etc.; LXX PSA.88.21"}
+{"source": "ACT.13.33", "target": "PSA.2.7", "note": "Acts table: Acts xiii. 33 / Ps. ii. 7; ocr-fixed; LXX PSA.2.7"}
+{"source": "ACT.13.34", "target": "ISA.55.3", "note": "Acts table: Acts xiii. 34 / Isa. lv. 3; LXX ISA.55.3"}
+{"source": "ACT.13.35", "target": "PSA.16.10", "note": "Acts table: Acts xiii. 35 / Ps. xv. 10; LXX PSA.15.10"}
+{"source": "ACT.13.41", "target": "HAB.1.5", "note": "Acts table: Acts xiii. 41 / Hab. i. 5; ocr-fixed; LXX HAB.1.5"}
+{"source": "ACT.13.47", "target": "ISA.49.6", "note": "Acts table: Acts xiii. 47 / Isa. xlix. 6; LXX ISA.49.6"}
+{"source": "ACT.15.16", "target": "JER.12.15", "note": "Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21; LXX JER.12.15"}
+{"source": "ACT.15.16", "target": "AMO.9.11", "note": "Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21; LXX AMO.9.11"}
+{"source": "ACT.15.16", "target": "ISA.45.21", "note": "Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21; LXX ISA.45.21"}
+{"source": "ACT.28.26", "target": "ISA.6.9", "note": "Acts table: Acts xxviii. 26 f. / Isa. vi. 9 f.; LXX ISA.6.9"}
+{"source": "JAS.2.8", "target": "LEV.19.18", "note": "Catholic Epistles table: Jas. ii. 8 / Lev. xix. 18; ocr-fixed; LXX LEV.19.18"}
+{"source": "JAS.2.11", "target": "EXO.20.14", "note": "Catholic Epistles table: Jas. ii. 11 / Exod. xx. 13 f.; ocr-fixed; LXX EXO.20.13"}
+{"source": "JAS.2.23", "target": "GEN.15.6", "note": "Catholic Epistles table: Jas. ii. 23 / Gen. xv. 6; LXX GEN.15.6"}
+{"source": "JAS.4.6", "target": "PRO.3.34", "note": "Catholic Epistles table: Jas. iv. 6 / Prov. iii. 34; LXX PRO.3.34"}
+{"source": "1PE.1.24", "target": "ISA.40.6", "note": "Catholic Epistles table: 1 Pet. i. 24 f. / Isa. xl. 6-9; LXX ISA.40.6"}
+{"source": "1PE.2.6", "target": "ISA.28.16", "note": "Catholic Epistles table: 1 Pet. ii. 6 / Isa. xxviii. 16; LXX ISA.28.16"}
+{"source": "1PE.3.10", "target": "PSA.34.13", "note": "Catholic Epistles table: 1 Pet. iii. 10-12 / Ps. xxxiii. 12-17; verse-fixed: target counts the title as v. 1; LXX PSA.33.13"}
+{"source": "1PE.4.18", "target": "PRO.11.31", "note": "Catholic Epistles table: 1 Pet. iv. 18 / Prov. xi. 31; LXX PRO.11.31"}
+{"source": "1PE.5.7", "target": "PSA.55.23", "note": "Catholic Epistles table: 1 Pet. v. 7 / Ps. liv. 23; ocr-fixed; LXX PSA.54.23"}
+{"source": "2PE.2.22", "target": "PRO.26.11", "note": "Catholic Epistles table: 2 Pet. ii. 22 / Prov. xxvi. 11; LXX PRO.26.11"}
+{"source": "JUD.1.9", "target": "ZEC.3.2", "note": "Catholic Epistles table: Jude 9 / Zech. iii. 2; LXX ZEC.3.2"}
+{"source": "ROM.1.17", "target": "HAB.2.4", "note": "Pauline table: Rom. i. 17 / Hab. ii. 4; LXX HAB.2.4"}
+{"source": "ROM.2.24", "target": "ISA.52.5", "note": "Pauline table: Rom. ii. 24 / Isa. lii. 5; from-master; LXX ISA.52.5"}
+{"source": "ROM.3.4", "target": "PSA.51.6", "note": "Pauline table: Rom. iii. 4 / Ps. l. 6; LXX PSA.50.6"}
+{"source": "ROM.3.10", "target": "PSA.14.1", "note": "Pauline table: Rom. iii. 10-18 / Ps. xiii. 1-3; LXX PSA.13.1"}
+{"source": "ROM.3.20", "target": "PSA.143.2", "note": "Pauline table: Rom. iii. 20 / Ps. cxlii. 2; ocr-fixed; LXX PSA.142.2"}
+{"source": "ROM.4.3", "target": "GEN.15.6", "note": "Pauline table: Rom. iv. 3, 22 / Gen. xv. 6; ocr-fixed; LXX GEN.15.6"}
+{"source": "ROM.4.22", "target": "GEN.15.6", "note": "Pauline table: Rom. iv. 3, 22 / Gen. xv. 6; ocr-fixed; LXX GEN.15.6"}
+{"source": "ROM.4.7", "target": "PSA.32.1", "note": "Pauline table: Rom. iv. 7 f. / Ps. xxxi. 1 f.; ocr-fixed; LXX PSA.31.1"}
+{"source": "ROM.4.17", "target": "GEN.17.5", "note": "Pauline table: Rom. iv. 17 / Gen. xvii. 5; ocr-fixed; LXX GEN.17.5"}
+{"source": "ROM.4.18", "target": "GEN.15.5", "note": "Pauline table: Rom. iv. 18 / Gen. xv. 5; LXX GEN.15.5"}
+{"source": "ROM.7.7", "target": "EXO.20.17", "note": "Pauline table: Rom. vii. 7 / Exod. xx. 17; ocr-fixed; LXX EXO.20.17"}
+{"source": "ROM.8.36", "target": "PSA.44.23", "note": "Pauline table: Rom. viii. 36 / Ps. xliii. 23; LXX PSA.43.23"}
+{"source": "ROM.9.7", "target": "GEN.21.12", "note": "Pauline table: Rom. ix. 7 / Gen. xxi. 12; ocr-fixed; LXX GEN.21.12"}
+{"source": "ROM.9.9", "target": "GEN.18.10", "note": "Pauline table: Rom. ix. 9 / Gen. xviii. 10; LXX GEN.18.10"}
+{"source": "ROM.9.12", "target": "GEN.25.23", "note": "Pauline table: Rom. ix. 12 / Gen. xxv. 23; ocr-fixed; LXX GEN.25.23"}
+{"source": "ROM.9.13", "target": "MAL.1.2", "note": "Pauline table: Rom. ix. 13 / Mal. i. 2 f.; ocr-fixed; LXX MAL.1.2"}
+{"source": "ROM.9.15", "target": "EXO.33.19", "note": "Pauline table: Rom. ix. 15 / Exod. xxxiii. 19; LXX EXO.33.19"}
+{"source": "ROM.9.17", "target": "EXO.9.16", "note": "Pauline table: Rom. ix. 17 / Exod. ix. 16; LXX EXO.9.16"}
+{"source": "ROM.9.25", "target": "HOS.2.23", "note": "Pauline table: Rom. ix. 25 f. / Hos. ii. 23 + i. 10; ocr-fixed; LXX HOS.2.23"}
+{"source": "ROM.9.26", "target": "HOS.1.10", "note": "Pauline table: Rom. ix. 25 f. / Hos. ii. 23 + i. 10; NT verse 26 of range; ocr-fixed; LXX HOS.1.10"}
+{"source": "ROM.9.27", "target": "ISA.10.22", "note": "Pauline table: Rom. ix. 27 f. / Isa. x. 22 f.; ocr-fixed; LXX ISA.10.22"}
+{"source": "ROM.9.29", "target": "ISA.1.9", "note": "Pauline table: Rom. ix. 29 / Isa. i. 9; ocr-fixed; LXX ISA.1.9"}
+{"source": "ROM.9.33", "target": "ISA.8.14", "note": "Pauline table: Rom. ix. 33 / Isa. viii. 14 + xxviii. 16; LXX ISA.8.14"}
+{"source": "ROM.9.33", "target": "ISA.28.16", "note": "Pauline table: Rom. ix. 33 / Isa. viii. 14 + xxviii. 16; LXX ISA.28.16"}
+{"source": "ROM.10.6", "target": "DEU.30.12", "note": "Pauline table: Rom. x. 6-9 / Deut. xxx. 12-14; ocr-fixed; LXX DEU.30.12"}
+{"source": "ROM.10.15", "target": "ISA.52.7", "note": "Pauline table: Rom. x. 15 / Isa. lii. 7 (Nah. i. 15); ocr-fixed; LXX ISA.52.7"}
+{"source": "ROM.10.15", "target": "NAM.1.15", "note": "Pauline table: Rom. x. 15 / Isa. lii. 7 (Nah. i. 15); ocr-fixed; alt; LXX NAM.1.15"}
+{"source": "ROM.10.16", "target": "ISA.53.1", "note": "Pauline table: Rom. x. 16 / Isa. liii. 1; LXX ISA.53.1"}
+{"source": "ROM.10.18", "target": "PSA.19.5", "note": "Pauline table: Rom. x. 18 / Ps. xviii. 5; LXX PSA.18.5"}
+{"source": "ROM.10.19", "target": "DEU.32.21", "note": "Pauline table: Rom. x. 19 / Deut. xxxii. 21; LXX DEU.32.21"}
+{"source": "ROM.10.20", "target": "ISA.65.1", "note": "Pauline table: Rom. x. 20 f. / Isa. lxv. 1 f.; ocr-fixed; LXX ISA.65.1"}
+{"source": "ROM.11.1", "target": "PSA.94.14", "note": "Pauline table: Rom. xi. 1 f. / Ps. xciii. 14; from-master (NT ref); LXX PSA.93.14"}
+{"source": "ROM.11.3", "target": "1KI.19.10", "note": "Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18; LXX 1KI.19.10"}
+{"source": "ROM.11.3", "target": "1KI.19.14", "note": "Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18; LXX 1KI.19.14"}
+{"source": "ROM.11.4", "target": "1KI.19.18", "note": "Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18; NT verse 4 of range; LXX 1KI.19.18"}
+{"source": "ROM.11.8", "target": "ISA.29.10", "note": "Pauline table: Rom. xi. 8 / Isa. xxix. 10 + Deut. xxix. 4; LXX ISA.29.10"}
+{"source": "ROM.11.8", "target": "DEU.29.4", "note": "Pauline table: Rom. xi. 8 / Isa. xxix. 10 + Deut. xxix. 4; LXX DEU.29.4"}
+{"source": "ROM.11.9", "target": "PSA.69.23", "note": "Pauline table: Rom. xi. 9 f. / Ps. lxviii. 23 f. + xxxiv. 8; LXX PSA.68.23"}
+{"source": "ROM.11.9", "target": "PSA.35.8", "note": "Pauline table: Rom. xi. 9 f. / Ps. lxviii. 23 f. + xxxiv. 8; LXX PSA.34.8"}
+{"source": "ROM.11.26", "target": "ISA.59.20", "note": "Pauline table: Rom. xi. 26 f. / Isa. lix. 20 + xxvii. 9; LXX ISA.59.20"}
+{"source": "ROM.11.27", "target": "ISA.27.9", "note": "Pauline table: Rom. xi. 26 f. / Isa. lix. 20 + xxvii. 9; NT verse 27 of range; LXX ISA.27.9"}
+{"source": "ROM.11.34", "target": "ISA.40.13", "note": "Pauline table: Rom. xi. 34 / Isa. xl. 13; ocr-fixed; LXX ISA.40.13"}
+{"source": "ROM.12.19", "target": "DEU.32.35", "note": "Pauline table: Rom. xii. 19 f. / [Deut. xxxii. 35 +] Prov. xxv. 21 f.; uncertain: group-table OT cell shows only xxv. 21 f.; Deut. xxxii. 35 for Rom. xii. 19 from master; LXX DEU.32.35"}
+{"source": "ROM.12.20", "target": "PRO.25.21", "note": "Pauline table: Rom. xii. 19 f. / Prov. xxv. 21 f.; ocr-fixed; LXX PRO.25.21"}
+{"source": "ROM.13.9", "target": "EXO.20.14", "note": "Pauline table: Rom. xiii. 9 / Exod. xx. 13 ff. + Lev. xix. 18; LXX EXO.20.13"}
+{"source": "ROM.13.9", "target": "LEV.19.18", "note": "Pauline table: Rom. xiii. 9 / Exod. xx. 13 ff. + Lev. xix. 18; LXX LEV.19.18"}
+{"source": "ROM.14.11", "target": "ISA.45.23", "note": "Pauline table: Rom. xiv. 11 / Isa. xlv. 23; ocr-fixed; LXX ISA.45.23"}
+{"source": "ROM.15.3", "target": "PSA.69.10", "note": "Pauline table: Rom. xv. 3 / Ps. lxviii. 10; LXX PSA.68.10"}
+{"source": "ROM.15.9", "target": "PSA.18.50", "note": "Pauline table: Rom. xv. 9 / Ps. xvii. 50 (2 Regn. xxii. 50); from-master (NT ref); LXX PSA.17.50"}
+{"source": "ROM.15.9", "target": "2SA.22.50", "note": "Pauline table: Rom. xv. 9 / Ps. xvii. 50 (2 Regn. xxii. 50); from-master (NT ref); alt; LXX 2SA.22.50"}
+{"source": "ROM.15.10", "target": "DEU.32.43", "note": "Pauline table: Rom. xv. 10 / Deut. xxxii. 43; from-master (NT ref); LXX DEU.32.43"}
+{"source": "ROM.15.11", "target": "PSA.117.1", "note": "Pauline table: Rom. xv. 11 / Ps. cxvi. 1; from-master (NT ref); LXX PSA.116.1"}
+{"source": "ROM.15.12", "target": "ISA.11.10", "note": "Pauline table: Rom. xv. 12 / Isa. xi. 10; from-master (NT ref); LXX ISA.11.10"}
+{"source": "ROM.15.21", "target": "ISA.52.15", "note": "Pauline table: Rom. xv. 21 / Isa. lii. 15; from-master (NT ref); LXX ISA.52.15"}
+{"source": "1CO.1.19", "target": "ISA.29.14", "note": "Pauline table: 1 Cor. i. 19 / Isa. xxix. 14; from-master (NT ref); LXX ISA.29.14"}
+{"source": "1CO.1.31", "target": "JER.9.24", "note": "Pauline table: 1 Cor. i. 31 / Jer. ix. 24; from-master (NT ref); LXX JER.9.24"}
+{"source": "1CO.2.9", "target": "ISA.64.4", "note": "Pauline table: 1 Cor. ii. 9 / Isa. lxiv. 4 + lxv. 17 (?); from-master (NT ref); LXX ISA.64.4"}
+{"source": "1CO.2.9", "target": "ISA.65.17", "note": "Pauline table: 1 Cor. ii. 9 / Isa. lxiv. 4 + lxv. 17 (?); from-master (NT ref); LXX ISA.65.17"}
+{"source": "1CO.2.16", "target": "ISA.40.13", "note": "Pauline table: 1 Cor. ii. 16 / Isa. xl. 13; from-master (NT ref); LXX ISA.40.13"}
+{"source": "1CO.3.20", "target": "PSA.94.11", "note": "Pauline table: 1 Cor. iii. 20 / Ps. xciii. 11; from-master (NT ref); LXX PSA.93.11"}
+{"source": "1CO.6.16", "target": "GEN.2.24", "note": "Pauline table: 1 Cor. vi. 16 / Gen. ii. 24; from-master (NT ref); LXX GEN.2.24"}
+{"source": "1CO.9.9", "target": "DEU.25.4", "note": "Pauline table: 1 Cor. ix. 9 / Deut. xxv. 4; from-master (NT ref); LXX DEU.25.4"}
+{"source": "1CO.10.7", "target": "EXO.32.6", "note": "Pauline table: 1 Cor. x. 7 / Exod. xxxii. 6; from-master (NT ref); LXX EXO.32.6"}
+{"source": "1CO.10.26", "target": "PSA.24.1", "note": "Pauline table: 1 Cor. x. 26 / Ps. xxiii. 1; from-master (NT ref); LXX PSA.23.1"}
+{"source": "1CO.14.21", "target": "ISA.28.11", "note": "Pauline table: 1 Cor. xiv. 21 / Isa. xxviii. 11 f.; from-master (NT ref); LXX ISA.28.11"}
+{"source": "1CO.15.32", "target": "ISA.22.13", "note": "Pauline table: 1 Cor. xv. 32 / Isa. xxii. 13; from-master (NT ref); LXX ISA.22.13"}
+{"source": "1CO.15.45", "target": "GEN.2.7", "note": "Pauline table: 1 Cor. xv. 45 / Gen. ii. 7; from-master (NT ref); LXX GEN.2.7"}
+{"source": "1CO.15.54", "target": "ISA.25.8", "note": "Pauline table: 1 Cor. xv. 54 f. / Isa. xxv. 8 + Hos. xiii. 14; from-master (NT ref); LXX ISA.25.8"}
+{"source": "1CO.15.55", "target": "HOS.13.14", "note": "Pauline table: 1 Cor. xv. 54 f. / Isa. xxv. 8 + Hos. xiii. 14; NT verse 55 of range; from-master (NT ref); LXX HOS.13.14"}
+{"source": "2CO.4.13", "target": "PSA.116.10", "note": "Pauline table: 2 Cor. iv. 13 / Ps. cxv. 1; from-master (NT ref); LXX PSA.115.1"}
+{"source": "2CO.6.2", "target": "ISA.49.8", "note": "Pauline table: 2 Cor. vi. 2 / Isa. xlix. 8; from-master (NT ref); LXX ISA.49.8"}
+{"source": "2CO.6.16", "target": "EZK.37.27", "note": "Pauline table: 2 Cor. vi. 16 f. / Ezek. xxxvii. 27 + Isa. lii. 11; from-master (NT ref); LXX EZK.37.27"}
+{"source": "2CO.6.17", "target": "ISA.52.11", "note": "Pauline table: 2 Cor. vi. 16 f. / Ezek. xxxvii. 27 + Isa. lii. 11; NT verse 17 of range; from-master (NT ref); LXX ISA.52.11"}
+{"source": "2CO.8.15", "target": "EXO.16.18", "note": "Pauline table: 2 Cor. viii. 15 / Exod. xvi. 18; from-master (NT ref); LXX EXO.16.18"}
+{"source": "2CO.9.9", "target": "PSA.112.9", "note": "Pauline table: 2 Cor. ix. 9 / Ps. cxi. 9; from-master (NT ref); LXX PSA.111.9"}
+{"source": "2CO.10.17", "target": "JER.9.24", "note": "Pauline table: 2 Cor. x. 17 / Jer. ix. 24; from-master (NT ref); LXX JER.9.24"}
+{"source": "GAL.2.16", "target": "PSA.143.2", "note": "Pauline table: Gal. ii. 16 / Ps. cxlii. 2; from-master (NT ref); LXX PSA.142.2"}
+{"source": "GAL.3.6", "target": "GEN.15.6", "note": "Pauline table: Gal. iii. 6 / Gen. xv. 6; from-master (NT ref); LXX GEN.15.6"}
+{"source": "GAL.3.8", "target": "GEN.12.3", "note": "Pauline table: Gal. iii. 8 / Gen. xii. 3; from-master (NT ref); LXX GEN.12.3"}
+{"source": "GAL.3.10", "target": "DEU.27.26", "note": "Pauline table: Gal. iii. 10 / Deut. xxvii. 26; from-master (NT ref); LXX DEU.27.26"}
+{"source": "GAL.3.11", "target": "HAB.2.4", "note": "Pauline table: Gal. iii. 11 / Hab. ii. 4; from-master (NT ref); LXX HAB.2.4"}
+{"source": "GAL.3.12", "target": "LEV.18.5", "note": "Pauline table: Gal. iii. 12 / Lev. xviii. 5; from-master (NT ref); LXX LEV.18.5"}
+{"source": "GAL.3.13", "target": "DEU.21.23", "note": "Pauline table: Gal. iii. 13 / Deut. xxi. 23; from-master (NT ref); LXX DEU.21.23"}
+{"source": "GAL.4.27", "target": "ISA.54.1", "note": "Pauline table: Gal. iv. 27 / Isa. liv. 1; from-master (NT ref); LXX ISA.54.1"}
+{"source": "GAL.4.30", "target": "GEN.21.10", "note": "Pauline table: Gal. iv. 30 / Gen. xxi. 10; from-master (NT ref); LXX GEN.21.10"}
+{"source": "GAL.5.14", "target": "LEV.19.18", "note": "Pauline table: Gal. v. 14 / Lev. xix. 18; from-master (NT ref); LXX LEV.19.18"}
+{"source": "EPH.4.8", "target": "PSA.68.19", "note": "Pauline table: Eph. iv. 8 / Ps. lxvii. 19; ocr-fixed from-master (NT ref); LXX PSA.67.19"}
+{"source": "EPH.4.25", "target": "ZEC.8.16", "note": "Pauline table: Eph. iv. 25 / Zech. viii. 16; from-master (NT ref); LXX ZEC.8.16"}
+{"source": "EPH.4.26", "target": "PSA.4.5", "note": "Pauline table: Eph. iv. 26 / Ps. iv. 5; LXX PSA.4.5"}
+{"source": "EPH.5.31", "target": "GEN.2.24", "note": "Pauline table: Eph. v. 31 / Gen. ii. 24; ocr-fixed; LXX GEN.2.24"}
+{"source": "EPH.6.2", "target": "EXO.20.12", "note": "Pauline table: Eph. vi. 2 f. / Exod. xx. 12; LXX EXO.20.12"}
+{"source": "1TI.5.18", "target": "DEU.25.4", "note": "Pauline table: 1 Tim. v. 18 / Deut. xxv. 4; LXX DEU.25.4"}
+{"source": "2TI.2.19", "target": "NUM.16.5", "note": "Pauline table: 2 Tim. ii. 19 / Num. xvi. 5; LXX NUM.16.5"}
+{"source": "HEB.1.5", "target": "PSA.2.7", "note": "Hebrews table: Heb. i. 5 / Ps. ii. 7 (2 Regn. vii. 14); ocr-fixed; LXX PSA.2.7"}
+{"source": "HEB.1.5", "target": "2SA.7.14", "note": "Hebrews table: Heb. i. 5 / Ps. ii. 7 (2 Regn. vii. 14); ocr-fixed; alt; LXX 2SA.7.14"}
+{"source": "HEB.1.6", "target": "PSA.97.7", "note": "Hebrews table: Heb. i. 6 / Ps. xcvi. 7 (Deut. xxxii. 43); LXX PSA.96.7"}
+{"source": "HEB.1.7", "target": "PSA.104.4", "note": "Hebrews table: Heb. i. 7 / Ps. ciii. 4; ocr-fixed; LXX PSA.103.4"}
+{"source": "HEB.1.8", "target": "PSA.45.7", "note": "Hebrews table: Heb. i. 8 f. / Ps. xliv. 7 f.; ocr-fixed; LXX PSA.44.7"}
+{"source": "HEB.1.10", "target": "PSA.102.26", "note": "Hebrews table: Heb. i. 10-12 / Ps. ci. 26-28; LXX PSA.101.26"}
+{"source": "HEB.1.13", "target": "PSA.110.1", "note": "Hebrews table: Heb. i. 13 / Ps. cix. 1; ocr-fixed; LXX PSA.109.1"}
+{"source": "HEB.2.6", "target": "PSA.8.5", "note": "Hebrews table: Heb. ii. 6-8 / Ps. viii. 5-7; LXX PSA.8.5"}
+{"source": "HEB.2.12", "target": "PSA.22.23", "note": "Hebrews table: Heb. ii. 12 / Ps. xxi. 23; ocr-fixed; LXX PSA.21.23"}
+{"source": "HEB.2.13", "target": "ISA.8.17", "note": "Hebrews table: Heb. ii. 13 / Isa. viii. 17 f.; LXX ISA.8.17"}
+{"source": "HEB.3.7", "target": "PSA.95.8", "note": "Hebrews table: Heb. iii. 7-11 / Ps. xciv. 8-11; LXX PSA.94.8"}
+{"source": "HEB.4.4", "target": "GEN.2.2", "note": "Hebrews table: Heb. iv. 4 / Gen. ii. 2; LXX GEN.2.2"}
+{"source": "HEB.5.6", "target": "PSA.110.4", "note": "Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed; LXX PSA.109.4"}
+{"source": "HEB.7.17", "target": "PSA.110.4", "note": "Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed; LXX PSA.109.4"}
+{"source": "HEB.7.21", "target": "PSA.110.4", "note": "Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed; LXX PSA.109.4"}
+{"source": "HEB.6.13", "target": "GEN.22.16", "note": "Hebrews table: Heb. vi. 13 f. / Gen. xxii. 16 f.; ocr-fixed; LXX GEN.22.16"}
+{"source": "HEB.8.5", "target": "EXO.25.40", "note": "Hebrews table: Heb. viii. 5 / Exod. xxv. 40; LXX EXO.25.40"}
+{"source": "HEB.8.8", "target": "JER.31.31", "note": "Hebrews table: Heb. viii. 8-13, x. 16 f. / Jer. xxxviii. 31-34; LXX JER.38.31"}
+{"source": "HEB.10.16", "target": "JER.31.31", "note": "Hebrews table: Heb. viii. 8-13, x. 16 f. / Jer. xxxviii. 31-34; LXX JER.38.31"}
+{"source": "HEB.9.20", "target": "EXO.24.8", "note": "Hebrews table: Heb. ix. 20 / Exod. xxiv. 8; LXX EXO.24.8"}
+{"source": "HEB.10.5", "target": "PSA.40.7", "note": "Hebrews table: Heb. x. 5-10 / Ps. xxxix. 7-9; LXX PSA.39.7"}
+{"source": "HEB.10.30", "target": "DEU.32.35", "note": "Hebrews table: Heb. x. 30 / Deut. xxxii. 35 f.; ocr-fixed; LXX DEU.32.35"}
+{"source": "HEB.10.37", "target": "HAB.2.3", "note": "Hebrews table: Heb. x. 37 f. / Hab. ii. 3 f.; ocr-fixed; LXX HAB.2.3"}
+{"source": "HEB.11.5", "target": "GEN.5.24", "note": "Hebrews table: Heb. xi. 5 / Gen. v. 24; LXX GEN.5.24"}
+{"source": "HEB.11.18", "target": "GEN.21.12", "note": "Hebrews table: Heb. xi. 18 / Gen. xxi. 12; ocr-fixed; LXX GEN.21.12"}
+{"source": "HEB.11.21", "target": "GEN.47.31", "note": "Hebrews table: Heb. xi. 21 / Gen. xlvii. 31; LXX GEN.47.31"}
+{"source": "HEB.12.5", "target": "PRO.3.11", "note": "Hebrews table: Heb. xii. 5 f. / Prov. iii. 11 f.; LXX PRO.3.11"}
+{"source": "HEB.12.15", "target": "DEU.29.18", "note": "Hebrews table: Heb. xii. 15 / Deut. xxix. 18; LXX DEU.29.18"}
+{"source": "HEB.12.20", "target": "EXO.19.12", "note": "Hebrews table: Heb. xii. 20 / Exod. xix. 12 f.; LXX EXO.19.12"}
+{"source": "HEB.12.26", "target": "HAG.2.6", "note": "Hebrews table: Heb. xii. 26 / Hagg. ii. 6; LXX HAG.2.6"}
+{"source": "HEB.13.5", "target": "DEU.31.6", "note": "Hebrews table: Heb. xiii. 5 / Deut. xxxi. 6, 8; ocr-fixed; LXX DEU.31.6"}
+{"source": "HEB.13.5", "target": "DEU.31.8", "note": "Hebrews table: Heb. xiii. 5 / Deut. xxxi. 6, 8; ocr-fixed; LXX DEU.31.8"}
+{"source": "HEB.13.6", "target": "PSA.118.6", "note": "Hebrews table: Heb. xiii. 6 / Ps. cxvii. 6; LXX PSA.117.6"}
