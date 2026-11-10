@@ -49,12 +49,25 @@ async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Prom
   if (!e.cacheable || process.env.LIGATURA_NO_CACHE) return checked(await e.embed(texts, role), texts.length, e.name)
   const key = createHash('sha256').update(JSON.stringify({ v: CACHE_VERSION, fp: e.fingerprint, role, texts })).digest('hex')
   const dir = join(cacheDir(), 'vectors')
-  const file = join(dir, `${key}.json`)
+  // Binary: two uint32 (count, dimension), then the floats. JSON from older versions is still read;
+  // it can't hold a large text (36k vectors of 1024 overflow a string), so new files are binary.
+  const file = join(dir, `${key}.bin`)
+  const legacy = join(dir, `${key}.json`)
   if (existsSync(file)) {
     try {
-      return checked((JSON.parse(readFileSync(file, 'utf8')) as number[][]).map((v) => Float32Array.from(v)), texts.length, e.name)
+      const buf = readFileSync(file)
+      const n = buf.readUInt32LE(0), dim = buf.readUInt32LE(4)
+      if (buf.length !== 8 + 4 * n * dim) throw new Error('size')
+      const all = new Float32Array(buf.buffer.slice(buf.byteOffset + 8, buf.byteOffset + buf.length))
+      return checked(Array.from({ length: n }, (_, i) => all.slice(i * dim, (i + 1) * dim)), texts.length, e.name)
     } catch {
       log(`cache: ${file} is unreadable; embedding again`)
+    }
+  } else if (existsSync(legacy)) {
+    try {
+      return checked((JSON.parse(readFileSync(legacy, 'utf8')) as number[][]).map((v) => Float32Array.from(v)), texts.length, e.name)
+    } catch {
+      log(`cache: ${legacy} is unreadable; embedding again`)
     }
   }
   const out = checked(await e.embed(texts, role), texts.length, e.name)
@@ -64,7 +77,12 @@ async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Prom
   try { chmodSync(dir, 0o700) } catch {}
   const tmp = `${file}.${process.pid}.${randomBytes(4).toString('hex')}.tmp`
   try {
-    writeFileSync(tmp, JSON.stringify(out.map((v) => Array.from(v))), { mode: 0o600 })
+    const dim = out[0]?.length ?? 0
+    const buf = Buffer.alloc(8 + 4 * out.length * dim)
+    buf.writeUInt32LE(out.length, 0)
+    buf.writeUInt32LE(dim, 4)
+    out.forEach((v, i) => Buffer.from(v.buffer, v.byteOffset, v.byteLength).copy(buf, 8 + 4 * i * dim))
+    writeFileSync(tmp, buf, { mode: 0o600 })
     renameSync(tmp, file)
   } catch (err) {
     try { unlinkSync(tmp) } catch {}
