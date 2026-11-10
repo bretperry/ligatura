@@ -17,6 +17,9 @@ export interface Lang {
   // returns its folded text with spaces removed, since sandhi joins words and editions space
   // the same verse differently.
   charText?(text: string): string
+  // Optional: each list's vote in reciprocal rank fusion when both texts are in this language;
+  // 0 leaves a list out. Unset lists vote 1, so a profile without it fuses with equal votes.
+  fusion?: { dense?: number; words?: number; chars?: number }
   // The built-in embedder used when this language is on both sides.
   embedder: string
 }

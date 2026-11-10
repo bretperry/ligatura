@@ -5,7 +5,7 @@ import { defaultEmbedder, getLang, type Lang } from './lang/index.js'
 import { charScorer, lexicalScorer, sharedWords } from './lexical.js'
 import { makeReranker, DEFAULT_RERANKER } from './rerank.js'
 import type { Unit } from './units.js'
-import { checkInt, checkUnique, dot, fuse, log, ranks, topK } from './util.js'
+import { checkInt, checkUnique, dot, fuseWeighted, log, ranks, topK } from './util.js'
 
 export interface LinkOptions {
   embed?: string
@@ -68,6 +68,8 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   const sVec = await embedder.embed(source.map((u) => u.text), 'query')
   if (sVec[0] && tVec[0] && sVec[0].length !== tVec[0].length) throw new Error(`source and target vectors differ in length (${sVec[0].length}, ${tVec[0].length})`)
   const lex = run.lexical ? lexicalScorer(target.map((u) => u.text), run.target) : undefined
+  // The profile's fusion weights apply only when both texts are in its language.
+  const w = run.lexical ? run.target.fusion ?? {} : {}
   const chr = run.lexical && run.target.charGrams ? charScorer(target.map((u) => u.text), run.target, run.target.charGrams) : undefined
   const started = Date.now()
   for (const [i, s] of source.entries()) {
@@ -75,7 +77,7 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
     const lexical = lex?.scores(s.text)
     const chars = chr?.scores(s.text)
     // Across languages, overlap is left out and the fused order is the embedding order.
-    const fused = fuse(...[dense, lexical, chars].filter((x): x is Float32Array => x !== undefined))
+    const fused = fuseWeighted([[dense, w.dense ?? 1], [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical?.[j] ?? 0, fusedRank: fusedRank[j] }))
