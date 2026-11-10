@@ -1,0 +1,90 @@
+# Śaṅkara quotes the Upaniṣads (Sanskrit to Sanskrit)
+
+Śaṅkara's commentary on the *Brahmasūtra* against the Upaniṣads and the *Bhagavadgītā* it
+quotes. The gold set is the commentary's own citations: the GRETIL edition prints a reference
+after each quotation, as in `'tattvamasi' (chāndo. 6.8.7)`.
+
+- `source.jsonl`: 1,212 quotations from the *Brahmasūtrabhāṣya* (all four adhyāyas), IAST. Each
+  unit is the words before one citation mark, back to where the quotation opens (at most 8
+  daṇḍa-pieces), with the marks removed. Ref `BBs_<adhyāya>,<pāda>.<sūtra>:<n>`: the sūtra the
+  commentary is on, and the citation's number in it. Only quoting sentences are included, since
+  recall is scored per gold link.
+- `target.jsonl`: 2,148 units of mūla text, one per mantra or verse, IAST: Chāndogya 623,
+  Bṛhadāraṇyaka (Kāṇva) 432, Kaṭha 119, Śvetāśvatara 113, Praśna 67, Aitareya 33, Taittirīya 31
+  (one per anuvāka, as Śaṅkara cites it), Īśā 18, Māṇḍūkya 12, and the *Bhagavadgītā* 700. Refs
+  follow Śaṅkara's numbering: `CHU.6.8.7`, `BAU.2.4.13`, `TU.2.1`, `KU.2.19` (vallī.verse, six
+  vallīs), `PU.1.2`, `AU.1.1.1`, `IU.2`, `MaU.2`, `SU.1.1`, `BG.2.19`.
+- `gold.jsonl`: 1,217 links.
+- `fixture.json` sets both languages to `sa`.
+
+```
+ligatura eval fixtures/shankara-upanisads --neighbours 1
+```
+
+## Results
+
+RESULTS
+
+## Sources and licenses
+
+All from [GRETIL](https://gretil.sub.uni-goettingen.de/gretil.html) (Göttingen Register of
+Electronic Texts in Indian Languages), downloaded 2026-11-10.
+
+- *Brahmasūtra* with Śaṅkara's *Śārīrakamīmāṃsābhāṣya* (`sa_bAdarAyaNa-brahmasUtra-comm.xml`),
+  input by the Sansknet project, converted from a Devanagari encoding. Not proofread.
+- Chāndogya, Bṛhadāraṇyaka (Kāṇva), Praśna, Aitareya, Īśā and Māṇḍūkya Upaniṣads with the
+  commentary ascribed to Śaṅkara (Sansknet); only the mūla text is used. Taittirīya with
+  Śaṅkara's bhāṣya; Kaṭha after Olivelle, *The Early Upaniṣads* (1998), Vienna student team;
+  Śvetāśvatara.
+- *Bhagavadgītā*, BORI critical edition, text entered by Muneo Tokunaga et al., revised by
+  John Smith (`1_sanskr/2_epic/mbh/ext/bhgce__u.htm`).
+
+**Terms.** The TEI files are distributed under
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): attribution,
+non-commercial, share-alike. The fixture's JSONL files are derived from them and carry the same
+license, not ligatura's MIT. The *Gītā* file is an older GRETIL text that says it is "for
+reference purposes only" with terms "as for source file" (the BORI edition); its 700 units are
+included for research use and could be dropped (one line in `scripts/build.py`) if that is a
+concern.
+
+## Rebuild
+
+```
+scripts/fetch.sh                 # downloads the GRETIL files into raw/ (git-ignored)
+python3 -I scripts/build.py      # writes source, target and gold
+```
+
+`--show` prints every gold link with both texts.
+
+## How the gold was made
+
+`scripts/build.py` reads every parenthesised reference in the commentary and maps Śaṅkara's
+abbreviations to the target: `chā.`/`chāndo.` Chāndogya, `bṛ.`/`bṛha.` Bṛhadāraṇyaka, `tai.`
+/`taitti.` Taittirīya (vallī.anuvāka only; three-part `tai.` is the Saṃhitā or Brāhmaṇa),
+`kā.`/`kaṭha.`/`ka.` Kaṭha (adhyāya.vallī.verse becomes vallī.verse), `pra.` Praśna, `ai.`
+Aitareya (three parts only), `īśā.` Īśā, `śve.`/`śvetā.` Śvetāśvatara, `gī.`/`bha.gī.` Gītā.
+A range or list keeps its first verse. Two marks in a row cite the same words.
+
+Of 1,677 citation marks, 423 are skipped: texts not in the target (Muṇḍaka, about 95, and Kena
+have no converted file on GRETIL; Kauṣītaki, Jābāla, Nārāyaṇa, the *Brahmasūtra* itself, the
+Mīmāṃsā and Vaiśeṣika sūtras, smṛti) or abbreviations the build doesn't read. 37 more point at
+verses the target lacks and are left out.
+
+As a check, 1,092 of the 1,217 links (90%) share at least two 8-letter runs with the cited
+verse once both are folded. Most of the other 125 are paraphrases, one- or two-word quotations
+(`tattvamasi`), or a citation of a long mantra by a phrase from its middle that the source
+unit's boundary cut short.
+
+## Known problems
+
+- **The commentary is not proofread** and keeps the conversion's irregular word boundaries
+  (`'ayamātamā brahma'` for *ayam ātmā brahma*).
+- **Source unit boundaries are a heuristic.** The quotation's start is found by matching
+  quote marks, and the avagraha is also written `'`, so some units stop short of the quotation's
+  start and some carry a clause of Śaṅkara's lead-in (`tathāhi-`, `iti śrutiḥ`).
+- **Quotation, mostly.** Śaṅkara quotes closely, so overlap is strong here. Allusion without a
+  citation mark is not in the gold, and a suggested link outside it may still be real.
+- **Long target units.** Some Bṛhadāraṇyaka and Chāndogya mantras run to hundreds of words and
+  Taittirīya units are whole anuvākas; a short quotation is a small part of them.
+- **The n-gram length was chosen on this fixture** (see `src/lang/sa.ts`), so the overlap
+  numbers are slightly optimistic. Lengths 5 to 7 are within 5 links of each other at R@10.
