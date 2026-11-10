@@ -24,10 +24,10 @@ Built by `../augustine-vulgate/scripts/build.py`.
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Retrieval (bge-m3 only; no overlap across languages) | 100 | 140 | 162 | 190 |
+| Retrieval (bge-m3 only; no overlap across languages) | 103 | 141 | 164 | 203 |
 
-Of 708 scored links, `--neighbours 1`. Run 2026-11-09 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8; 1,194 s. 27% in the top 10, against 36% for the
-same embedder Latin to Latin (257) and 62% fused. Across languages there is no overlap signal,
+Of 712 scored links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, after the answer-key corrections (the first run, 2026-11-09, took 1,194 s). 29% in the top 10, against 39% for the
+same embedder Latin to Latin (275) and 65% fused. Across languages there is no overlap signal,
 and that is most of what is lost.
 
 ## Is it honest?

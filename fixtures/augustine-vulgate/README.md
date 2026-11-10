@@ -24,13 +24,23 @@ ligatura eval fixtures/augustine-vulgate --neighbours 1
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Embedding only (bge-m3) | 150 | 200 | 225 | 257 |
-| Overlap only | 206 | 289 | 322 | 356 |
-| Character overlap only (4-grams) | 243 | 345 | 381 | 422 |
-| Retrieval (embedding + both overlaps) | 245 | 370 | 404 | 441 |
+| Embedding only (bge-m3) | 159 | 210 | 240 | 275 |
+| Overlap only | 218 | 303 | 338 | 374 |
+| Character overlap only (4-grams) | 258 | 364 | 400 | 441 |
+| Retrieval (embedding + both overlaps) | 256 | 389 | 427 | 463 |
+| Reranked, top 30 (`qwen3-reranker-0.6b`) | 210 | 349 | 406 | 469 |
 
-Of 708 scored links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, from cached vectors (the first run, 2026-11-09, took 929 s, nearly all of it embedding the 35,837 verses).
-Fused, 62% are in the top 10 (56% before character overlap was added). Lower than the Greek fixture, as expected: Augustine quotes from
+Of 713 scored links (after the corrections below), `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, from cached vectors (the first run, 2026-11-09, took 929 s, nearly all of it embedding the 35,837 verses).
+Fused, 65% are in the top 10 (56% before character overlap, 62% before the corrections).
+
+### What the misses are
+
+All 268 misses of the 708-link run were read on 2026-11-10 (three model readers, one class each,
+checked by hand where a fix was made): 111 quotations a retriever should find, 94 allusions with
+no shared wording, 33 sidenotes citing the wrong verse (31 now corrected) and 30 sidenotes set
+beside a sentence that doesn't quote the verse. Finding every quotation would give about 574 of
+713 (80%); of those 111, 34 rank past 100, about 10 share only two or three words and about 8 are
+Old Latin wording. 80% is the ceiling of a perfect retriever on this key, not a near target. Lower than the Greek fixture, as expected: Augustine quotes from
 memory and from Old Latin versions, and a sidenote often names a verse he only echoes.
 
 ## Rebuild

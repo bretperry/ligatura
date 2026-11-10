@@ -146,11 +146,14 @@ is shown with embedding only, word overlap, character overlap and fused:
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
 | `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
-| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 708 | 257 | 356 | 422 | 245 / 441 (62%) |
-| `augustine-drc`: the same links, against the Douay-Rheims | la → en | 708 | 190 | – | – | 100 / 190 (27%) |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
+| `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
 
 Character overlap (4-grams inside words, a third list in the fusion) added 6 points of R@10 to
-Latin and 4 to Greek; it was chosen on one half of the links and held on the other.
+Latin and 4 to Greek; it was chosen on one half of the links and held on the other. The Latin
+rows use the answer key after 31 sidenotes citing the wrong verse were corrected (see the
+fixture's README). Reranking the top 30 with `qwen3-reranker-0.6b` moved Latin R@10 from 463 to
+469 but R@1 from 256 to 210, in 58 minutes, so it stays off.
 
 The Kempis numbers above are unchanged by the language work.
 
@@ -159,7 +162,7 @@ The Kempis numbers above are unchanged by the language work.
 - **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
   augmented verbs don't match their other forms.
 - **Across languages, only the embedder ranks.** bge-m3 finds 27% of the Latin-to-English links in
-  the top 10, against 62% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
+  the top 10, against 65% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
   test but has no ONNX export yet; `--embed openai:...` can serve it.
 - **bge-m3 is large** (about 540 MB at q8). Embedding a 36,000-verse Bible takes 15 to 20 minutes
   on 10 CPU cores; later runs read the cache.
