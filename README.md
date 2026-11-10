@@ -49,17 +49,21 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `en` (default) | English | case | -eth, -est, -ed, -ing, -s |
 | `la` | Latin | case, macrons, æ/œ, u/v, i/j; -que split off | noun and verb endings |
 | `grc` | Ancient Greek | accents and breathings, final ς as σ; `;` and `·` end sentences | noun and verb endings |
+| `sa` | Sanskrit | Devanagari to IAST, then diacritics dropped; daṇḍas end sentences, verse numbers dropped | overlap scores 5-letter n-grams, not words |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
 ```
 ligatura link --lang grc nt.jsonl lxx.jsonl
 ligatura link --source-lang la --target-lang en confessiones.txt douay.jsonl
+ligatura link --source-lang sa --target-lang en gita.txt translation.jsonl
 ```
 
 The stems are suffix stripping, not a lemmatizer: they catch case endings but not stem changes
 (Latin *fero, tuli*; Greek augments and reduplication). Latin and Greek also score character
 4-grams, which catch forms the stems miss (*mortuos, mortuis*) and some OCR and spelling variants.
+Sanskrit sandhi joins and alters words at their edges, so Sanskrit takes 6-grams from the whole
+text with its spaces removed; there is no sandhi splitter.
 
 ## Output
 
@@ -137,9 +141,9 @@ ONNX export: an fp32 export of the same model, built locally, scores pairs withi
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).
 
-### Latin and Greek
+### Latin, Greek and Sanskrit
 
-Three more fixtures, each with a README on sources, licenses and known problems. Runs of
+More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
 is shown with embedding only, word overlap, character overlap and fused:
 
@@ -148,6 +152,7 @@ is shown with embedding only, word overlap, character overlap and fused:
 | `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
 | `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
+| `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
 Character overlap (4-grams inside words, a third list in the fusion) added 6 points of R@10 to
 Latin and 4 to Greek; it was chosen on one half of the links and held on the other. The Latin
