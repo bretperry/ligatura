@@ -15,9 +15,11 @@ account or API key.
 
 ## How it works
 
-1. **Embed** both texts (nomic-embed-text-v1.5) and score every target unit by meaning.
+1. **Embed** both texts and score every target unit by meaning. English uses
+   nomic-embed-text-v1.5; Latin, Greek and any pair of two languages use bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
-   embeddings blur. Archaic forms (followeth, walketh) fold to their stems.
+   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Overlap needs one
+   language on both sides, so it is left out when the two texts differ.
 3. **Fuse** the two rankings (reciprocal rank fusion).
 4. **Rerank (opt-in):** with `--rerank`, a reranker model reads the top 30 for each unit and
    scores each pair. It's off by default: the in-process Qwen3-Reranker-0.6B scored below plain
@@ -39,6 +41,24 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 - **Plain text**, split into sentences, or paragraphs or lines with `--split`. Refs are the unit
   numbers. Every nonempty unit is kept; `--min-words 3` drops fragments such as headings.
 - **Refs must be unique** in each file. A repeated ref is an error that names both lines.
+
+## Languages
+
+| `--lang` | Text | Folding | Stems |
+|---|---|---|---|
+| `en` (default) | English | case | -eth, -est, -ed, -ing, -s |
+| `la` | Latin | case, macrons, æ/œ, u/v, i/j; -que split off | noun and verb endings |
+| `grc` | Ancient Greek | accents and breathings, final ς as σ; `;` and `·` end sentences | noun and verb endings |
+
+`--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
+
+```
+ligatura link --lang grc nt.jsonl lxx.jsonl
+ligatura link --source-lang la --target-lang en confessiones.txt douay.jsonl
+```
+
+The stems are suffix stripping, not a lemmatizer: they catch case endings but not stem changes
+(Latin *fero, tuli*; Greek augments and reduplication).
 
 ## Output
 
@@ -65,7 +85,7 @@ backend, since the scales differ.
 
 | Stage | In process | Or a server you run |
 |---|---|---|
-| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5` | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
+| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for `la`, `grc` and mixed pairs) | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
 | Rerank | off by default; `--rerank qwen3-reranker-0.6b` | `--rerank api:<url>#<model>`: a Cohere/Jina-shaped `/rerank` endpoint (llama.cpp `llama-server`, vLLM, TEI, Infinity) |
 | Judge | – | `--rerank chat:<base-url>#<model>`: a chat model picks the links (Ollama, LM Studio, `mlx_lm.server`) |
 
@@ -116,15 +136,35 @@ ONNX export: an fp32 export of the same model, built locally, scores pairs withi
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).
 
+### Latin and Greek
+
+Three more fixtures, each with a README on sources, licenses and known problems. Runs of
+2026-11-09 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10 is shown with
+embedding only, overlap only and fused:
+
+| Fixture | Languages | Links | Embedding | Overlap | Fused R@1 / R@10 |
+|---|---|---|---|---|---|
+| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 154 / 217 |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 708 | 257 | 356 | 214 / 398 |
+| `augustine-drc`: the same links, against the Douay-Rheims | la → en | 708 | 190 | – | 100 / 190 |
+
+The Kempis numbers above are unchanged by the language work.
+
 ## Limits
 
-- **English first.** The overlap scorer and the default embedder are English. Greek and Latin
-  need a multilingual embedder (`--embed openai:...`).
+- **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
+  augmented verbs don't match their other forms.
+- **Across languages, only the embedder ranks.** bge-m3 finds 27% of the Latin-to-English links in
+  the top 10, against 56% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
+  test but has no ONNX export yet; `--embed openai:...` can serve it.
+- **bge-m3 is large** (about 540 MB at q8). Embedding a 36,000-verse Bible takes 15 to 20 minutes
+  on 10 CPU cores; later runs read the cache.
 - **Allusions to a whole story** (the prodigal son), or sayings with no shared words, rarely reach
   the top 30, so no reranker sees them.
 - **Suggestions, not findings.** Check every link against the texts.
 
 ## License
 
-MIT. The fixture texts are public domain. Models download from Hugging Face under their own
+MIT. The fixture texts are public domain, except the Greek New Testament (SBLGNT, CC BY 4.0)
+and Swete's Septuagint (First1KGreek, CC BY-SA 4.0) in `fixtures/lxx-nt`. Models download from Hugging Face under their own
 licenses; check each model card before redistributing a model.
