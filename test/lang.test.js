@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { getLang, foldLatin, foldGreek, splitText, lexicalScorer, sharedWords, resolve } from '../dist/index.js'
+import { getLang, foldLatin, foldGreek, splitText, lexicalScorer, charScorer, sharedWords, resolve } from '../dist/index.js'
 
 const la = getLang('la')
 const grc = getLang('grc')
@@ -76,4 +76,15 @@ test('languages resolve the embedder and turn overlap off across languages', () 
   assert.equal(cross.lexical, false)
   assert.equal(resolve({ lang: 'la', targetLang: 'en', embed: 'bge-small-en-v1.5' }).embed, 'bge-small-en-v1.5')
   assert.throws(() => resolve({ lang: 'xx' }), /unknown language "xx"/)
+})
+
+test('character n-grams match forms the stems miss, for Latin and Greek', () => {
+  const la = getLang('la')
+  assert.equal(la.charGrams, 4)
+  assert.equal(getLang('grc').charGrams, 4)
+  assert.equal(getLang('en').charGrams, undefined)
+  const docs = ['inter mortuos liber', 'in principio erat uerbum', 'liberauit nos a malo']
+  const s = charScorer(docs, la, 4).scores('in mortuis liber')
+  assert.ok(s[0] > s[1] && s[0] > s[2])
+  assert.equal(s[1], 0)
 })

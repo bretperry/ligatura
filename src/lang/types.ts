@@ -10,6 +10,9 @@ export interface Lang {
   stem(word: string): string
   // Shortest stem kept for overlap scoring; shorter ones are dropped as noise.
   minKey: number
+  // n for a third ranking by shared character n-grams inside words, which matches inflected and
+  // respelled forms the stems miss. Off when absent (English).
+  charGrams?: number
   // The built-in embedder used when this language is on both sides.
   embedder: string
 }

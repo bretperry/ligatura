@@ -42,13 +42,15 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const wanted = new Set(usable.map((g) => g.source))
   const units = source.filter((u) => wanted.has(u.ref))
   const near = checkInt('neighbours', opts.neighbours, 0) ?? 0
-  const rows: { source: string; target: string; dense: number; lexical: number; fused: number; final: number }[] = []
+  const rows: { source: string; target: string; dense: number; lexical: number; chars: number; fused: number; final: number }[] = []
   for await (const r of link(units, target, opts)) {
     const finalRank = new Map(r.ranked.map((c, k) => [c.index, k + 1]))
     const denseRank = ranks(r.dense)
     // A target sharing no word with the source isn't found by overlap, however few targets score.
     const lexRank = r.lexical ? ranks(r.lexical) : undefined
     const lexAt = (j: number) => (lexRank && r.lexical![j] > 0 ? lexRank[j] : Infinity)
+    const chrRank = r.chars ? ranks(r.chars) : undefined
+    const chrAt = (j: number) => (chrRank && r.chars![j] > 0 ? chrRank[j] : Infinity)
     for (const g of usable.filter((x) => x.source === r.source.ref)) {
       const t = tIndex.get(g.target)!
       const hits = [...Array(2 * near + 1).keys()].map((d) => t + d - near).filter((j) => j >= 0 && j < target.length)
@@ -57,14 +59,15 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
         target: g.target,
         dense: Math.min(...hits.map((j) => denseRank[j])),
         lexical: Math.min(...hits.map(lexAt)),
+        chars: Math.min(...hits.map(chrAt)),
         fused: Math.min(...hits.map((j) => r.fusedRank[j])),
         // Final rank is the rank among what ligatura can output: the pool. Outside it, never found.
         final: Math.min(...hits.map((j) => finalRank.get(j) ?? Infinity)),
       })
     }
   }
-  const recall = (key: 'dense' | 'lexical' | 'fused' | 'final', k: number) => rows.filter((x) => x[key] <= k).length
-  const at = (key: 'dense' | 'lexical' | 'fused' | 'final') => Object.fromEntries(KS.map((k) => [k, recall(key, k)]))
+  const recall = (key: 'dense' | 'lexical' | 'chars' | 'fused' | 'final', k: number) => rows.filter((x) => x[key] <= k).length
+  const at = (key: 'dense' | 'lexical' | 'chars' | 'fused' | 'final') => Object.fromEntries(KS.map((k) => [k, recall(key, k)]))
   return {
     gold: gold.length,
     scored: rows.length,
@@ -72,6 +75,7 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
     missingSources: missingSrc.map((g) => g.source),
     dense: at('dense'),
     lexical: run.lexical ? at('lexical') : undefined,
+    chars: run.lexical && run.target.charGrams ? at('chars') : undefined,
     fused: at('fused'),
     final: at('final'),
     rows,
@@ -90,7 +94,7 @@ export function formatEval(e: Awaited<ReturnType<typeof evaluate>>): string {
     head,
     `|---|${KS.map(() => '---|').join('')}`,
     line('Embedding only', e.dense),
-    ...(e.lexical ? [line('Overlap only', e.lexical), line('Retrieval (embedding + overlap)', e.fused)] : [line('Retrieval (embedding; no overlap across languages)', e.fused)]),
+    ...(e.lexical ? [line('Overlap only', e.lexical), ...(e.chars ? [line('Character overlap only', e.chars)] : []), line(e.chars ? 'Retrieval (embedding + both overlaps)' : 'Retrieval (embedding + overlap)', e.fused)] : [line('Retrieval (embedding; no overlap across languages)', e.fused)]),
     ...(e.method.rerank === 'none' ? [] : [line('Reranked', e.final)]),
     '',
     `Retrieval ranks the whole target; output covers the top ${e.method.pool} (--pool), so a link past it counts as not found.`,

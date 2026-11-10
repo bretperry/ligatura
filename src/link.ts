@@ -2,7 +2,7 @@
 // overlap), fuse the two rankings, then let a reranker read the top of the fused list.
 import { makeEmbedder, DEFAULT_EMBEDDER } from './embed.js'
 import { defaultEmbedder, getLang, type Lang } from './lang/index.js'
-import { lexicalScorer, sharedWords } from './lexical.js'
+import { charScorer, lexicalScorer, sharedWords } from './lexical.js'
 import { makeReranker, DEFAULT_RERANKER } from './rerank.js'
 import type { Unit } from './units.js'
 import { checkInt, checkUnique, dot, fuse, log, ranks, topK } from './util.js'
@@ -47,9 +47,11 @@ export interface UnitResult {
   ranked: Scored[]
   // Fused rank of any target unit, for targets outside the pool.
   fusedRank: Int32Array
-  // Each signal's score for every target unit, for eval. lexical is absent across two languages.
+  // Each signal's score for every target unit, for eval. lexical is absent across two languages;
+  // chars, unless the language profile sets charGrams.
   dense: Float32Array
   lexical?: Float32Array
+  chars?: Float32Array
 }
 
 export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, pool: 30 }
@@ -66,12 +68,14 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   const sVec = await embedder.embed(source.map((u) => u.text), 'query')
   if (sVec[0] && tVec[0] && sVec[0].length !== tVec[0].length) throw new Error(`source and target vectors differ in length (${sVec[0].length}, ${tVec[0].length})`)
   const lex = run.lexical ? lexicalScorer(target.map((u) => u.text), run.target) : undefined
+  const chr = run.lexical && run.target.charGrams ? charScorer(target.map((u) => u.text), run.target, run.target.charGrams) : undefined
   const started = Date.now()
   for (const [i, s] of source.entries()) {
     const dense = Float32Array.from(tVec, (t) => dot(sVec[i], t))
     const lexical = lex?.scores(s.text)
+    const chars = chr?.scores(s.text)
     // Across languages, overlap is left out and the fused order is the embedding order.
-    const fused = lexical ? fuse(dense, lexical) : fuse(dense)
+    const fused = fuse(...[dense, lexical, chars].filter((x): x is Float32Array => x !== undefined))
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical?.[j] ?? 0, fusedRank: fusedRank[j] }))
@@ -86,7 +90,7 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
       const each = (Date.now() - started) / (i + 1)
       log(`rerank ${reranker.name}: ${i + 1}/${source.length}, about ${Math.round((each * (source.length - i - 1)) / 60000)} min left`, true)
     }
-    yield { source: s, ranked, fusedRank, dense, lexical }
+    yield { source: s, ranked, fusedRank, dense, lexical, chars }
   }
   if (reranker) log(`reranked ${source.length} units in ${Math.round((Date.now() - started) / 1000)} s`)
 }

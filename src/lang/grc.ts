@@ -49,5 +49,6 @@ export const grc: Lang = {
   // Greek keeps two-letter stems: θεός, θεοῦ, θεῷ all fold to θε.
   stem: (w) => stripEnding(w, ENDINGS, 2),
   minKey: 2,
+  charGrams: 4,
   embedder: 'bge-m3',
 }

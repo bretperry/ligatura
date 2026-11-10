@@ -38,3 +38,47 @@ export function lexicalScorer(docs: string[], lang: Lang = getLang('en')) {
   const targets = docs.map(vec)
   return { scores: (query: string) => { const q = vec(query); return Float32Array.from(targets, (t) => cos(q, t)) } }
 }
+
+// Character n-grams of each normalized word, padded with spaces so word starts and ends count.
+// tf-idf cosine like lexicalScorer, over an inverted index: only targets sharing a gram are touched.
+export function charScorer(docs: string[], lang: Lang, n: number) {
+  const grams = (s: string) => {
+    const g = new Set<string>()
+    for (const w of lang.words(s)) {
+      const p = ` ${w} `
+      for (let i = 0; i + n <= p.length; i++) g.add(p.slice(i, i + n))
+    }
+    return g
+  }
+  const tg = docs.map(grams)
+  const df = new Map<string, number>()
+  for (const g of tg) for (const x of g) df.set(x, (df.get(x) ?? 0) + 1)
+  const idf = (x: string) => Math.log((docs.length + 1) / ((df.get(x) ?? 0) + 1))
+  const norms = new Float32Array(docs.length)
+  const index = new Map<string, number[]>()
+  tg.forEach((g, j) => {
+    let sq = 0
+    for (const x of g) {
+      const w = idf(x)
+      sq += w * w
+      let l = index.get(x)
+      if (!l) index.set(x, (l = []))
+      l.push(j)
+    }
+    norms[j] = Math.sqrt(sq) || 1
+  })
+  return {
+    scores(query: string): Float32Array {
+      const out = new Float32Array(docs.length)
+      let sq = 0
+      for (const x of grams(query)) {
+        const w = idf(x)
+        sq += w * w
+        for (const j of index.get(x) ?? []) out[j] += w * w
+      }
+      const qn = Math.sqrt(sq) || 1
+      for (let j = 0; j < out.length; j++) out[j] /= qn * norms[j]
+      return out
+    },
+  }
+}
