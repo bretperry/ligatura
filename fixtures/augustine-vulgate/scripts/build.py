@@ -150,6 +150,52 @@ def confessions():
     return units, gold
 
 
+# The dataset numbers Sirach's prologue as chapter 1, so its Sir. 19:1 is SIR.20.1.
+SIRACH_SHIFT = 1
+
+# Sidenotes whose verse is wrong, checked by hand: the sentence quotes the corrected verse
+# word for word. Most are Pusey giving a Hebrew Psalm number or a misprinted verse.
+# Ranges ("Prov. 9, 13-17"), faint echoes and sidenotes set beside the wrong sentence are left alone.
+CORRECTIONS = {
+    ('1.6.4', 'PSA.115.10'): 'PSA.115.1',     # Credidi, propter quod locutus sum (Heb. 116:10)
+    ('10.1.3', 'PSA.115.10'): 'PSA.115.1',    # same verse
+    ('12.2.3', 'PSA.113.16'): 'PSA.113.24',   # Caelum caeli Domino (Heb. 115:16)
+    ('12.8.1', 'PSA.113.15'): 'PSA.113.24',
+    ('12.30.4', 'PSA.113.16'): 'PSA.113.24',
+    ('11.3.6', 'PSA.130.1'): 'PSA.129.1',     # De profundis (Heb. 130:1)
+    ('10.59.10', 'PSA.10.3'): 'PSA.9.24',     # laudatur peccator in desideriis animae suae (Heb. 10:3)
+    ('10.50.7', 'PSA.77.10'): 'PSA.76.11',    # Heb. 77:10
+    ('9.2.4', 'PSA.129.3'): 'PSA.119.4',      # sagittae acutae, carbones desolatorii
+    ('5.23.8', 'PSA.118.115'): 'PSA.118.155', # longe a peccatoribus salus
+    ('10.5.10', 'PSA.50.1'): 'PSA.50.3',      # Miserere mei secundum magnam misericordiam
+    ('11.32.6', 'PSA.17.25'): 'PSA.17.29',    # illuminas lucernam meam
+    ('13.3.4', 'PSA.72.18'): 'PSA.72.28',     # adhaerere Deo bonum est
+    ('13.22.4', 'PSA.64.2'): 'PSA.64.12',     # coronae anni
+    ('13.18.12', 'SNG.1.6'): 'SNG.1.4',       # curremus in odorem
+    ('7.13.1', 'JAS.2.6'): 'JAS.4.6',         # superbis resistit, humilibus autem dat gratiam
+    ('9.34.2', 'MAT.12.3'): 'MAT.12.36',      # omne verbum otiosum
+    ('10.25.1', 'GEN.3.7'): 'GEN.3.17',       # in laboribus comedes ex ea
+    ('10.67.12', 'ROM.6.20'): 'ROM.6.23',     # stipendia peccati mors
+    ('13.22.4', 'ROM.13.1'): 'ROM.13.11',     # propior est nostra salus
+    ('13.31.6', 'ECC.3.19'): 'SIR.3.19',      # "Eccl." here is Ecclesiasticus: in mansuetudine opera tua perfice
+}
+
+
+def correct(g):
+    t = CORRECTIONS.get((g['source'], g['target']), g['target'])
+    b, c, v = t.split('.')
+    if b == 'ECC' and int(c) > 12:
+        b = 'SIR'  # Ecclesiastes has 12 chapters: "Ecc. 18, 30" is Ecclesiasticus.
+    if b == 'PSA' and c == '115' and int(v) > 10:
+        v = str(int(v) - 9)  # Vulgate Ps. 115 is Hebrew 116:10-19; "Ps. 115, 16" is Heb. 116:16.
+    t = f'{b}.{c}.{v}'
+    if b == 'SIR':
+        t = f'{b}.{int(c) + SIRACH_SHIFT}.{v}'
+    if t != g['target']:
+        g = {**g, 'target': t, 'fixed': True}
+    return g
+
+
 def write(path, rows):
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, 'w') as f:
@@ -162,7 +208,7 @@ def main():
     units, gold = confessions()
     # One gold row per (sentence, verse).
     seen, uniq = set(), []
-    for g in gold:
+    for g in map(correct, gold):
         if (g['source'], g['target']) not in seen:
             seen.add((g['source'], g['target']))
             uniq.append(g)

@@ -11,7 +11,7 @@ margin.
   codes, Vulgate numbering: Psalm 144 is Hebrew 145). From
   [jam963/parallel-catholic-bible-versions](https://huggingface.co/datasets/jam963/parallel-catholic-bible-versions)
   (CC0), which takes the Latin from sacredbible.org.
-- `gold.jsonl`: 718 links from 550 sentences, `{"source", "target", "note"}`, where `note` is the sidenote as
+- `gold.jsonl`: 718 links from 550 sentences (713 scored), `{"source", "target", "note"}`, where `note` is the sidenote as
   printed. 14 carry `"kind": "old-latin"`: the sidenote says Augustine quotes an Old Latin version
   (Sabatier, *vers. vet.*), so the Vulgate wording differs.
 - `fixture.json` sets both languages to `la`, so `eval` needs no flags for them.
@@ -54,9 +54,17 @@ python3 -I scripts/build.py      # writes source, target and gold here and in ..
 - **A quotation can run past its sentence.** The gold link goes to the sentence where the
   sidenote stands; a quotation that continues into the next sentence is linked only from the
   first.
-- **10 links point at verses the Vulgate here doesn't have** (for example Ps. 115:15–17: the
-  edition numbers Psalm 115 from *Credidi* as verse 1, the dataset as 10; Luke 3:45 is a misprint).
-  `eval` reports them and doesn't score them.
+- **31 sidenotes are corrected in the build** (`CORRECTIONS` and `correct()` in
+  `scripts/build.py`; the rows carry `"fixed": true`). An audit of every miss, on 2026-11-10,
+  found sidenotes that cite the wrong verse while the sentence quotes another word for word.
+  Three rules, applied to every row: the dataset counts Sirach's prologue as chapter 1, so each
+  Sirach chapter is one higher; "Ecc." with a chapter past 12 is Ecclesiasticus; Psalm 115 past
+  verse 10 is Hebrew numbering (Heb. 116:16 is Vulgate 115:7). The rest are single rows: Hebrew
+  Psalm numbers (Ps. 130:1 for *De profundis*, Vulgate 129:1) and misprinted verses (Jas. 2:6
+  for 4:6, *superbis resistit*). Each is listed with the words that prove it. Ranges, faint
+  echoes and sidenotes set beside the wrong sentence were left as printed.
+- **5 links still point at verses the Vulgate here doesn't have** (Luke 3:45, Matt. 18:36 are
+  misprints). `eval` reports them and doesn't score them.
 - **A range keeps its first verse.** "Ps. 102, 3-5" is one link to PSA.102.3. Use `--neighbours 1`.
 - **Sidenotes are not every link.** Many echoes have no sidenote, so a suggestion outside the gold
   set is not necessarily wrong.

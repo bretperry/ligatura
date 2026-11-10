@@ -10,7 +10,7 @@
 {"source": "1.4.3", "target": "MAT.25.27", "note": "Mat. 25, 27."}
 {"source": "1.5.12", "target": "EXO.33.20", "note": "Ex. 33, 20."}
 {"source": "1.6.3", "target": "PSA.18.13", "note": "Ps. 18, 13, 14."}
-{"source": "1.6.4", "target": "PSA.115.10", "note": "Ps. 115, 10."}
+{"source": "1.6.4", "target": "PSA.115.1", "note": "Ps. 115, 10.", "fixed": true}
 {"source": "1.6.6", "target": "PSA.31.5", "note": "Ps. 31, 5."}
 {"source": "1.6.6", "target": "JOB.9.2", "note": "Job 9, 2, 3."}
 {"source": "1.6.7", "target": "PSA.26.12", "note": "Ps. 26, 12."}
@@ -163,7 +163,7 @@
 {"source": "5.18.5", "target": "PSA.140.3", "note": "Ps. 140, 3, 4. Sabat.", "kind": "old-latin"}
 {"source": "5.22.4", "target": "PSA.138.22", "note": "Ps. 138, 22."}
 {"source": "5.23.2", "target": "PSA.4.8", "note": "Ps. 4, 8. 103, 15."}
-{"source": "5.23.8", "target": "PSA.118.115", "note": "Ps. 118, 115."}
+{"source": "5.23.8", "target": "PSA.118.155", "note": "Ps. 118, 115.", "fixed": true}
 {"source": "6.1.3", "target": "ISA.50.10", "note": "Is. 50, 10. Ps. 34, 6."}
 {"source": "6.1.3", "target": "PSA.34.6", "note": "Is. 50, 10. Ps. 34, 6."}
 {"source": "6.1.7", "target": "LUK.7.14", "note": "Luc. 7, 14. 15."}
@@ -186,7 +186,7 @@
 {"source": "7.11.15", "target": "JOB.15.26", "note": "Job 15, 26."}
 {"source": "7.11.18", "target": "PSA.88.11", "note": "Ps. 88, 11"}
 {"source": "7.13.1", "target": "1PE.5.5", "note": "1 Pet. 5, 5. Jac. 2, 6."}
-{"source": "7.13.1", "target": "JAS.2.6", "note": "1 Pet. 5, 5. Jac. 2, 6."}
+{"source": "7.13.1", "target": "JAS.4.6", "note": "1 Pet. 5, 5. Jac. 2, 6.", "fixed": true}
 {"source": "7.13.1", "target": "JHN.1.1", "note": "Joh. 1, 1-5."}
 {"source": "7.13.3", "target": "JHN.1.9", "note": "Ver. 9-12."}
 {"source": "7.14.1", "target": "JHN.1.13", "note": "Ver. 13."}
@@ -214,10 +214,10 @@
 {"source": "7.17.3", "target": "PSA.72.28", "note": "Ps. 72, 28."}
 {"source": "7.17.4", "target": "WIS.7.27", "note": "Sap. 7, 27."}
 {"source": "7.17.5", "target": "PSA.15.2", "note": "Ps. 15, 2."}
-{"source": "7.18.11", "target": "SIR.39.21", "note": "Gen. 1. et Eccli. 39, 21."}
+{"source": "7.18.11", "target": "SIR.40.21", "note": "Gen. 1. et Eccli. 39, 21.", "fixed": true}
 {"source": "7.19.4", "target": "PSA.148.1", "note": "Ps. 148, 1-12."}
 {"source": "7.20.5", "target": "PSA.118.37", "note": "Ps. 118, 37."}
-{"source": "7.22.3", "target": "SIR.10.10", "note": "Eccli. 10, 10."}
+{"source": "7.22.3", "target": "SIR.11.10", "note": "Eccli. 10, 10.", "fixed": true}
 {"source": "7.23.3", "target": "WIS.9.15", "note": "Sap. 9, 15."}
 {"source": "7.23.4", "target": "ROM.1.20", "note": "Rom. 1, 20."}
 {"source": "7.24.1", "target": "1TI.2.5", "note": "1 Tim. 2, 5."}
@@ -246,7 +246,7 @@
 {"source": "7.27.17", "target": "PSA.90.13", "note": "Ps. 90, 13."}
 {"source": "7.27.18", "target": "1CO.15.9", "note": "1 Cor. 15, 9."}
 {"source": "8.1.3", "target": "PSA.34.10", "note": "Ps. 34, 10."}
-{"source": "8.1.4", "target": "PSA.115.17", "note": "Ps. 115, 17."}
+{"source": "8.1.4", "target": "PSA.115.8", "note": "Ps. 115, 17.", "fixed": true}
 {"source": "8.1.7", "target": "JOB.1.10", "note": "Job 1, 10."}
 {"source": "8.1.8", "target": "1CO.13.12", "note": "1 Cor. 13, 12."}
 {"source": "8.2.3", "target": "PSA.25.8", "note": "Ps. 25, 8."}
@@ -292,12 +292,12 @@
 {"source": "8.29.8", "target": "ROM.13.13", "note": "Rom. 13, 13. 14."}
 {"source": "8.30.9", "target": "EPH.3.20", "note": "Eph. 3, 20."}
 {"source": "8.30.11", "target": "PSA.29.12", "note": "Ps. 29, 12."}
-{"source": "9.1.1", "target": "PSA.115.16", "note": "Ps. 115, 16. 17."}
+{"source": "9.1.1", "target": "PSA.115.7", "note": "Ps. 115, 16. 17.", "fixed": true}
 {"source": "9.1.3", "target": "PSA.34.10", "note": "Ps. 34, 10. 3."}
 {"source": "9.1.10", "target": "MAT.11.30", "note": "Mat. 11, 30."}
 {"source": "9.1.10", "target": "PSA.18.15", "note": "Ps. 18, 15."}
 {"source": "9.2.4", "target": "PSA.83.6", "note": "Ps. 83, 6. 7."}
-{"source": "9.2.4", "target": "PSA.129.3", "note": "Ps. 129, 3-5."}
+{"source": "9.2.4", "target": "PSA.119.4", "note": "Ps. 129, 3-5.", "fixed": true}
 {"source": "9.3.3", "target": "ROM.14.16", "note": "Rom. 14, 16."}
 {"source": "9.4.2", "target": "PSA.45.11", "note": "Ps. 45, 11."}
 {"source": "9.5.4", "target": "LUK.14.14", "note": "Luc. 14, 14."}
@@ -323,9 +323,9 @@
 {"source": "9.10.14", "target": "PSA.4.7", "note": "Ps. 4, 7."}
 {"source": "9.10.15", "target": "PSA.4.8", "note": "Ver. 8."}
 {"source": "9.11.4", "target": "1CO.15.54", "note": "1 Cor. 15, 54."}
-{"source": "9.16.3", "target": "PSA.115.15", "note": "Ps. 115, 15."}
+{"source": "9.16.3", "target": "PSA.115.6", "note": "Ps. 115, 15.", "fixed": true}
 {"source": "9.16.8", "target": "SNG.1.3", "note": "Cant 1, 3."}
-{"source": "9.18.4", "target": "SIR.19.1", "note": "Eccli. 19, 1."}
+{"source": "9.18.4", "target": "SIR.20.1", "note": "Eccli. 19, 1.", "fixed": true}
 {"source": "9.22.4", "target": "1TI.5.9", "note": "1 Tim. 5, 9, 4. 10."}
 {"source": "9.22.5", "target": "GAL.4.19", "note": "Gal. 4, 19."}
 {"source": "9.23.1", "target": "PHP.3.13", "note": "Phil. 3, 13."}
@@ -342,7 +342,7 @@
 {"source": "9.31.2", "target": "PSA.100.1", "note": "Ps. 100, 1."}
 {"source": "9.32.4", "target": "PSA.67.6", "note": "Ps. 67, 6."}
 {"source": "9.34.1", "target": "1CO.15.22", "note": "1 Cor. 15, 22."}
-{"source": "9.34.2", "target": "MAT.12.3", "note": "Mat. 12, 3."}
+{"source": "9.34.2", "target": "MAT.12.36", "note": "Mat. 12, 3.", "fixed": true}
 {"source": "9.34.8", "target": "2CO.10.17", "note": "2 Cor. 10, 17."}
 {"source": "9.35.1", "target": "ROM.8.34", "note": "Rom. 8, 34."}
 {"source": "9.35.2", "target": "MAT.18.36", "note": "Mat. 18, 36; 6, 12."}
@@ -358,11 +358,11 @@
 {"source": "9.37.1", "target": "LUK.8.15", "note": "Luc. 8, 15."}
 {"source": "10.1.1", "target": "1CO.13.12", "note": "1 Cor. 13, 12."}
 {"source": "10.1.2", "target": "EPH.5.27", "note": "Eph. 5, 27."}
-{"source": "10.1.3", "target": "PSA.115.10", "note": "Ps. 115, 10."}
+{"source": "10.1.3", "target": "PSA.115.1", "note": "Ps. 115, 10.", "fixed": true}
 {"source": "10.1.5", "target": "PSA.50.8", "note": "Ps. 50, 8."}
 {"source": "10.1.5", "target": "JHN.3.21", "note": "Joh. 3, 21."}
 {"source": "10.2.1", "target": "HEB.4.13", "note": "Heb. 4, 13."}
-{"source": "10.2.1", "target": "SIR.42.18", "note": "Ecclus. 42, 18."}
+{"source": "10.2.1", "target": "SIR.43.18", "note": "Ecclus. 42, 18.", "fixed": true}
 {"source": "10.2.6", "target": "PSA.5.13", "note": "Ps. 5, 13."}
 {"source": "10.2.6", "target": "ROM.4.5", "note": "Rom. 4, 5."}
 {"source": "10.3.1", "target": "PSA.102.3", "note": "Ps. 102, 3."}
@@ -371,7 +371,7 @@
 {"source": "10.5.4", "target": "2CO.1.11", "note": "2 Cor. 1, 11."}
 {"source": "10.5.6", "target": "PSA.143.8", "note": "Ps. 143, 8."}
 {"source": "10.5.9", "target": "REV.8.3", "note": "Apoc. 8, 3."}
-{"source": "10.5.10", "target": "PSA.50.1", "note": "Ps. 50, 1."}
+{"source": "10.5.10", "target": "PSA.50.3", "note": "Ps. 50, 1.", "fixed": true}
 {"source": "10.6.1", "target": "PSA.2.11", "note": "Ps. 2, 11."}
 {"source": "10.6.6", "target": "1CO.4.3", "note": "1 Cor. 4, 3."}
 {"source": "10.7.1", "target": "1CO.4.3", "note": "1 Cor. 4, 3."}
@@ -382,7 +382,7 @@
 {"source": "10.9.12", "target": "PSA.99.3", "note": "Ps. 99, 3."}
 {"source": "10.10.4", "target": "ROM.1.20", "note": "Rom. 1, 20."}
 {"source": "10.11.5", "target": "PSA.31.9", "note": "Ps. 31, 9."}
-{"source": "10.25.1", "target": "GEN.3.7", "note": "Gen. 3, 7."}
+{"source": "10.25.1", "target": "GEN.3.17", "note": "Gen. 3, 7.", "fixed": true}
 {"source": "10.27.1", "target": "LUK.15.8", "note": "Luc. 15, 8."}
 {"source": "10.29.14", "target": "1CO.15.22", "note": "1 Cor. 15, 22."}
 {"source": "10.32.2", "target": "ISA.48.22", "note": "Is. 48, 22."}
@@ -402,14 +402,14 @@
 {"source": "10.43.2", "target": "1CO.6.13", "note": "1 Cor. 6, 13."}
 {"source": "10.45.2", "target": "LUK.21.34", "note": "Luc. 21, 34."}
 {"source": "10.45.5", "target": "WIS.8.21", "note": "Sap. 8, 21."}
-{"source": "10.45.10", "target": "ECC.18.30", "note": "Ecc. 18, 30."}
+{"source": "10.45.10", "target": "SIR.19.30", "note": "Ecc. 18, 30.", "fixed": true}
 {"source": "10.45.12", "target": "1CO.8.8", "note": "1 Cor. 8, 8."}
 {"source": "10.45.15", "target": "PHP.4.11", "note": "Phil. 4, 11-13."}
 {"source": "10.45.18", "target": "PSA.102.14", "note": "Ps. 102, 14; et Gen. 3, 19."}
 {"source": "10.45.18", "target": "GEN.3.19", "note": "Ps. 102, 14; et Gen. 3, 19."}
 {"source": "10.45.18", "target": "LUK.15.24", "note": "Luc. 15, 24. 32."}
 {"source": "10.45.23", "target": "1CO.1.30", "note": "1 Cor. 1, 30. 31."}
-{"source": "10.45.25", "target": "ECC.23.6", "note": "Ecc. 23, 6."}
+{"source": "10.45.25", "target": "SIR.24.6", "note": "Ecc. 23, 6.", "fixed": true}
 {"source": "10.46.1", "target": "ROM.14.20", "note": "Rom. 14, 20."}
 {"source": "10.46.1", "target": "1TI.4.4", "note": "1 Tim. 4, 4."}
 {"source": "10.46.1", "target": "1CO.8.8", "note": "1 Cor. 8, 8."}
@@ -427,7 +427,7 @@
 {"source": "10.47.6", "target": "PSA.138.16", "note": "Ps. 138, 16."}
 {"source": "10.48.5", "target": "JOB.7.1", "note": "Job 7, 1."}
 {"source": "10.50.7", "target": "PSA.6.3", "note": "Ps. 6, 3."}
-{"source": "10.50.7", "target": "PSA.77.10", "note": "Ps. 77, 10."}
+{"source": "10.50.7", "target": "PSA.76.11", "note": "Ps. 77, 10.", "fixed": true}
 {"source": "10.51.1", "target": "2CO.5.2", "note": "2 Cor. 5, 2."}
 {"source": "10.51.3", "target": "GEN.1.31", "note": "Gen. 1, 31."}
 {"source": "10.52.7", "target": "PSA.24.15", "note": "Ps. 24, 15."}
@@ -442,7 +442,7 @@
 {"source": "10.59.4", "target": "PSA.17.8", "note": "Ps. 17, 8."}
 {"source": "10.59.5", "target": "ISA.14.13", "note": "Is. 14, 13-15."}
 {"source": "10.59.6", "target": "LUK.12.32", "note": "Luc. 12, 32."}
-{"source": "10.59.10", "target": "PSA.10.3", "note": "Ps. 10, 3."}
+{"source": "10.59.10", "target": "PSA.9.24", "note": "Ps. 10, 3.", "fixed": true}
 {"source": "10.60.2", "target": "PRO.27.21", "note": "Prov. 27, 21."}
 {"source": "10.60.5", "target": "PSA.18.13", "note": "Ps. 18, 13."}
 {"source": "10.62.8", "target": "GAL.6.3", "note": "Gal. 6, 3."}
@@ -452,7 +452,7 @@
 {"source": "10.67.6", "target": "EPH.2.2", "note": "Eph. 2, 2."}
 {"source": "10.67.7", "target": "2CO.11.14", "note": "2 Cor. 11, 14."}
 {"source": "10.67.10", "target": "1TI.2.5", "note": "1 Tim. 2, 5."}
-{"source": "10.67.12", "target": "ROM.6.20", "note": "Rom. 6, 20."}
+{"source": "10.67.12", "target": "ROM.6.23", "note": "Rom. 6, 20.", "fixed": true}
 {"source": "10.69.1", "target": "ROM.8.32", "note": "Rom. 8, 32."}
 {"source": "10.69.2", "target": "PHP.2.6", "note": "Phil. 2, 6."}
 {"source": "10.69.2", "target": "PSA.87.6", "note": "Ps. 87, 6-8."}
@@ -469,7 +469,7 @@
 {"source": "11.1.9", "target": "PSA.117.1", "note": "Ps. 117, 1."}
 {"source": "11.3.3", "target": "PSA.85.1", "note": "Ps. 85, 1."}
 {"source": "11.3.3", "target": "ROM.10.12", "note": "Rom. 10, 12."}
-{"source": "11.3.6", "target": "PSA.130.1", "note": "Ps. 130, 1."}
+{"source": "11.3.6", "target": "PSA.129.1", "note": "Ps. 130, 1.", "fixed": true}
 {"source": "11.3.8", "target": "PSA.73.16", "note": "Ps. 73, 16."}
 {"source": "11.3.10", "target": "PSA.28.9", "note": "Ps. 28, 9."}
 {"source": "11.3.15", "target": "PSA.25.7", "note": "Ps. 25, 7."}
@@ -501,7 +501,7 @@
 {"source": "11.28.10", "target": "PSA.38.6", "note": "Ps. 38, 6."}
 {"source": "11.29.6", "target": "GEN.1.14", "note": "Gen. 1, 14."}
 {"source": "11.30.7", "target": "JOS.10.13", "note": "Jos. 10, 13."}
-{"source": "11.32.6", "target": "PSA.17.25", "note": "Ps. 17, 25."}
+{"source": "11.32.6", "target": "PSA.17.29", "note": "Ps. 17, 25.", "fixed": true}
 {"source": "11.34.2", "target": "PSA.99.3", "note": "Ps. 99, 3."}
 {"source": "11.39.1", "target": "PSA.62.4", "note": "Ps. 62, 4."}
 {"source": "11.39.1", "target": "PHP.3.13", "note": "Phil. 3, 13. 14."}
@@ -510,10 +510,10 @@
 {"source": "11.41.10", "target": "PSA.145.8", "note": "Ps. 145, 8."}
 {"source": "12.1.3", "target": "ROM.8.31", "note": "Rom. 8, 31."}
 {"source": "12.1.4", "target": "MAT.7.7", "note": "Mat. 7, 7. 8."}
-{"source": "12.2.3", "target": "PSA.113.16", "note": "Ps. 113, 16."}
+{"source": "12.2.3", "target": "PSA.113.24", "note": "Ps. 113, 16.", "fixed": true}
 {"source": "12.3.1", "target": "GEN.1.2", "note": "Gen. 1, 2."}
 {"source": "12.7.3", "target": "ISA.6.3", "note": "Isa. 6, 3."}
-{"source": "12.8.1", "target": "PSA.113.15", "note": "Ps. 113, 15."}
+{"source": "12.8.1", "target": "PSA.113.24", "note": "Ps. 113, 15.", "fixed": true}
 {"source": "12.8.2", "target": "GEN.1.2", "note": "Gen. 1, 2."}
 {"source": "12.8.5", "target": "GEN.1.6", "note": "Gen. 1, 6. 7."}
 {"source": "12.11.1", "target": "1TI.6.16", "note": "1 Tim. 6, 16."}
@@ -524,7 +524,7 @@
 {"source": "12.16.2", "target": "1CO.13.12", "note": "1 Cor. 13, 12."}
 {"source": "12.17.3", "target": "PSA.138.22", "note": "Ps. 138, 22."}
 {"source": "12.19.6", "target": "PSA.148.6", "note": "Ps. 148, 6."}
-{"source": "12.20.1", "target": "SIR.1.4", "note": "Eccli. 1, 4."}
+{"source": "12.20.1", "target": "SIR.2.4", "note": "Eccli. 1, 4.", "fixed": true}
 {"source": "12.20.4", "target": "2CO.5.21", "note": "2 Cor. 5, 21."}
 {"source": "12.20.5", "target": "GAL.4.26", "note": "Gal. 4, 26."}
 {"source": "12.20.5", "target": "PSA.148.4", "note": "Ps. 148, 4."}
@@ -537,7 +537,7 @@
 {"source": "12.27.2", "target": "1TI.1.8", "note": "1 Tim. 1, 8. 5."}
 {"source": "12.27.3", "target": "MAT.22.40", "note": "Matt. 22, 40."}
 {"source": "12.28.1", "target": "PSA.103.24", "note": "Ps. 103, 24."}
-{"source": "12.30.4", "target": "PSA.113.16", "note": "Ps. 113, 16."}
+{"source": "12.30.4", "target": "PSA.113.24", "note": "Ps. 113, 16.", "fixed": true}
 {"source": "12.31.3", "target": "ISA.6.2", "note": "Isa. 6, 2; et 37, 16."}
 {"source": "12.31.3", "target": "COL.1.16", "note": "Col. 1, 16."}
 {"source": "12.31.8", "target": "GEN.1.9", "note": "Gen. 1, 9."}
@@ -549,7 +549,7 @@
 {"source": "12.36.2", "target": "PSA.8.5", "note": "Ps. 8, 5."}
 {"source": "12.43.1", "target": "PSA.142.10", "note": "Ps. 142, 10."}
 {"source": "13.3.1", "target": "GEN.1.1", "note": "Gen. 1, 1."}
-{"source": "13.3.4", "target": "PSA.72.18", "note": "Ps. 72, 18."}
+{"source": "13.3.4", "target": "PSA.72.28", "note": "Ps. 72, 18.", "fixed": true}
 {"source": "13.3.5", "target": "EPH.5.8", "note": "Eph. 5, 8."}
 {"source": "13.3.5", "target": "PSA.35.7", "note": "Ps. 35, 7."}
 {"source": "13.4.1", "target": "GEN.1.3", "note": "Gen. 1, 3."}
@@ -624,7 +624,7 @@
 {"source": "13.18.11", "target": "1CO.13.12", "note": "1 Cor. 13, 12."}
 {"source": "13.18.11", "target": "1JN.3.2", "note": "1 Joh. 3, 2."}
 {"source": "13.18.11", "target": "SNG.2.9", "note": "Cant. 2, 9. Vers. Vet.", "kind": "old-latin"}
-{"source": "13.18.12", "target": "SNG.1.6", "note": "Cant. 1, 6."}
+{"source": "13.18.12", "target": "SNG.1.4", "note": "Cant. 1, 6.", "fixed": true}
 {"source": "13.18.13", "target": "1JN.3.2", "note": "1 Joh. 3, 2."}
 {"source": "13.19.4", "target": "PSA.142.6", "note": "Ps. 142, 6."}
 {"source": "13.19.5", "target": "PSA.35.10", "note": "Ps. 35, 10."}
@@ -634,9 +634,9 @@
 {"source": "13.22.1", "target": "PSA.84.12", "note": "Ps. 84, 12."}
 {"source": "13.22.3", "target": "ISA.58.7", "note": "Isa. 58, 7. 8."}
 {"source": "13.22.3", "target": "PHP.2.15", "note": "Phil. 2, 15."}
-{"source": "13.22.4", "target": "ROM.13.1", "note": "Rom. 13, 1."}
+{"source": "13.22.4", "target": "ROM.13.11", "note": "Rom. 13, 1.", "fixed": true}
 {"source": "13.22.4", "target": "2CO.5.17", "note": "2 Cor. 5, 17."}
-{"source": "13.22.4", "target": "PSA.64.2", "note": "Ps. 64, 2."}
+{"source": "13.22.4", "target": "PSA.64.12", "note": "Ps. 64, 2.", "fixed": true}
 {"source": "13.22.4", "target": "MAT.9.38", "note": "Mat. 9, 38."}
 {"source": "13.22.4", "target": "JHN.4.38", "note": "Joh. 4, 38."}
 {"source": "13.22.5", "target": "MAT.13.39", "note": "Mat. 13, 39."}
@@ -673,7 +673,7 @@
 {"source": "13.30.7", "target": "ROM.12.2", "note": "Rom. 12, 2."}
 {"source": "13.31.1", "target": "1CO.11.1", "note": "1 Cor. 11, 1."}
 {"source": "13.31.3", "target": "GAL.4.12", "note": "Gal. 4, 12."}
-{"source": "13.31.6", "target": "ECC.3.19", "note": "Eccl. 3, 19."}
+{"source": "13.31.6", "target": "SIR.4.19", "note": "Eccl. 3, 19.", "fixed": true}
 {"source": "13.31.7", "target": "1CO.8.8", "note": "1 Cor. 8, 8."}
 {"source": "13.31.7", "target": "MAT.10.16", "note": "Mat. 10, 16."}
 {"source": "13.31.7", "target": "ROM.1.20", "note": "Rom. 1, 20."}

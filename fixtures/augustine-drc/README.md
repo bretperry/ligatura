@@ -9,7 +9,7 @@ The Latin *Confessions* against the Bible in English: the cross-lingual version 
   [jam963/parallel-catholic-bible-versions](https://huggingface.co/datasets/jam963/parallel-catholic-bible-versions)
   (CC0), which takes the text from scrollmapper's bible_databases. Public domain. 376 verses
   have no English in the dataset (220 in Sirach, 66 each in Esther and Lamentations) and are
-  left out. The same 10 gold links as in the Latin fixture point at missing verses; none more.
+  left out. The same 5 gold links as in the Latin fixture point at missing verses, and one more: Sir. 18:30 (SIR.19.30), one of the Sirach verses with no English.
 - `gold.jsonl`: the 718 links of `../augustine-vulgate`.
 - `fixture.json` sets the source to `la` and the target to `en`. Word overlap is left out of
   fusion across two languages, so retrieval is the embedder alone.
