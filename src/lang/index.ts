@@ -2,6 +2,12 @@ import { en } from './en.js'
 import { grc } from './grc.js'
 import { la } from './la.js'
 import type { Lang } from './types.js'
+// Modern languages: French, Spanish, Italian, German, Arabic.
+import { fr, foldFrench } from './fr.js'
+import { es, foldSpanish } from './es.js'
+import { it, foldItalian } from './it.js'
+import { de, foldGerman } from './de.js'
+import { ar, foldArabic, splitClitics } from './ar.js'
 
 export type { Lang } from './types.js'
 export { en, la, grc }
@@ -9,6 +15,9 @@ export { foldLatin } from './la.js'
 export { foldGreek } from './grc.js'
 
 export const LANGS: Record<string, Lang> = { en, la, grc }
+// Modern languages, kept in their own block.
+Object.assign(LANGS, { fr, es, it, de, ar })
+export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
 export const DEFAULT_LANG = 'en'
 
 // The built-in embedder for cross-lingual runs (English with Latin or Greek, Latin with Greek).

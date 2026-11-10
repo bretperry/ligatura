@@ -23,7 +23,7 @@ Options
   --target-lang <c>   language of the target, overriding --lang. Word overlap is left out when
                       the two differ
   --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}
-                      for English, ${MULTILINGUAL_EMBEDDER} for Latin, Greek or two languages),
+                      for English, ${MULTILINGUAL_EMBEDDER} for any other language or pair),
                       or openai:<base-url>#<model> for any OpenAI-compatible server
   --rerank <model>    none (default), qwen3-reranker-0.6b (in process), api:<url>#<model> for a
                       /v1/rerank server, or chat:<base-url>#<model> for a chat model as judge
