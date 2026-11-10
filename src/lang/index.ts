@@ -1,17 +1,19 @@
 import { en } from './en.js'
 import { grc } from './grc.js'
 import { la } from './la.js'
+import { sa } from './sa.js'
 import type { Lang } from './types.js'
 
 export type { Lang } from './types.js'
-export { en, la, grc }
+export { en, la, grc, sa }
 export { foldLatin } from './la.js'
 export { foldGreek } from './grc.js'
+export { foldSanskrit, devanagariToIast } from './sa.js'
 
-export const LANGS: Record<string, Lang> = { en, la, grc }
+export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 export const DEFAULT_LANG = 'en'
 
-// The built-in embedder for cross-lingual runs (English with Latin or Greek, Latin with Greek).
+// The built-in embedder for cross-lingual runs (any two different languages).
 export const MULTILINGUAL_EMBEDDER = 'bge-m3'
 
 export function getLang(code: string | undefined): Lang {

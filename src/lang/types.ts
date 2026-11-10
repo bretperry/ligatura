@@ -13,6 +13,10 @@ export interface Lang {
   // n for a third ranking by shared character n-grams inside words, which matches inflected and
   // respelled forms the stems miss. Off when absent (English).
   charGrams?: number
+  // Optional: the one string to take character n-grams from, instead of each word. Sanskrit
+  // returns its folded text with spaces removed, since sandhi joins words and editions space
+  // the same verse differently.
+  charText?(text: string): string
   // The built-in embedder used when this language is on both sides.
   embedder: string
 }

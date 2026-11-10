@@ -12,7 +12,7 @@ export interface LinkOptions {
   rerank?: string
   task?: string
   pool?: number // candidates the reranker reads per source unit
-  lang?: string // language of both texts: en (default), la or grc
+  lang?: string // language of both texts: en (default), la, grc or sa
   sourceLang?: string // overrides lang for the source
   targetLang?: string // overrides lang for the target
 }
@@ -26,7 +26,7 @@ export interface Resolved {
 }
 
 // Languages and embedder for a run: English and nomic-embed-text by default; bge-m3 for Latin,
-// Greek, and any pair of different languages.
+// Greek, Sanskrit, and any pair of different languages.
 export function resolve(opts: LinkOptions = {}): Resolved {
   const source = getLang(opts.sourceLang ?? opts.lang)
   const target = getLang(opts.targetLang ?? opts.lang)

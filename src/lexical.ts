@@ -44,6 +44,11 @@ export function lexicalScorer(docs: string[], lang: Lang = getLang('en')) {
 export function charScorer(docs: string[], lang: Lang, n: number) {
   const grams = (s: string) => {
     const g = new Set<string>()
+    if (lang.charText) {
+      const t = lang.charText(s)
+      for (let i = 0; i + n <= t.length; i++) g.add(t.slice(i, i + n))
+      return g
+    }
     for (const w of lang.words(s)) {
       const p = ` ${w} `
       for (let i = 0; i + n <= p.length; i++) g.add(p.slice(i, i + n))

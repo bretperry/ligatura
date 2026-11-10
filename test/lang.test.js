@@ -1,9 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { getLang, foldLatin, foldGreek, splitText, lexicalScorer, charScorer, sharedWords, resolve } from '../dist/index.js'
+import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve } from '../dist/index.js'
 
 const la = getLang('la')
 const grc = getLang('grc')
+const sa = getLang('sa')
 
 test('Latin folds case, macrons, ligatures, u/v and i/j', () => {
   assert.equal(foldLatin('Vīvit JESUS'), 'uiuit iesus')
@@ -59,6 +60,40 @@ test('Latin sentences need a capital after the stop, as English', () => {
   assert.deepEqual(splitText('Magnus es, Domine. et laudabilis valde: Ἀ. Magna virtus tua.', 'sentence', 1, la), ['Magnus es, Domine. et laudabilis valde:', 'Ἀ.', 'Magna virtus tua.'])
 })
 
+test('Sanskrit folds Devanagari and IAST to the same plain letters', () => {
+  assert.equal(devanagariToIast('धर्मक्षेत्रे कुरुक्षेत्रे'), 'dharmakṣetre kurukṣetre')
+  assert.equal(devanagariToIast('ॐ तपः स्वाध्यायनिरतं'), 'oṃ tapaḥ svādhyāyanirataṃ')
+  assert.equal(foldSanskrit('समवेता युयुत्सवः'), 'samaveta yuyutsavah')
+  assert.equal(foldSanskrit('samavetā yuyutsavaḥ'), 'samaveta yuyutsavah')
+  assert.equal(foldSanskrit('saṁjaya r̥ṣi'), 'samjaya rsi', 'ISO 15919 spellings fold too')
+  assert.equal(foldSanskrit('सोऽपि'), 'sopi', 'avagraha is dropped')
+  assert.deepEqual(sa.words('मामकाः पाण्डवाश्चैव'), sa.words('māmakāḥ pāṇḍavāścaiva'))
+})
+
+test('Sanskrit sentences end at daṇḍas, and verse numbers are stripped', () => {
+  const deva = 'धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः। मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ॥ १.१ ॥ धृतराष्ट्र उवाच ॥२॥'
+  assert.deepEqual(splitText(deva, 'sentence', 1, sa), ['धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः।', 'मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ॥', 'धृतराष्ट्र उवाच ॥'])
+  const iast = 'dharmakṣetre kurukṣetre samavetā yuyutsavaḥ / māmakāḥ pāṇḍavāś caiva kim akurvata saṃjaya // BhG_1.1 // iti || 2 ||'
+  assert.deepEqual(splitText(iast, 'sentence', 1, sa), ['dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /', 'māmakāḥ pāṇḍavāś caiva kim akurvata saṃjaya //', 'iti ||'])
+  assert.deepEqual(sa.words('॥ १.२ ॥'), [])
+})
+
+test('Sanskrit drops particles and stems endings', () => {
+  assert.deepEqual(sa.words('स च एव रामः'), ['ramah'])
+  const stems = (s) => sa.words(s).map(sa.stem)
+  assert.deepEqual(stems('रामः रामो रामेण रामस्य रामम्'), ['ram', 'ram', 'ram', 'ram', 'ram'])
+  assert.deepEqual(stems('gacchati gacchanti'), ['gacch', 'gacch'])
+  assert.deepEqual(stems('devānām devebhyaḥ deveṣu'), ['dev', 'dev', 'dev'])
+})
+
+test('Sanskrit overlap finds a verse however sandhi and spacing join its words', () => {
+  const docs = ['tapaḥsvādhyāyanirataṃ tapasvī vāgvidāṃ varam', 'dharmakṣetre kurukṣetre samavetā yuyutsavaḥ', 'nainaṃ chindanti śastrāṇi nainaṃ dahati pāvakaḥ']
+  const s = lexicalScorer(docs, sa).scores('नैनं छिन्दन्ति शस्त्राणि')
+  assert.equal(s.indexOf(Math.max(...s)), 2)
+  const t = lexicalScorer(docs, sa).scores('tapaḥ svādhyāya niratam')
+  assert.equal(t.indexOf(Math.max(...t)), 0)
+})
+
 test('English is unchanged and the default', () => {
   const en = getLang(undefined)
   assert.equal(en.code, 'en')
@@ -71,6 +106,8 @@ test('languages resolve the embedder and turn overlap off across languages', () 
   assert.equal(resolve({}).lexical, true)
   assert.equal(resolve({ lang: 'grc' }).embed, 'bge-m3')
   assert.equal(resolve({ lang: 'la' }).lexical, true)
+  assert.equal(resolve({ lang: 'sa' }).embed, 'bge-m3')
+  assert.equal(resolve({ sourceLang: 'sa', targetLang: 'en' }).lexical, false)
   const cross = resolve({ sourceLang: 'la', targetLang: 'en' })
   assert.equal(cross.embed, 'bge-m3')
   assert.equal(cross.lexical, false)
