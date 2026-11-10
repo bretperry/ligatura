@@ -1,0 +1,276 @@
+# Septuagint quotations in the New Testament, transcribed from H. B. Swete, An Introduction to the
+# Old Testament in Greek (1900), Part III ch. 2, group tables (1)-(6). One row per NT passage x OT passage;
+# OT ranges give their first verse. NT ranges give their first verse unless a later verse in the range holds the words.
+# Flags: ocr-fixed = garbled numeral corrected by checking both texts; verse-fixed = Swete's verse number differs from
+# the target file's numbering; from-master = cell unreadable in the group table, taken from Swete's master table
+# (OT order) and checked against both texts; alt = Swete's parenthetical parallel; not-in-text = ref absent from the jsonl.
+MAT.1.23	ISA.7.14	Synoptic table: Mt. i. 23 / Isa. vii. 14
+LUK.2.23	EXO.13.12	Synoptic table: Lc. ii. 23 / Exod. xiii. 12
+MAT.2.6	MIC.5.2	Synoptic table: Mt. ii. 6 / Mic. v. 2
+MAT.2.15	HOS.11.1	Synoptic table: Mt. ii. 15 / Hos. xi. 1
+MAT.2.18	JER.38.15	Synoptic table: Mt. ii. 18 / Jer. xxxviii. 15
+MAT.3.3	ISA.40.3	Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.)
+MRK.1.3	ISA.40.3	Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.)
+LUK.3.4	ISA.40.3	Synoptic table: Mt. iii. 3, Mc. i. 3, Lc. iii. 4-6 / Isa. xl. 3-5; from-master (Mc.)
+MAT.4.4	DEU.8.3	Synoptic table: Mt. iv. 4, Lc. iv. 4 / Deut. viii. 3
+LUK.4.4	DEU.8.3	Synoptic table: Mt. iv. 4, Lc. iv. 4 / Deut. viii. 3
+MAT.4.6	PSA.90.11	Synoptic table: Mt. iv. 6, Lc. iv. 10 f. / Ps. xc. 11 f.; from-master
+LUK.4.10	PSA.90.11	Synoptic table: Mt. iv. 6, Lc. iv. 10 f. / Ps. xc. 11 f.; from-master
+MAT.4.7	DEU.6.16	Synoptic table: Mt. iv. 7, Lc. iv. 12 / Deut. vi. 16
+LUK.4.12	DEU.6.16	Synoptic table: Mt. iv. 7, Lc. iv. 12 / Deut. vi. 16
+MAT.4.10	DEU.6.13	Synoptic table: Mt. iv. 10, Lc. iv. 8 / Deut. vi. 13
+LUK.4.8	DEU.6.13	Synoptic table: Mt. iv. 10, Lc. iv. 8 / Deut. vi. 13
+MAT.4.15	ISA.9.1	Synoptic table: Mt. iv. 15 f. / Isa. ix. 1 f.
+MAT.5.21	EXO.20.15	Synoptic table: Mt. v. 21 / Exod. xx. 13; verse-fixed: LXX order has οὐ φονεύσεις at xx. 15
+MAT.5.27	EXO.20.13	Synoptic table: Mt. v. 27 / Exod. xx. 14; verse-fixed: LXX order has οὐ μοιχεύσεις at xx. 13 (target text garbled)
+MAT.5.31	DEU.24.1	Synoptic table: Mt. v. 31 / Deut. xxiv. 1
+MAT.5.33	NUM.30.3	Synoptic table: Mt. v. 33 / Num. xxx. 3
+MAT.5.38	EXO.21.24	Synoptic table: Mt. v. 38 / Exod. xxi. 24
+MAT.5.43	LEV.19.18	Synoptic table: Mt. v. 43 / Lev. xix. 18; ocr-fixed
+MAT.8.17	ISA.53.4	Synoptic table: Mt. viii. 17 / Isa. liii. 4; ocr-fixed
+MAT.9.13	HOS.6.6	Synoptic table: Mt. ix. 13 (xii. 7) / Hos. vi. 6
+MAT.12.7	HOS.6.6	Synoptic table: Mt. ix. 13 (xii. 7) / Hos. vi. 6
+MAT.11.10	MAL.3.1	Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1
+MRK.1.2	MAL.3.1	Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1
+LUK.7.27	MAL.3.1	Synoptic table: Mt. xi. 10, Mc. i. 2, Lc. vii. 27 / Mal. iii. 1
+MAT.12.18	ISA.42.1	Synoptic table: Mt. xii. 18-21 / Isa. xlii. 1-4
+MAT.13.14	ISA.6.9	Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.)
+MRK.4.12	ISA.6.9	Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.)
+LUK.8.10	ISA.6.9	Synoptic table: Mt. xiii. 14 f., Mc. iv. 12, Lc. viii. 10 / Isa. vi. 9 f.; from-master (Mc., Lc.)
+MAT.13.35	PSA.77.2	Synoptic table: Mt. xiii. 35 / Ps. lxxvii. 2
+LUK.4.18	ISA.61.1	Synoptic table: Lc. iv. 18 f. / Isa. lxi. 1 f. + lviii. 6
+LUK.4.18	ISA.58.6	Synoptic table: Lc. iv. 18 f. / Isa. lxi. 1 f. + lviii. 6
+MAT.15.4	EXO.20.12	Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16
+MAT.15.4	EXO.21.16	Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16
+MRK.7.10	EXO.20.12	Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16
+MRK.7.10	EXO.21.16	Synoptic table: Mt. xv. 4, Mc. vii. 10 / Exod. xx. 12 + xxi. 16
+MAT.15.8	ISA.29.13	Synoptic table: Mt. xv. 8 f., Mc. vii. 6 f. / Isa. xxix. 13
+MRK.7.6	ISA.29.13	Synoptic table: Mt. xv. 8 f., Mc. vii. 6 f. / Isa. xxix. 13
+MRK.9.48	ISA.66.24	Synoptic table: Mc. ix. 48 / Isa. lxvi. 24
+MAT.19.4	GEN.1.27	Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; from-master (Mt.)
+MAT.19.5	GEN.2.24	Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; NT verse 5 of range; from-master (Mt.)
+MRK.10.6	GEN.1.27	Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; from-master (Mt.)
+MRK.10.7	GEN.2.24	Synoptic table: Mt. xix. 4 f., Mc. x. 6-8 / Gen. i. 27 + ii. 24; NT verse 7 of range; from-master (Mt.)
+MAT.19.19	EXO.20.12	Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17; NT verse 19 of range
+MRK.10.19	EXO.20.12	Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17
+LUK.18.20	EXO.20.12	Synoptic table: Mt. xix. 18 f., Mc. x. 19, Lc. xviii. 20 / Exod. xx. 12-17
+MAT.21.5	ZEC.9.9	Synoptic table: Mt. xxi. 5 / Zech. ix. 9 + Isa. lxii. 11
+MAT.21.5	ISA.62.11	Synoptic table: Mt. xxi. 5 / Zech. ix. 9 + Isa. lxii. 11
+MAT.21.13	ISA.56.7	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+MAT.21.13	JER.7.11	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+MRK.11.17	ISA.56.7	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+MRK.11.17	JER.7.11	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+LUK.19.46	ISA.56.7	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+LUK.19.46	JER.7.11	Synoptic table: Mt. xxi. 13, Mc. xi. 17, Lc. xix. 46 / Isa. lvi. 7 + Jer. vii. 11
+MAT.21.16	PSA.8.3	Synoptic table: Mt. xxi. 16 / Ps. viii. 2; verse-fixed: target counts the title as v. 1
+MAT.21.42	PSA.117.22	Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.
+MRK.12.10	PSA.117.22	Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.
+LUK.20.17	PSA.117.22	Synoptic table: Mt. xxi. 42, Mc. xii. 10, Lc. xx. 17 / Ps. cxvii. 22 f.
+MAT.22.24	DEU.25.5	Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5
+MRK.12.19	DEU.25.5	Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5
+LUK.20.28	DEU.25.5	Synoptic table: Mt. xxii. 24, Mc. xii. 19, Lc. xx. 28 / Deut. xxv. 5
+MAT.22.32	EXO.3.6	Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6
+MRK.12.26	EXO.3.6	Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6
+LUK.20.37	EXO.3.6	Synoptic table: Mt. xxii. 32, Mc. xii. 26, Lc. xx. 37 / Exod. iii. 6
+MAT.22.37	DEU.6.5	Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; ocr-fixed
+MRK.12.30	DEU.6.5	Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; NT verse 30 of range; ocr-fixed
+LUK.10.27	DEU.6.5	Synoptic table: Mt. xxii. 37, Mc. xii. 29 f., Lc. x. 27 / Deut. vi. 5; ocr-fixed
+MAT.22.39	LEV.19.18	Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18
+MRK.12.31	LEV.19.18	Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18
+LUK.10.27	LEV.19.18	Synoptic table: Mt. xxii. 39, Mc. xii. 31, Lc. x. 27 / Lev. xix. 18
+MAT.22.44	PSA.109.1	Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1
+MRK.12.36	PSA.109.1	Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1
+LUK.20.42	PSA.109.1	Synoptic table: Mt. xxii. 44, Mc. xii. 36, Lc. xx. 42 f. / Ps. cix. 1
+MRK.12.29	DEU.6.4	Synoptic table: Mc. xii. 29 / Deut. vi. 4
+MRK.12.32	DEU.4.35	Synoptic table: Mc. xii. 32 / Deut. iv. 35
+MAT.24.15	DAN.12.11	Synoptic table: Mt. xxiv. 15, Mc. xiii. 14 / Dan. xii. 11; not-in-text
+MRK.13.14	DAN.12.11	Synoptic table: Mt. xxiv. 15, Mc. xiii. 14 / Dan. xii. 11; not-in-text
+LUK.22.37	ISA.53.12	Synoptic table: Lc. xxii. 37 / Isa. liii. 12
+MAT.26.31	ZEC.13.7	Synoptic table: Mt. xxvi. 31, Mc. xiv. 27 / Zech. xiii. 7
+MRK.14.27	ZEC.13.7	Synoptic table: Mt. xxvi. 31, Mc. xiv. 27 / Zech. xiii. 7
+MAT.27.9	ZEC.11.13	Synoptic table: Mt. xxvii. 9 f. / Zech. xi. 13; ocr-fixed
+MAT.27.46	PSA.21.2	Synoptic table: Mt. xxvii. 46, Mc. xv. 34 / Ps. xxi. 1; verse-fixed: target counts the title as v. 1
+MRK.15.34	PSA.21.2	Synoptic table: Mt. xxvii. 46, Mc. xv. 34 / Ps. xxi. 1; verse-fixed: target counts the title as v. 1
+JHN.1.23	ISA.40.3	Fourth Gospel table: Jo. i. 23 / Isa. xl. 3; ocr-fixed
+JHN.2.17	PSA.68.10	Fourth Gospel table: Jo. ii. 17 / Ps. lxviii. 10
+JHN.6.31	EXO.16.4	Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.)
+JHN.6.31	EXO.16.15	Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.)
+JHN.6.31	PSA.77.24	Fourth Gospel table: Jo. vi. 31 / Exod. xvi. 4, 15 (Ps. lxxvii. 24 f.); alt
+JHN.6.45	ISA.54.13	Fourth Gospel table: Jo. vi. 45 / Isa. liv. 13
+JHN.10.34	PSA.81.6	Fourth Gospel table: Jo. x. 34 / Ps. lxxxi. 6
+JHN.12.15	ZEC.9.9	Fourth Gospel table: Jo. xii. 15 / Zech. ix. 9
+JHN.12.38	ISA.53.1	Fourth Gospel table: Jo. xii. 38 / Isa. liii. 1
+JHN.12.40	ISA.6.10	Fourth Gospel table: Jo. xii. 40 / Isa. vi. 10
+JHN.15.25	PSA.34.19	Fourth Gospel table: Jo. xv. 25 / Ps. xxxiv. 19 (lxviii. 5)
+JHN.15.25	PSA.68.5	Fourth Gospel table: Jo. xv. 25 / Ps. xxxiv. 19 (lxviii. 5); alt
+JHN.19.24	PSA.21.19	Fourth Gospel table: Jo. xix. 24 / Ps. xxi. 19
+JHN.19.36	EXO.12.46	Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21)
+JHN.19.36	NUM.9.12	Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21); alt
+JHN.19.36	PSA.33.21	Fourth Gospel table: Jo. xix. 36 / Exod. xii. 46 (Num. ix. 12, Ps. xxxiii. 21); alt
+JHN.19.37	ZEC.12.10	Fourth Gospel table: Jo. xix. 37 / Zech. xii. 10
+ACT.1.20	PSA.68.26	Acts table: Acts i. 20 / Ps. lxviii. 26 + cviii. 8
+ACT.1.20	PSA.108.8	Acts table: Acts i. 20 / Ps. lxviii. 26 + cviii. 8
+ACT.2.17	JOL.2.28	Acts table: Acts ii. 17-21 / Joel ii. 28-32
+ACT.2.25	PSA.15.8	Acts table: Acts ii. 25-28 / Ps. xv. 8-11
+ACT.2.34	PSA.109.1	Acts table: Acts ii. 34 f. / Ps. cix. 1
+ACT.3.22	DEU.18.15	Acts table: Acts iii. 22 f. / Deut. xviii. 15, 18 f.
+ACT.3.22	DEU.18.18	Acts table: Acts iii. 22 f. / Deut. xviii. 15, 18 f.
+ACT.3.25	GEN.12.3	Acts table: Acts iii. 25 / Gen. xii. 3 + xxii. 18
+ACT.3.25	GEN.22.18	Acts table: Acts iii. 25 / Gen. xii. 3 + xxii. 18
+ACT.4.25	PSA.2.1	Acts table: Acts iv. 25 f. / Ps. ii. 1 f.; ocr-fixed
+ACT.7.3	GEN.12.1	Acts table: Acts vii. 3 / Gen. xii. 1
+ACT.7.6	GEN.15.13	Acts table: Acts vii. 6 f. / Gen. xv. 13 f.; ocr-fixed
+ACT.7.27	EXO.2.14	Acts table: Acts vii. 27 f. / Exod. ii. 14; ocr-fixed
+ACT.7.32	EXO.3.6	Acts table: Acts vii. 32 ff. / Exod. iii. 6-8; ocr-fixed
+ACT.7.40	EXO.32.23	Acts table: Acts vii. 40 / Exod. xxxii. 23; ocr-fixed
+ACT.7.42	AMO.5.25	Acts table: Acts vii. 42 f. / Amos v. 25-27
+ACT.7.49	ISA.66.1	Acts table: Acts vii. 49 f. / Isa. lxvi. 1 f.
+ACT.8.32	ISA.53.7	Acts table: Acts viii. 32 f. / Isa. liii. 7 f.; ocr-fixed
+ACT.13.22	PSA.88.21	Acts table: Acts xiii. 22 / Ps. lxxxviii. 21 etc.
+ACT.13.33	PSA.2.7	Acts table: Acts xiii. 33 / Ps. ii. 7; ocr-fixed
+ACT.13.34	ISA.55.3	Acts table: Acts xiii. 34 / Isa. lv. 3
+ACT.13.35	PSA.15.10	Acts table: Acts xiii. 35 / Ps. xv. 10
+ACT.13.41	HAB.1.5	Acts table: Acts xiii. 41 / Hab. i. 5; ocr-fixed
+ACT.13.47	ISA.49.6	Acts table: Acts xiii. 47 / Isa. xlix. 6
+ACT.15.16	JER.12.15	Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21
+ACT.15.16	AMO.9.11	Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21
+ACT.15.16	ISA.45.21	Acts table: Acts xv. 16-18 / Jer. xii. 15 + Amos ix. 11 f. + Isa. xlv. 21
+ACT.28.26	ISA.6.9	Acts table: Acts xxviii. 26 f. / Isa. vi. 9 f.
+JAS.2.8	LEV.19.18	Catholic Epistles table: Jas. ii. 8 / Lev. xix. 18; ocr-fixed
+JAS.2.11	EXO.20.13	Catholic Epistles table: Jas. ii. 11 / Exod. xx. 13 f.; ocr-fixed
+JAS.2.23	GEN.15.6	Catholic Epistles table: Jas. ii. 23 / Gen. xv. 6
+JAS.4.6	PRO.3.34	Catholic Epistles table: Jas. iv. 6 / Prov. iii. 34
+1PE.1.24	ISA.40.6	Catholic Epistles table: 1 Pet. i. 24 f. / Isa. xl. 6-9
+1PE.2.6	ISA.28.16	Catholic Epistles table: 1 Pet. ii. 6 / Isa. xxviii. 16
+1PE.3.10	PSA.33.13	Catholic Epistles table: 1 Pet. iii. 10-12 / Ps. xxxiii. 12-17; verse-fixed: target counts the title as v. 1
+1PE.4.18	PRO.11.31	Catholic Epistles table: 1 Pet. iv. 18 / Prov. xi. 31
+1PE.5.7	PSA.54.23	Catholic Epistles table: 1 Pet. v. 7 / Ps. liv. 23; ocr-fixed
+2PE.2.22	PRO.26.11	Catholic Epistles table: 2 Pet. ii. 22 / Prov. xxvi. 11
+JUD.1.9	ZEC.3.2	Catholic Epistles table: Jude 9 / Zech. iii. 2
+ROM.1.17	HAB.2.4	Pauline table: Rom. i. 17 / Hab. ii. 4
+ROM.2.24	ISA.52.5	Pauline table: Rom. ii. 24 / Isa. lii. 5; from-master
+ROM.3.4	PSA.50.6	Pauline table: Rom. iii. 4 / Ps. l. 6
+ROM.3.10	PSA.13.1	Pauline table: Rom. iii. 10-18 / Ps. xiii. 1-3
+ROM.3.20	PSA.142.2	Pauline table: Rom. iii. 20 / Ps. cxlii. 2; ocr-fixed
+ROM.4.3	GEN.15.6	Pauline table: Rom. iv. 3, 22 / Gen. xv. 6; ocr-fixed
+ROM.4.22	GEN.15.6	Pauline table: Rom. iv. 3, 22 / Gen. xv. 6; ocr-fixed
+ROM.4.7	PSA.31.1	Pauline table: Rom. iv. 7 f. / Ps. xxxi. 1 f.; ocr-fixed
+ROM.4.17	GEN.17.5	Pauline table: Rom. iv. 17 / Gen. xvii. 5; ocr-fixed
+ROM.4.18	GEN.15.5	Pauline table: Rom. iv. 18 / Gen. xv. 5
+ROM.7.7	EXO.20.17	Pauline table: Rom. vii. 7 / Exod. xx. 17; ocr-fixed
+ROM.8.36	PSA.43.23	Pauline table: Rom. viii. 36 / Ps. xliii. 23
+ROM.9.7	GEN.21.12	Pauline table: Rom. ix. 7 / Gen. xxi. 12; ocr-fixed
+ROM.9.9	GEN.18.10	Pauline table: Rom. ix. 9 / Gen. xviii. 10
+ROM.9.12	GEN.25.23	Pauline table: Rom. ix. 12 / Gen. xxv. 23; ocr-fixed
+ROM.9.13	MAL.1.2	Pauline table: Rom. ix. 13 / Mal. i. 2 f.; ocr-fixed
+ROM.9.15	EXO.33.19	Pauline table: Rom. ix. 15 / Exod. xxxiii. 19
+ROM.9.17	EXO.9.16	Pauline table: Rom. ix. 17 / Exod. ix. 16
+ROM.9.25	HOS.2.23	Pauline table: Rom. ix. 25 f. / Hos. ii. 23 + i. 10; ocr-fixed
+ROM.9.26	HOS.1.10	Pauline table: Rom. ix. 25 f. / Hos. ii. 23 + i. 10; NT verse 26 of range; ocr-fixed
+ROM.9.27	ISA.10.22	Pauline table: Rom. ix. 27 f. / Isa. x. 22 f.; ocr-fixed
+ROM.9.29	ISA.1.9	Pauline table: Rom. ix. 29 / Isa. i. 9; ocr-fixed
+ROM.9.33	ISA.8.14	Pauline table: Rom. ix. 33 / Isa. viii. 14 + xxviii. 16
+ROM.9.33	ISA.28.16	Pauline table: Rom. ix. 33 / Isa. viii. 14 + xxviii. 16
+ROM.10.6	DEU.30.12	Pauline table: Rom. x. 6-9 / Deut. xxx. 12-14; ocr-fixed
+ROM.10.15	ISA.52.7	Pauline table: Rom. x. 15 / Isa. lii. 7 (Nah. i. 15); ocr-fixed
+ROM.10.15	NAM.1.15	Pauline table: Rom. x. 15 / Isa. lii. 7 (Nah. i. 15); ocr-fixed; alt
+ROM.10.16	ISA.53.1	Pauline table: Rom. x. 16 / Isa. liii. 1
+ROM.10.18	PSA.18.5	Pauline table: Rom. x. 18 / Ps. xviii. 5
+ROM.10.19	DEU.32.21	Pauline table: Rom. x. 19 / Deut. xxxii. 21
+ROM.10.20	ISA.65.1	Pauline table: Rom. x. 20 f. / Isa. lxv. 1 f.; ocr-fixed
+ROM.11.1	PSA.93.14	Pauline table: Rom. xi. 1 f. / Ps. xciii. 14; from-master (NT ref)
+ROM.11.3	1KI.19.10	Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18
+ROM.11.3	1KI.19.14	Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18
+ROM.11.4	1KI.19.18	Pauline table: Rom. xi. 3 f. / 3 Regn. xix. 10, 14, 18; NT verse 4 of range
+ROM.11.8	ISA.29.10	Pauline table: Rom. xi. 8 / Isa. xxix. 10 + Deut. xxix. 4
+ROM.11.8	DEU.29.4	Pauline table: Rom. xi. 8 / Isa. xxix. 10 + Deut. xxix. 4
+ROM.11.9	PSA.68.23	Pauline table: Rom. xi. 9 f. / Ps. lxviii. 23 f. + xxxiv. 8
+ROM.11.9	PSA.34.8	Pauline table: Rom. xi. 9 f. / Ps. lxviii. 23 f. + xxxiv. 8
+ROM.11.26	ISA.59.20	Pauline table: Rom. xi. 26 f. / Isa. lix. 20 + xxvii. 9
+ROM.11.27	ISA.27.9	Pauline table: Rom. xi. 26 f. / Isa. lix. 20 + xxvii. 9; NT verse 27 of range
+ROM.11.34	ISA.40.13	Pauline table: Rom. xi. 34 / Isa. xl. 13; ocr-fixed
+ROM.12.19	DEU.32.35	Pauline table: Rom. xii. 19 f. / [Deut. xxxii. 35 +] Prov. xxv. 21 f.; uncertain: group-table OT cell shows only xxv. 21 f.; Deut. xxxii. 35 for Rom. xii. 19 from master
+ROM.12.20	PRO.25.21	Pauline table: Rom. xii. 19 f. / Prov. xxv. 21 f.; ocr-fixed
+ROM.13.9	EXO.20.13	Pauline table: Rom. xiii. 9 / Exod. xx. 13 ff. + Lev. xix. 18
+ROM.13.9	LEV.19.18	Pauline table: Rom. xiii. 9 / Exod. xx. 13 ff. + Lev. xix. 18
+ROM.14.11	ISA.45.23	Pauline table: Rom. xiv. 11 / Isa. xlv. 23; ocr-fixed
+ROM.15.3	PSA.68.10	Pauline table: Rom. xv. 3 / Ps. lxviii. 10
+ROM.15.9	PSA.17.50	Pauline table: Rom. xv. 9 / Ps. xvii. 50 (2 Regn. xxii. 50); from-master (NT ref)
+ROM.15.9	2SA.22.50	Pauline table: Rom. xv. 9 / Ps. xvii. 50 (2 Regn. xxii. 50); from-master (NT ref); alt
+ROM.15.10	DEU.32.43	Pauline table: Rom. xv. 10 / Deut. xxxii. 43; from-master (NT ref)
+ROM.15.11	PSA.116.1	Pauline table: Rom. xv. 11 / Ps. cxvi. 1; from-master (NT ref)
+ROM.15.12	ISA.11.10	Pauline table: Rom. xv. 12 / Isa. xi. 10; from-master (NT ref)
+ROM.15.21	ISA.52.15	Pauline table: Rom. xv. 21 / Isa. lii. 15; from-master (NT ref)
+1CO.1.19	ISA.29.14	Pauline table: 1 Cor. i. 19 / Isa. xxix. 14; from-master (NT ref)
+1CO.1.31	JER.9.24	Pauline table: 1 Cor. i. 31 / Jer. ix. 24; from-master (NT ref)
+1CO.2.9	ISA.64.4	Pauline table: 1 Cor. ii. 9 / Isa. lxiv. 4 + lxv. 17 (?); from-master (NT ref)
+1CO.2.9	ISA.65.17	Pauline table: 1 Cor. ii. 9 / Isa. lxiv. 4 + lxv. 17 (?); from-master (NT ref)
+1CO.2.16	ISA.40.13	Pauline table: 1 Cor. ii. 16 / Isa. xl. 13; from-master (NT ref)
+1CO.3.20	PSA.93.11	Pauline table: 1 Cor. iii. 20 / Ps. xciii. 11; from-master (NT ref)
+1CO.6.16	GEN.2.24	Pauline table: 1 Cor. vi. 16 / Gen. ii. 24; from-master (NT ref)
+1CO.9.9	DEU.25.4	Pauline table: 1 Cor. ix. 9 / Deut. xxv. 4; from-master (NT ref)
+1CO.10.7	EXO.32.6	Pauline table: 1 Cor. x. 7 / Exod. xxxii. 6; from-master (NT ref)
+1CO.10.26	PSA.23.1	Pauline table: 1 Cor. x. 26 / Ps. xxiii. 1; from-master (NT ref)
+1CO.14.21	ISA.28.11	Pauline table: 1 Cor. xiv. 21 / Isa. xxviii. 11 f.; from-master (NT ref)
+1CO.15.32	ISA.22.13	Pauline table: 1 Cor. xv. 32 / Isa. xxii. 13; from-master (NT ref)
+1CO.15.45	GEN.2.7	Pauline table: 1 Cor. xv. 45 / Gen. ii. 7; from-master (NT ref)
+1CO.15.54	ISA.25.8	Pauline table: 1 Cor. xv. 54 f. / Isa. xxv. 8 + Hos. xiii. 14; from-master (NT ref)
+1CO.15.55	HOS.13.14	Pauline table: 1 Cor. xv. 54 f. / Isa. xxv. 8 + Hos. xiii. 14; NT verse 55 of range; from-master (NT ref)
+2CO.4.13	PSA.115.1	Pauline table: 2 Cor. iv. 13 / Ps. cxv. 1; from-master (NT ref)
+2CO.6.2	ISA.49.8	Pauline table: 2 Cor. vi. 2 / Isa. xlix. 8; from-master (NT ref)
+2CO.6.16	EZK.37.27	Pauline table: 2 Cor. vi. 16 f. / Ezek. xxxvii. 27 + Isa. lii. 11; from-master (NT ref)
+2CO.6.17	ISA.52.11	Pauline table: 2 Cor. vi. 16 f. / Ezek. xxxvii. 27 + Isa. lii. 11; NT verse 17 of range; from-master (NT ref)
+2CO.8.15	EXO.16.18	Pauline table: 2 Cor. viii. 15 / Exod. xvi. 18; from-master (NT ref)
+2CO.9.9	PSA.111.9	Pauline table: 2 Cor. ix. 9 / Ps. cxi. 9; from-master (NT ref)
+2CO.10.17	JER.9.24	Pauline table: 2 Cor. x. 17 / Jer. ix. 24; from-master (NT ref)
+GAL.2.16	PSA.142.2	Pauline table: Gal. ii. 16 / Ps. cxlii. 2; from-master (NT ref)
+GAL.3.6	GEN.15.6	Pauline table: Gal. iii. 6 / Gen. xv. 6; from-master (NT ref)
+GAL.3.8	GEN.12.3	Pauline table: Gal. iii. 8 / Gen. xii. 3; from-master (NT ref)
+GAL.3.10	DEU.27.26	Pauline table: Gal. iii. 10 / Deut. xxvii. 26; from-master (NT ref)
+GAL.3.11	HAB.2.4	Pauline table: Gal. iii. 11 / Hab. ii. 4; from-master (NT ref)
+GAL.3.12	LEV.18.5	Pauline table: Gal. iii. 12 / Lev. xviii. 5; from-master (NT ref)
+GAL.3.13	DEU.21.23	Pauline table: Gal. iii. 13 / Deut. xxi. 23; from-master (NT ref); not-in-text
+GAL.4.27	ISA.54.1	Pauline table: Gal. iv. 27 / Isa. liv. 1; from-master (NT ref)
+GAL.4.30	GEN.21.10	Pauline table: Gal. iv. 30 / Gen. xxi. 10; from-master (NT ref)
+GAL.5.14	LEV.19.18	Pauline table: Gal. v. 14 / Lev. xix. 18; from-master (NT ref)
+EPH.4.8	PSA.67.19	Pauline table: Eph. iv. 8 / Ps. lxvii. 19; ocr-fixed from-master (NT ref)
+EPH.4.25	ZEC.8.16	Pauline table: Eph. iv. 25 / Zech. viii. 16; from-master (NT ref)
+EPH.4.26	PSA.4.5	Pauline table: Eph. iv. 26 / Ps. iv. 5
+EPH.5.31	GEN.2.24	Pauline table: Eph. v. 31 / Gen. ii. 24; ocr-fixed
+EPH.6.2	EXO.20.12	Pauline table: Eph. vi. 2 f. / Exod. xx. 12
+1TI.5.18	DEU.25.4	Pauline table: 1 Tim. v. 18 / Deut. xxv. 4
+2TI.2.19	NUM.16.5	Pauline table: 2 Tim. ii. 19 / Num. xvi. 5
+HEB.1.5	PSA.2.7	Hebrews table: Heb. i. 5 / Ps. ii. 7 (2 Regn. vii. 14); ocr-fixed
+HEB.1.5	2SA.7.14	Hebrews table: Heb. i. 5 / Ps. ii. 7 (2 Regn. vii. 14); ocr-fixed; alt
+HEB.1.6	PSA.96.7	Hebrews table: Heb. i. 6 / Ps. xcvi. 7 (Deut. xxxii. 43)
+HEB.1.6	DEU.32.43	Hebrews table: Heb. i. 6 / Ps. xcvi. 7 (Deut. xxxii. 43); alt
+HEB.1.7	PSA.103.4	Hebrews table: Heb. i. 7 / Ps. ciii. 4; ocr-fixed
+HEB.1.8	PSA.44.7	Hebrews table: Heb. i. 8 f. / Ps. xliv. 7 f.; ocr-fixed
+HEB.1.10	PSA.101.26	Hebrews table: Heb. i. 10-12 / Ps. ci. 26-28
+HEB.1.13	PSA.109.1	Hebrews table: Heb. i. 13 / Ps. cix. 1; ocr-fixed
+HEB.2.6	PSA.8.5	Hebrews table: Heb. ii. 6-8 / Ps. viii. 5-7
+HEB.2.12	PSA.21.23	Hebrews table: Heb. ii. 12 / Ps. xxi. 23; ocr-fixed
+HEB.2.13	ISA.8.17	Hebrews table: Heb. ii. 13 / Isa. viii. 17 f.
+HEB.3.7	PSA.94.8	Hebrews table: Heb. iii. 7-11 / Ps. xciv. 8-11
+HEB.4.4	GEN.2.2	Hebrews table: Heb. iv. 4 / Gen. ii. 2
+HEB.5.6	PSA.109.4	Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed
+HEB.7.17	PSA.109.4	Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed
+HEB.7.21	PSA.109.4	Hebrews table: Heb. v. 6 (vii. 17, 21) / Ps. cix. 4; ocr-fixed
+HEB.6.13	GEN.22.16	Hebrews table: Heb. vi. 13 f. / Gen. xxii. 16 f.; ocr-fixed
+HEB.8.5	EXO.25.40	Hebrews table: Heb. viii. 5 / Exod. xxv. 40; not-in-text
+HEB.8.8	JER.38.31	Hebrews table: Heb. viii. 8-13, x. 16 f. / Jer. xxxviii. 31-34
+HEB.10.16	JER.38.31	Hebrews table: Heb. viii. 8-13, x. 16 f. / Jer. xxxviii. 31-34
+HEB.9.20	EXO.24.8	Hebrews table: Heb. ix. 20 / Exod. xxiv. 8
+HEB.10.5	PSA.39.7	Hebrews table: Heb. x. 5-10 / Ps. xxxix. 7-9
+HEB.10.30	DEU.32.35	Hebrews table: Heb. x. 30 / Deut. xxxii. 35 f.; ocr-fixed
+HEB.10.37	HAB.2.3	Hebrews table: Heb. x. 37 f. / Hab. ii. 3 f.; ocr-fixed
+HEB.11.5	GEN.5.24	Hebrews table: Heb. xi. 5 / Gen. v. 24
+HEB.11.18	GEN.21.12	Hebrews table: Heb. xi. 18 / Gen. xxi. 12; ocr-fixed
+HEB.11.21	GEN.47.31	Hebrews table: Heb. xi. 21 / Gen. xlvii. 31
+HEB.12.5	PRO.3.11	Hebrews table: Heb. xii. 5 f. / Prov. iii. 11 f.
+HEB.12.15	DEU.29.18	Hebrews table: Heb. xii. 15 / Deut. xxix. 18
+HEB.12.20	EXO.19.12	Hebrews table: Heb. xii. 20 / Exod. xix. 12 f.
+HEB.12.26	HAG.2.6	Hebrews table: Heb. xii. 26 / Hagg. ii. 6
+HEB.13.5	DEU.31.6	Hebrews table: Heb. xiii. 5 / Deut. xxxi. 6, 8; ocr-fixed
+HEB.13.5	DEU.31.8	Hebrews table: Heb. xiii. 5 / Deut. xxxi. 6, 8; ocr-fixed
+HEB.13.6	PSA.117.6	Hebrews table: Heb. xiii. 6 / Ps. cxvii. 6
