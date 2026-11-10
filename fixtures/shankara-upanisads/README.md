@@ -23,7 +23,19 @@ ligatura eval fixtures/shankara-upanisads --neighbours 1
 
 ## Results
 
-RESULTS
+| Stage | R@1 | R@3 | R@5 | R@10 |
+|---|---|---|---|---|
+| Embedding only (bge-m3) | 317 | 413 | 479 | 557 |
+| Word overlap only (stems) | 630 | 785 | 835 | 882 |
+| Character overlap only (6-grams, spaces removed) | 1,004 | 1,123 | 1,142 | 1,153 |
+| Retrieval (all three fused) | 695 | 896 | 960 | 1,031 |
+
+Of 1,217 links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with
+bge-m3 q8; 221 s. Character overlap alone finds 95% in the top 10; fused, 85%. **Fusion
+loses to character overlap alone here**: bge-m3 is weak on Sanskrit (46%), and with equal
+votes in reciprocal rank fusion it pulls correct verses down. A weight per language, or
+leaving the embedder out of Sanskrit-to-Sanskrit runs, would recover it; not done yet.
+Word stems lose to n-grams by 271 links at R@10, which is sandhi at work.
 
 ## Sources and licenses
 
