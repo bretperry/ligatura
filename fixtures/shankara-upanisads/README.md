@@ -28,14 +28,31 @@ ligatura eval fixtures/shankara-upanisads --neighbours 1
 | Embedding only (bge-m3) | 317 | 413 | 479 | 557 |
 | Word overlap only (stems) | 630 | 785 | 835 | 882 |
 | Character overlap only (6-grams, spaces removed) | 1,004 | 1,123 | 1,142 | 1,153 |
-| Retrieval (all three fused) | 695 | 896 | 960 | 1,031 |
+| Retrieval (fused; character overlap only, see below) | 1,004 | 1,124 | 1,143 | 1,154 |
+| Retrieval, equal votes (before 2026-11-10) | 695 | 896 | 960 | 1,031 |
 
 Of 1,217 links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with
-bge-m3 q8; 221 s. Character overlap alone finds 95% in the top 10; fused, 85%. **Fusion
-loses to character overlap alone here**: bge-m3 is weak on Sanskrit (46%), and with equal
-votes in reciprocal rank fusion it pulls correct verses down. A weight per language, or
-leaving the embedder out of Sanskrit-to-Sanskrit runs, would recover it; not done yet.
-Word stems lose to n-grams by 271 links at R@10, which is sandhi at work.
+bge-m3 q8. Character overlap alone finds 95% in the top 10. Word stems lose to n-grams by 271
+links at R@10, which is sandhi at work.
+
+**Fusion weights.** With equal votes in reciprocal rank fusion, bge-m3 (46% at R@10) pulled
+correct verses down: fused R@10 was 85%. The Sanskrit profile now sets the embedder's and the
+stems' votes to 0 (`fusion` in `src/lang/sa.ts`), so the fused list is the character list; the
+other two break the tie only for a source unit that shares no 6-gram with any target (one link
+here, hence 1,154). The weights were chosen on adhyāyas 1–2 of the *Brahmasūtra* (558 links)
+and checked on adhyāyas 3–4 (659 links), R@1 / R@10:
+
+| Votes: embedding, stems, characters | Adhyāyas 1–2 (chosen on) | Adhyāyas 3–4 (held out) |
+|---|---|---|
+| 1, 1, 1 (equal) | 354 / 508 | 341 / 523 |
+| 0, 1, 1 (embedder left out) | 450 / 545 | 472 / 587 |
+| 0.1, 0.1, 1 | 457 / 557 | 461 / 594 |
+| 0, 0.1, 1 | 487 / 558 | 504 / 596 |
+| 0, 0, 1 (chosen) | 492 / 558 | 512 / 596 |
+
+A grid of 0 to 1 for the embedder and the stems found no setting above character overlap
+alone on either half; tie-breaking votes of 0.001 to 0.03 moved R@1 by at most 2 links. The
+n-gram length was tuned on all of this fixture, so the held-out half is not fully clean.
 
 ## Sources and licenses
 
@@ -100,3 +117,5 @@ unit's boundary cut short.
   Taittirīya units are whole anuvākas; a short quotation is a small part of them.
 - **The n-gram length was chosen on this fixture** (see `src/lang/sa.ts`), so the overlap
   numbers are slightly optimistic. Lengths 5 to 7 are within 5 links of each other at R@10.
+- **The fusion weights fit quotation.** Śaṅkara quotes closely, so shared letters decide. For
+  paraphrase or allusion the embedder may earn its vote back; this fixture can't show it.

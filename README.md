@@ -152,11 +152,13 @@ is shown with embedding only, word overlap, character overlap and fused:
 | `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
 | `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
-| `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 695 / 1,031 (85%) |
+| `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
-For Sanskrit, character overlap alone (95% at R@10) beats the fused list: bge-m3 is weak on
-Sanskrit and drags the fusion down. Character overlap (4-grams inside words, a third list in the fusion) added 6 points of R@10 to
+For Sanskrit, bge-m3 is weak and with equal votes dragged the fused list to 695 / 1,031, below
+character overlap alone. The Sanskrit profile gives the embedder and stems no vote, so
+Sanskrit-to-Sanskrit fusion is character overlap (chosen on half the links, held on the other;
+see the fixture's README). Character overlap (4-grams inside words, a third list in the fusion) added 6 points of R@10 to
 Latin and 4 to Greek; it was chosen on one half of the links and held on the other. The Latin
 rows use the answer key after 31 sidenotes citing the wrong verse were corrected (see the
 fixture's README). Reranking the top 30 with `qwen3-reranker-0.6b` moved Latin R@10 from 463 to
