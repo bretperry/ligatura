@@ -92,7 +92,8 @@ test('French folds case, accents and œ, and drops elided articles', () => {
   assert.equal(foldFrench('Été Cœur À'), 'ete coeur a')
   assert.deepEqual(fr.words("L'homme qu'il aima d’abord"), ['homme', 'aima', 'abord'])
   assert.deepEqual(fr.words('Évangile'), fr.words('evangile'))
-  assert.deepEqual(stemsOf(fr, 'aimer aimait aimez aimé aiment'), ['aim', 'aim', 'aim', 'aim', 'aim'])
+  assert.deepEqual(stemsOf(fr, 'pardonner pardonnait pardonnez pardonné pardonnent'), ['pardonn', 'pardonn', 'pardonn', 'pardonn', 'pardonn'])
+  assert.deepEqual(stemsOf(fr, 'aimer'), ['aimer'], 'stems keep five letters')
 })
 
 test('French sentences allow a space before ? ! ; : and guillemets', () => {
@@ -109,6 +110,7 @@ test('Spanish folds accents but keeps ñ', () => {
   assert.deepEqual(es.words('el año'), ['año'])
   assert.notDeepEqual(es.words('año'), es.words('ano'))
   assert.deepEqual(stemsOf(es, 'perdonar perdonaron perdonado perdonando'), ['perdon', 'perdon', 'perdon', 'perdon'])
+  assert.deepEqual(stemsOf(es, 'vida'), ['vida'], 'stems keep five letters')
 })
 
 test('Spanish sentences may open with ¿ or ¡', () => {
@@ -118,14 +120,14 @@ test('Spanish sentences may open with ¿ or ¡', () => {
 test('Italian folds accents and drops elided articles', () => {
   assert.equal(foldItalian('Città PERCHÉ'), 'citta perche')
   assert.deepEqual(it.words("L'uomo dell'anima nell'acqua"), ['uomo', 'anima', 'acqua'])
-  assert.deepEqual(stemsOf(it, 'parlare parlava parlato parlando'), ['parl', 'parl', 'parl', 'parl'])
+  assert.deepEqual(stemsOf(it, 'perdonare perdonava perdonato perdonando'), ['perdon', 'perdon', 'perdon', 'perdon'])
 })
 
 test('German folds umlauts, ß and the old th', () => {
   assert.equal(foldGerman('Füße Straße ÄRGER'), 'fusse strasse arger')
   assert.deepEqual(de.words('Füße'), de.words('Füsse'))
   assert.deepEqual(de.words('daß er es thun wird'), ['tun'])
-  assert.deepEqual(stemsOf(de, 'Liebe lieben liebte Herren Herrn'), ['lieb', 'lieb', 'lieb', 'herr', 'herr'])
+  assert.deepEqual(stemsOf(de, 'Herrlichkeit herrliche Gebote Geboten'), ['herrlich', 'herrlich', 'gebote', 'gebote'])
 })
 
 test('German sentences close with “ and «', () => {

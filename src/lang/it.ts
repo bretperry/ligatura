@@ -38,7 +38,8 @@ export const it: Lang = {
   name: 'Italian',
   sentences: sentenceSplitter('«"“—'),
   words: (s) => (foldItalian(s).match(/[a-z]+/g) ?? []).filter((w) => w.length > 2 && !STOP.has(w)),
-  stem: (w) => stripEnding(w, ENDINGS, 3),
+  // Stems keep at least five letters, as in French and Spanish (Italian is not yet measured).
+  stem: (w) => stripEnding(w, ENDINGS, 5),
   minKey: 3,
   embedder: 'bge-m3',
 }

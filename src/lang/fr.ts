@@ -35,7 +35,9 @@ export const fr: Lang = {
   // As English, with French spacing ("Qui es-tu ? Je…") and guillemets.
   sentences: sentenceSplitter('«"“—'),
   words: (s) => (foldFrench(s).match(/[a-z]+/g) ?? []).filter((w) => w.length > 2 && !STOP.has(w)),
-  stem: (w) => stripEnding(w, ENDINGS, 3),
+  // Stems keep at least five letters: cutting shorter joined unrelated words and lost links
+  // on the nt-ot-fr fixture (see its README).
+  stem: (w) => stripEnding(w, ENDINGS, 5),
   minKey: 3,
   embedder: 'bge-m3',
 }

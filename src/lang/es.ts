@@ -35,7 +35,9 @@ export const es: Lang = {
   // As English; a sentence may also open with ¿ or ¡.
   sentences: sentenceSplitter('¿¡«"“—'),
   words: (s) => (foldSpanish(s).match(/[a-zñ]+/g) ?? []).filter((w) => w.length > 2 && !STOP.has(w)),
-  stem: (w) => stripEnding(w, ENDINGS, 3),
+  // Stems keep at least five letters: cutting shorter joined unrelated words (vida, vid) and
+  // lost links on the nt-ot-es fixture (see its README).
+  stem: (w) => stripEnding(w, ENDINGS, 5),
   minKey: 3,
   embedder: 'bge-m3',
 }
