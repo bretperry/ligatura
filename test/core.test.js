@@ -53,7 +53,9 @@ test('weighted fusion: weight 1 matches fuse, weight 0 leaves a list out', () =>
   assert.deepEqual([...ranks(fuseWeighted([[a, 0], [b, 1]]))], [...ranks(b)])
   // A heavier vote wins a disagreement: item 0 is first in a, last in b.
   assert.equal([...ranks(fuseWeighted([[a, 3], [b, 1]]))][0], 1)
-  assert.equal(fuseWeighted([[a, 0]]).every((x) => x === 0), true)
+  // If the only weighted list is all equal, the zero-weight lists break the tie.
+  const flat = Float32Array.from([0, 0, 0])
+  assert.deepEqual([...ranks(fuseWeighted([[a, 0], [flat, 1]]))], [...ranks(a)])
 })
 
 test('judgeRefs keeps only candidate refs, once each, and survives bad replies', () => {

@@ -101,6 +101,11 @@ test('English is unchanged and the default', () => {
   assert.deepEqual(splitText('He came. it was. And then.'), ['He came. it was.', 'And then.'])
 })
 
+test('only Sanskrit sets fusion weights; the others fuse with equal votes', () => {
+  assert.deepEqual(sa.fusion, { dense: 0, words: 0 })
+  for (const code of ['en', 'la', 'grc']) assert.equal(getLang(code).fusion, undefined)
+})
+
 test('languages resolve the embedder and turn overlap off across languages', () => {
   assert.deepEqual(resolve({}).embed, 'nomic-embed-text-v1.5')
   assert.equal(resolve({}).lexical, true)

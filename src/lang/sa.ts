@@ -97,5 +97,9 @@ export const sa: Lang = {
   minKey: 3,
   charGrams: 6,
   charText: (s) => foldSanskrit(stripVerseNumbers(s)).replace(/[^a-z]/g, ''),
+  // Only character overlap votes in Sanskrit-to-Sanskrit fusion. On shankara-upanisads any vote
+  // for bge-m3 or the stems lowered R@1, on the half the weights were chosen on (adhyāyas 1-2)
+  // and on the other; equal votes lost 122 links at R@10 to character overlap alone.
+  fusion: { dense: 0, words: 0 },
   embedder: 'bge-m3',
 }
