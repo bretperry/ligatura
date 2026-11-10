@@ -27,7 +27,7 @@ Built by `../augustine-vulgate/scripts/build.py`.
 | Retrieval (bge-m3 only; no overlap across languages) | 100 | 140 | 162 | 190 |
 
 Of 708 scored links, `--neighbours 1`. Run 2026-11-09 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8; 1,194 s. 27% in the top 10, against 36% for the
-same embedder Latin to Latin (257) and 56% fused. Across languages there is no overlap signal,
+same embedder Latin to Latin (257) and 62% fused. Across languages there is no overlap signal,
 and that is most of what is lost.
 
 ## Is it honest?

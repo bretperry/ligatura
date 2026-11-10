@@ -58,7 +58,8 @@ ligatura link --source-lang la --target-lang en confessiones.txt douay.jsonl
 ```
 
 The stems are suffix stripping, not a lemmatizer: they catch case endings but not stem changes
-(Latin *fero, tuli*; Greek augments and reduplication).
+(Latin *fero, tuli*; Greek augments and reduplication). Latin and Greek also score character
+4-grams, which catch forms the stems miss (*mortuos, mortuis*) and some OCR and spelling variants.
 
 ## Output
 
@@ -139,14 +140,17 @@ shared a rank; not re-run).
 ### Latin and Greek
 
 Three more fixtures, each with a README on sources, licenses and known problems. Runs of
-2026-11-09 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10 is shown with
-embedding only, overlap only and fused:
+2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
+is shown with embedding only, word overlap, character overlap and fused:
 
-| Fixture | Languages | Links | Embedding | Overlap | Fused R@1 / R@10 |
-|---|---|---|---|---|---|
-| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 154 / 217 |
-| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 708 | 257 | 356 | 214 / 398 |
-| `augustine-drc`: the same links, against the Douay-Rheims | la → en | 708 | 190 | – | 100 / 190 |
+| Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
+|---|---|---|---|---|---|---|
+| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 708 | 257 | 356 | 422 | 245 / 441 (62%) |
+| `augustine-drc`: the same links, against the Douay-Rheims | la → en | 708 | 190 | – | – | 100 / 190 (27%) |
+
+Character overlap (4-grams inside words, a third list in the fusion) added 6 points of R@10 to
+Latin and 4 to Greek; it was chosen on one half of the links and held on the other.
 
 The Kempis numbers above are unchanged by the language work.
 
@@ -155,7 +159,7 @@ The Kempis numbers above are unchanged by the language work.
 - **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
   augmented verbs don't match their other forms.
 - **Across languages, only the embedder ranks.** bge-m3 finds 27% of the Latin-to-English links in
-  the top 10, against 56% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
+  the top 10, against 62% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
   test but has no ONNX export yet; `--embed openai:...` can serve it.
 - **bge-m3 is large** (about 540 MB at q8). Embedding a 36,000-verse Bible takes 15 to 20 minutes
   on 10 CPU cores; later runs read the cache.

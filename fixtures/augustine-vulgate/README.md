@@ -26,10 +26,11 @@ ligatura eval fixtures/augustine-vulgate --neighbours 1
 |---|---|---|---|---|
 | Embedding only (bge-m3) | 150 | 200 | 225 | 257 |
 | Overlap only | 206 | 289 | 322 | 356 |
-| Retrieval (embedding + overlap) | 214 | 307 | 343 | 398 |
+| Character overlap only (4-grams) | 243 | 345 | 381 | 422 |
+| Retrieval (embedding + both overlaps) | 245 | 370 | 404 | 441 |
 
-Of 708 scored links, `--neighbours 1`. Run 2026-11-09 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8; 929 s, nearly all of it embedding the 35,837 verses.
-Fused, 56% are in the top 10. Lower than the Greek fixture, as expected: Augustine quotes from
+Of 708 scored links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, from cached vectors (the first run, 2026-11-09, took 929 s, nearly all of it embedding the 35,837 verses).
+Fused, 62% are in the top 10 (56% before character overlap was added). Lower than the Greek fixture, as expected: Augustine quotes from
 memory and from Old Latin versions, and a sidenote often names a verse he only echoes.
 
 ## Rebuild

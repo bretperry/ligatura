@@ -25,10 +25,11 @@ ligatura eval fixtures/lxx-nt --neighbours 1
 |---|---|---|---|---|
 | Embedding only (bge-m3) | 110 | 140 | 154 | 164 |
 | Overlap only | 146 | 178 | 195 | 208 |
-| Retrieval (embedding + overlap) | 154 | 198 | 207 | 217 |
+| Character overlap only (4-grams) | 160 | 192 | 204 | 217 |
+| Retrieval (embedding + both overlaps) | 165 | 207 | 217 | 228 |
 
-Of 266 links, `--neighbours 1`. Run 2026-11-09 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8; 1,611 s, nearly all of it embedding the 28,113 LXX verses
-once (later runs read the cache). Fused, 82% of the quotations are in the top 10. Overlap does more
+Of 266 links, `--neighbours 1`. Run 2026-11-10 from cached vectors; the first run, 2026-11-09, on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, took 1,611 s, nearly all of it embedding the 28,113 LXX verses
+once (later runs read the cache). Fused, 86% of the quotations are in the top 10. Overlap does more
 than the embedder here: the New Testament quotes the Septuagint closely. The misses are loose or
 composite quotations (1 Cor. 2:9 / Isa. 64:4 at rank 94) and verses the OCR garbled.
 
