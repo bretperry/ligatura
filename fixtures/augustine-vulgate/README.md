@@ -40,7 +40,11 @@ checked by hand where a fix was made): 111 quotations a retriever should find, 9
 no shared wording, 33 sidenotes citing the wrong verse (31 now corrected) and 30 sidenotes set
 beside a sentence that doesn't quote the verse. Finding every quotation would give about 574 of
 713 (80%); of those 111, 34 rank past 100, about 10 share only two or three words and about 8 are
-Old Latin wording. 80% is the ceiling of a perfect retriever on this key, not a near target. Lower than the Greek fixture, as expected: Augustine quotes from
+Old Latin wording. 80% is the ceiling of a perfect retriever on this key, not a near target.
+
+On the corrected key, retrieval puts 514 links in the top 30, 573 in the top 100 (80.4%) and
+652 in the top 1,000. A reranker over the top 100 would have to lift 110 of the 113 links ranked
+11 to 100 into the top 10 to reach 80%; the 0.6B reranker over the top 30 gained a net 6. Lower than the Greek fixture, as expected: Augustine quotes from
 memory and from Old Latin versions, and a sidenote often names a verse he only echoes.
 
 ## Rebuild

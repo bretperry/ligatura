@@ -30,6 +30,13 @@ Of 712 scored links, `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pr
 same embedder Latin to Latin (275) and 65% fused. Across languages there is no overlap signal,
 and that is most of what is lost.
 
+### How far a reranker could take it
+
+A reranker only reorders the candidates retrieval hands it. Of the 712 links, retrieval puts
+246 in the top 30, 333 in the top 100 and 512 in the top 1,000 (71.9%). So no reranker reading
+up to 1,000 verses per sentence can bring 80% of the links into the top 10. Measured 2026-11-10
+with `lab/variants.mjs --ks`.
+
 ## Is it honest?
 
 The links are Pusey's, made between the Latin text and the Latin Bible. Douay-Rheims translates
