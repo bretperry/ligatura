@@ -3,6 +3,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { availableParallelism } from 'node:os'
 import { cacheDir, log } from './util.js'
 
 export interface Embedder {
@@ -94,14 +95,22 @@ function localEmbedder(name: string): Embedder {
     async embed(texts, role) {
       if (!pipe) {
         const { pipeline } = await import('@huggingface/transformers')
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision })) as unknown as typeof pipe
+        // ONNX Runtime's default left most cores idle (about one in use on an M3).
+        const session_options = { intraOpNumThreads: Math.max(1, availableParallelism() - 1) }
+        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision, session_options })) as unknown as typeof pipe
       }
       const prefix = cfg[role] ?? ''
+      // Batches stay in input order: q8 quantizes each batch as a whole, so regrouping texts
+      // (say, by length) changes their vectors.
       const out: Float32Array[] = []
+      const started = Date.now()
       for (let i = 0; i < texts.length; i += 32) {
         const t = await pipe!(texts.slice(i, i + 32).map((x) => prefix + x), { pooling: cfg.pooling, normalize: true })
         out.push(...t.tolist().map((v) => Float32Array.from(v)))
-        log(`embed ${name} ${role}: ${Math.min(i + 32, texts.length)}/${texts.length}`, true)
+        const done = Math.min(i + 32, texts.length)
+        const msg = `embed ${name} ${role}: ${done}/${texts.length}`
+        if (process.stderr.isTTY) log(msg, true)
+        else if (done % 2048 < 32 || done === texts.length) log(`${msg} (${Math.round((Date.now() - started) / 1000)} s)`)
       }
       return out
     },
