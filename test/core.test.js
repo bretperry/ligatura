@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { splitText, lexicalScorer, sharedWords } from '../dist/index.js'
-import { fuse, ranks, checkInt, checkUnique } from '../dist/util.js'
+import { fuse, fuseWeighted, ranks, checkInt, checkUnique } from '../dist/util.js'
 import { judgeRefs } from '../dist/rerank.js'
 import { loadUnits } from '../dist/units.js'
 import { writeFileSync, mkdtempSync } from 'node:fs'
@@ -45,6 +45,17 @@ test('tied scores share a rank, and an all-equal list adds nothing to fusion', (
   // Zero-overlap items tie with each other instead of ranking by position.
   const g = fuse(Float32Array.from([0.4, 0.3, 0.2, 0.1]), Float32Array.from([0, 0, 0, 0.5]))
   assert.ok(g[0] > g[1] && g[1] > g[2])
+})
+
+test('weighted fusion: weight 1 matches fuse, weight 0 leaves a list out', () => {
+  const a = Float32Array.from([0.9, 0.1, 0.5]), b = Float32Array.from([0.1, 0.2, 0.9])
+  assert.deepEqual([...fuseWeighted([[a, 1], [b, 1]])], [...fuse(a, b)])
+  assert.deepEqual([...ranks(fuseWeighted([[a, 0], [b, 1]]))], [...ranks(b)])
+  // A heavier vote wins a disagreement: item 0 is first in a, last in b.
+  assert.equal([...ranks(fuseWeighted([[a, 3], [b, 1]]))][0], 1)
+  // If the only weighted list is all equal, the zero-weight lists break the tie.
+  const flat = Float32Array.from([0, 0, 0])
+  assert.deepEqual([...ranks(fuseWeighted([[a, 0], [flat, 1]]))], [...ranks(a)])
 })
 
 test('judgeRefs keeps only candidate refs, once each, and survives bad replies', () => {

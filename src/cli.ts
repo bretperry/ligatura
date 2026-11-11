@@ -3,7 +3,8 @@ import { parseArgs } from 'node:util'
 import { readFileSync } from 'node:fs'
 import { LOCAL_EMBEDDERS } from './embed.js'
 import { evaluate, formatEval } from './eval.js'
-import { link, toLinks, DEFAULTS } from './link.js'
+import { LANGS, MULTILINGUAL_EMBEDDER } from './lang/index.js'
+import { link, resolve, toLinks, DEFAULTS } from './link.js'
 import { loadUnits, type Split } from './units.js'
 import { setQuiet } from './util.js'
 
@@ -17,7 +18,12 @@ Inputs are JSONL ({"ref", "text"} per line) or plain text, split into sentences.
 Every link is a suggestion for a person to confirm.
 
 Options
-  --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}),
+  --lang <code>       language of both texts: ${Object.keys(LANGS).join(', ')} (default en)
+  --source-lang <c>   language of the source, overriding --lang
+  --target-lang <c>   language of the target, overriding --lang. Word overlap is left out when
+                      the two differ
+  --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}
+                      for English, ${MULTILINGUAL_EMBEDDER} for any other language or pair),
                       or openai:<base-url>#<model> for any OpenAI-compatible server
   --rerank <model>    none (default), qwen3-reranker-0.6b (in process), api:<url>#<model> for a
                       /v1/rerank server, or chat:<base-url>#<model> for a chat model as judge
@@ -51,6 +57,7 @@ function parseOpts() {
   options: {
     embed: { type: 'string' }, rerank: { type: 'string' }, pool: { type: 'string' }, top: { type: 'string' },
     'min-score': { type: 'string' }, task: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' }, 'min-words': { type: 'string' },
+    lang: { type: 'string' }, 'source-lang': { type: 'string' }, 'target-lang': { type: 'string' },
     json: { type: 'boolean' }, quiet: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean', short: 'v' },
   },
   })
@@ -78,7 +85,12 @@ const real = (name: string) => {
 const SPLITS = ['auto', 'sentence', 'paragraph', 'line']
 const [cmd, ...args] = positionals
 setQuiet(!!values.quiet)
-const opts = { embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task }
+const opts = {
+  embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task,
+  lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
+}
+let run: ReturnType<typeof resolve>
+try { run = resolve(opts) } catch (err) { fail((err as Error).message) }
 
 if (values.version) {
   console.log((JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version)
@@ -91,8 +103,8 @@ if (values.version) {
   const top = int('top', 0) ?? 3
   const minScore = real('min-score')
   try {
-    const source = loadUnits(args[0], split, minWords)
-    const target = loadUnits(args[1], split, minWords)
+    const source = loadUnits(args[0], split, minWords, run.source)
+    const target = loadUnits(args[1], split, minWords, run.target)
     for await (const r of link(source, target, opts)) {
       for (const l of toLinks(r, target, { ...opts, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
     }
