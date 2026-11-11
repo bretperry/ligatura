@@ -3,6 +3,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { availableParallelism } from 'node:os'
 import { cacheDir, log } from './util.js'
 
 export interface Embedder {
@@ -28,6 +29,9 @@ export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
   'nomic-embed-text-v1.5': { id: 'nomic-ai/nomic-embed-text-v1.5', revision: 'main', pooling: 'mean', query: 'search_query: ', doc: 'search_document: ' },
   'bge-small-en-v1.5': { id: 'Xenova/bge-small-en-v1.5', revision: 'main', pooling: 'cls' },
   'bge-large-en-v1.5': { id: 'Xenova/bge-large-en-v1.5', revision: 'main', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ' },
+  // Multilingual (MIT): the default for Latin and Greek, and for any run across two languages.
+  // ONNX export of BAAI/bge-m3, pinned to the commit measured in the README.
+  'bge-m3': { id: 'Xenova/bge-m3', revision: '4de13258303883538bd53b696b452bf8099f0858', pooling: 'cls' },
 }
 export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5'
 const LOCAL_DTYPE = 'q8'
@@ -45,12 +49,25 @@ async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Prom
   if (!e.cacheable || process.env.LIGATURA_NO_CACHE) return checked(await e.embed(texts, role), texts.length, e.name)
   const key = createHash('sha256').update(JSON.stringify({ v: CACHE_VERSION, fp: e.fingerprint, role, texts })).digest('hex')
   const dir = join(cacheDir(), 'vectors')
-  const file = join(dir, `${key}.json`)
+  // Binary: two uint32 (count, dimension), then the floats. JSON from older versions is still read;
+  // it can't hold a large text (36k vectors of 1024 overflow a string), so new files are binary.
+  const file = join(dir, `${key}.bin`)
+  const legacy = join(dir, `${key}.json`)
   if (existsSync(file)) {
     try {
-      return checked((JSON.parse(readFileSync(file, 'utf8')) as number[][]).map((v) => Float32Array.from(v)), texts.length, e.name)
+      const buf = readFileSync(file)
+      const n = buf.readUInt32LE(0), dim = buf.readUInt32LE(4)
+      if (buf.length !== 8 + 4 * n * dim) throw new Error('size')
+      const all = new Float32Array(buf.buffer.slice(buf.byteOffset + 8, buf.byteOffset + buf.length))
+      return checked(Array.from({ length: n }, (_, i) => all.slice(i * dim, (i + 1) * dim)), texts.length, e.name)
     } catch {
       log(`cache: ${file} is unreadable; embedding again`)
+    }
+  } else if (existsSync(legacy)) {
+    try {
+      return checked((JSON.parse(readFileSync(legacy, 'utf8')) as number[][]).map((v) => Float32Array.from(v)), texts.length, e.name)
+    } catch {
+      log(`cache: ${legacy} is unreadable; embedding again`)
     }
   }
   const out = checked(await e.embed(texts, role), texts.length, e.name)
@@ -60,7 +77,12 @@ async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Prom
   try { chmodSync(dir, 0o700) } catch {}
   const tmp = `${file}.${process.pid}.${randomBytes(4).toString('hex')}.tmp`
   try {
-    writeFileSync(tmp, JSON.stringify(out.map((v) => Array.from(v))), { mode: 0o600 })
+    const dim = out[0]?.length ?? 0
+    const buf = Buffer.alloc(8 + 4 * out.length * dim)
+    buf.writeUInt32LE(out.length, 0)
+    buf.writeUInt32LE(dim, 4)
+    out.forEach((v, i) => Buffer.from(v.buffer, v.byteOffset, v.byteLength).copy(buf, 8 + 4 * i * dim))
+    writeFileSync(tmp, buf, { mode: 0o600 })
     renameSync(tmp, file)
   } catch (err) {
     try { unlinkSync(tmp) } catch {}
@@ -91,14 +113,22 @@ function localEmbedder(name: string): Embedder {
     async embed(texts, role) {
       if (!pipe) {
         const { pipeline } = await import('@huggingface/transformers')
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision })) as unknown as typeof pipe
+        // ONNX Runtime's default left most cores idle (about one in use on an M3).
+        const session_options = { intraOpNumThreads: Math.max(1, availableParallelism() - 1) }
+        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision, session_options })) as unknown as typeof pipe
       }
       const prefix = cfg[role] ?? ''
+      // Batches stay in input order: q8 quantizes each batch as a whole, so regrouping texts
+      // (say, by length) changes their vectors.
       const out: Float32Array[] = []
+      const started = Date.now()
       for (let i = 0; i < texts.length; i += 32) {
         const t = await pipe!(texts.slice(i, i + 32).map((x) => prefix + x), { pooling: cfg.pooling, normalize: true })
         out.push(...t.tolist().map((v) => Float32Array.from(v)))
-        log(`embed ${name} ${role}: ${Math.min(i + 32, texts.length)}/${texts.length}`, true)
+        const done = Math.min(i + 32, texts.length)
+        const msg = `embed ${name} ${role}: ${done}/${texts.length}`
+        if (process.stderr.isTTY) log(msg, true)
+        else if (done % 2048 < 32 || done === texts.length) log(`${msg} (${Math.round((Date.now() - started) / 1000)} s)`)
       }
       return out
     },

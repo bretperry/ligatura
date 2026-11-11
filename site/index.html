@@ -1,0 +1,443 @@
+<title>ligatura</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column. A plain-spoken front half with marginal glosses, then an
+   "offprint" clipped from a paper: numbered sections, two figures, a table, notes. */
+:root {
+  --paper: #f3f5f7;
+  --sheet: #ffffff;
+  --offprint: #fbfaf6;
+  --ink: #1d2733;
+  --muted: #5b6876;
+  --rule: #d6dde4;
+  --lapis: #2a4f9e;
+  --mark: #dfe7f7;
+  --code-bg: #e9edf2;
+  --grid: #e6eaef;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --display: "Cormorant", "Cormorant Garamond", Georgia, serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #10151d; --sheet: #161d27; --offprint: #191f28; --ink: #e3e8ee; --muted: #9aa7b5; --rule: #2a3442;
+  --lapis: #8fb0f0; --mark: #233657; --code-bg: #1c2531; --grid: #232c38;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #10151d; --sheet: #161d27; --offprint: #191f28; --ink: #e3e8ee; --muted: #9aa7b5; --rule: #2a3442;
+  --lapis: #8fb0f0; --mark: #233657; --code-bg: #1c2531; --grid: #232c38;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; color-scheme: dark }
+
+body { background: var(--paper); color: var(--ink); font: 17px/1.6 var(--body); }
+.wrap { max-width: 46rem; margin: 0 auto; padding-block: 48px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 44px; }
+a { color: var(--lapis); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lapis); outline-offset: 2px; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: .86em; }
+p code, li code, td code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+pre { margin: 0; background: var(--code-bg); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font: 13.5px/1.55 var(--mono); }
+
+header { display: flex; flex-direction: column; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 500 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 500; }
+h1 { font: 600 clamp(3.2rem, 11vw, 5.2rem)/0.95 var(--display); margin: 0; letter-spacing: -0.01em; }
+.lede { font-size: 1.2rem; margin: 0; max-width: 34rem; text-wrap: balance; }
+.install { border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; overflow: hidden; }
+.tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--rule); }
+.tabs button { flex: 0 0 auto; border: 0; background: transparent; color: var(--muted); font: 500 13px var(--mono); padding: 11px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--lapis); border-bottom-color: var(--lapis); }
+.panel { padding: 14px; display: grid; gap: 10px; }
+.panel p { font-size: 15px; color: var(--muted); }
+.cmd { position: relative; min-width: 0; }
+.cmd pre { padding-right: 76px; }
+.cmd .copy { position: absolute; top: 8px; right: 8px; border: 1px solid var(--rule); background: var(--sheet); color: var(--lapis); font: 500 12px var(--mono); padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+.cmd .copy:hover { background: var(--code-bg); }
+
+.folio { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 22px 22px 18px; display: grid; gap: 6px; }
+.leaf { display: grid; grid-template-columns: 6.5rem 1fr; gap: 4px 16px; align-items: baseline; }
+.ref { font: 500 13px var(--mono); color: var(--muted); }
+.ref small { display: block; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
+.leaf p { font-size: 1.12rem; min-width: 0; }
+mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 2px; box-decoration-break: clone; }
+.join { display: grid; grid-template-columns: 6.5rem 1fr; gap: 16px; align-items: center; }
+.join svg { width: 100%; height: 40px; display: block; }
+.join svg path { fill: none; stroke: var(--lapis); stroke-width: 1.5; }
+.join .scores { font: 13px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.join .scores b { color: var(--ink); font-weight: 500; }
+
+section { display: flex; flex-direction: column; gap: 14px; }
+h2 { font: 600 1.9rem/1.1 var(--display); margin: 0; text-wrap: balance; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 8px; }
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; counter-reset: s; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 2rem 1fr; gap: 0 10px; }
+ol.steps > li::before { content: counter(s); font: 600 1.5rem/1.1 var(--display); color: var(--lapis); }
+ol.steps > li > div { display: grid; gap: 8px; min-width: 0; }
+.opt { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 1px 5px; margin-left: 6px; vertical-align: 2px; }
+
+/* A gloss: the scholar's version of the line above it, set small, like a marginal note. */
+.gloss { font-size: 14.5px; line-height: 1.5; color: var(--muted); border-top: 1px dotted var(--rule); padding-top: 6px; }
+.gloss::before { content: "gloss"; font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--lapis); margin-right: 8px; }
+.gloss i, .gloss em { color: var(--ink); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 11.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 14px; }
+tr.base td { font-weight: 600; }
+.key { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: 4px; margin-right: 8px; }
+
+/* The offprint: a page clipped from a paper, with a cut line above it. */
+.cut { display: flex; align-items: center; gap: 10px; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cut::before, .cut::after { content: ""; flex: 1; border-top: 1.5px dashed var(--rule); }
+.offprint { background: var(--offprint); border: 1px solid var(--rule); box-shadow: 0 1px 0 var(--rule), 0 10px 30px -18px rgba(20, 30, 45, .35);
+  padding-block: 34px 30px; padding-inline: clamp(18px, 5vw, 44px); display: flex; flex-direction: column; gap: 22px;
+  font-size: 16px; line-height: 1.62; }
+.running { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font: 12.5px var(--body); font-style: italic; color: var(--muted); border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+.offprint h2 { font: 600 2rem/1.1 var(--display); text-align: center; }
+.byline { text-align: center; font-style: italic; color: var(--muted); font-size: 15px; margin-top: -12px; }
+.abstract { font-size: 15px; padding-inline: clamp(0px, 4vw, 30px); }
+.abstract b { font-variant: small-caps; letter-spacing: .04em; font-weight: 600; }
+.offprint h3 { font: 600 1rem/1.3 var(--body); font-variant: small-caps; letter-spacing: .05em; margin: 6px 0 0; }
+.offprint h3 span { font-variant: normal; color: var(--muted); margin-right: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
+sup a { text-decoration: none; font-family: var(--mono); font-size: 11px; }
+.offprint i { font-style: italic; }
+
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.chart { position: relative; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 10px 4px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font: 11.5px var(--mono); }
+.chart .lbl { fill: var(--ink); font: 500 12px var(--mono); }
+.chart .tick line, .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+.chart .axis { stroke: var(--muted); stroke-width: 1; }
+.chart .ceiling { stroke: var(--muted); stroke-dasharray: 3 4; stroke-width: 1; }
+.chart .band { fill: var(--grid); opacity: .7; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font: 12.5px var(--mono); color: var(--ink); padding: 2px 4px 8px; }
+.legend span { display: inline-flex; align-items: center; }
+.legend .dash { background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px); }
+figcaption { font-size: 14px; color: var(--muted); line-height: 1.5; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.tip { position: absolute; pointer-events: none; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px;
+  font: 12px/1.5 var(--mono); color: var(--ink); box-shadow: 0 6px 18px -10px rgba(0,0,0,.4); min-width: 11rem; z-index: 2; }
+.tip .row { display: flex; justify-content: space-between; gap: 14px; }
+.tip .row span:first-child { display: inline-flex; align-items: center; }
+
+.notes { border-top: 1px solid var(--rule); padding-top: 12px; margin: 0; padding-left: 1.2rem; font-size: 13.5px; color: var(--muted); display: grid; gap: 4px; }
+.notes li::marker { font-family: var(--mono); font-size: 11px; }
+
+footer { border-top: 1px solid var(--rule); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 22px; font: 13px var(--mono); color: var(--muted); }
+
+@media (max-width: 520px) {
+  .leaf, .join { grid-template-columns: 1fr; gap: 4px; }
+  .join svg { display: none; }
+  .running span:last-child { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .join svg path { stroke-dasharray: 400; animation: draw 1.4s ease-out both; }
+  @keyframes draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="meta"><span><b>ligatura</b> 0.1.0</span><span>MIT</span><span>Node 20+</span><span>CLI + library</span></div>
+    <h1>ligatura</h1>
+    <p class="lede">Give it two books. It finds the places where one book borrows from the other: a quote, a retelling, or a quiet nod.</p>
+    <div class="install" id="install">
+      <div class="tabs" role="tablist" aria-label="Ways to install">
+        <button type="button" role="tab" id="t-try" aria-controls="p-try" aria-selected="true">Try it</button>
+        <button type="button" role="tab" id="t-cli" aria-controls="p-cli" aria-selected="false" tabindex="-1">Install</button>
+        <button type="button" role="tab" id="t-lib" aria-controls="p-lib" aria-selected="false" tabindex="-1">In your code</button>
+        <button type="button" role="tab" id="t-src" aria-controls="p-src" aria-selected="false" tabindex="-1">From source</button>
+      </div>
+      <div class="panel" role="tabpanel" id="p-try" aria-labelledby="t-try">
+        <p>Nothing to install. Run it once on two files.</p>
+        <div class="cmd"><pre>npx ligatura link first-book.txt second-book.txt &gt; links.jsonl</pre><button type="button" class="copy">Copy</button></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-cli" aria-labelledby="t-cli" hidden>
+        <p>Keep the <code>ligatura</code> command on your computer. Needs Node 20 or later.</p>
+        <div class="cmd"><pre>npm install -g ligatura</pre><button type="button" class="copy">Copy</button></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-lib" aria-labelledby="t-lib" hidden>
+        <p>Use it as a library in your own project.</p>
+        <div class="cmd"><pre>npm install ligatura</pre><button type="button" class="copy">Copy</button></div>
+        <div class="cmd"><pre>import { loadUnits, link, toLinks } from 'ligatura'
+
+const source = loadUnits('imitation.txt')
+const target = loadUnits('gospels.jsonl')
+for await (const r of link(source, target))
+  for (const l of toLinks(r, target, { top: 3 }))
+    console.log(l.source, '→', l.target, l.score)</pre><button type="button" class="copy">Copy</button></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-src" aria-labelledby="t-src" hidden>
+        <p>For checking the results yourself. The test texts live in the repository, not the npm package.</p>
+        <div class="cmd"><pre>git clone https://github.com/bretperry/ligatura
+cd ligatura
+npm install
+npm run build
+node dist/cli.js eval fixtures/kempis-gospels --neighbours 1</pre><button type="button" class="copy">Copy</button></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="folio" aria-label="Example link found by ligatura">
+    <div class="leaf">
+      <div class="ref">4.14.5<small>Imitation of Christ</small></div>
+      <p>For they verily know their Lord in the <mark>breaking</mark> of <mark>bread</mark>, whose heart so ardently burneth within them when Jesus walketh with them by the <mark>way</mark>.</p>
+    </div>
+    <div class="join">
+      <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M50 2 C 50 20, 50 20, 50 38"/></svg>
+      <div class="scores"><span>best match <b>#1</b></span><span>same meaning <b>0.79</b></span><span>same words <b>3</b></span><span>waiting for a person to check</span></div>
+    </div>
+    <div class="leaf">
+      <div class="ref">LUK.24.35<small>Gospel of Luke</small></div>
+      <p>And they told what things were done in the <mark>way</mark>; and how they knew him in the <mark>breaking</mark> of the <mark>bread</mark>.</p>
+    </div>
+  </div>
+
+  <section>
+    <p>Above is a real find. Thomas à Kempis wrote about knowing Jesus "in the breaking of bread". ligatura spotted that he was echoing the road to Emmaus in Luke.</p>
+    <p>It goes sentence by sentence through the first book. For each one, it lists the few spots in the second book that sound most like it, and shows why. <strong>You decide if each one is real.</strong> ligatura only points; it never decides.</p>
+    <p class="gloss">For editors, it drafts the <i>apparatus fontium</i>: the list of sources a critical edition prints beneath the text. For readers of reception history, it surfaces candidate intertexts across a whole corpus, ranked and with their evidence, for a human to adjudicate.</p>
+    <p><strong>Free, and it stays on your computer.</strong> No account, no sign-up, nothing sent away.</p>
+    <pre>npx ligatura link imitation.jsonl gospels.jsonl &gt; links.jsonl</pre>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li><div><p><strong>Same meaning.</strong> A small language model reads every sentence and turns its meaning into numbers. Sentences that mean the same thing get close numbers, even in different words.</p>
+        <p class="gloss">Dense retrieval: cosine similarity between <i>nomic-embed-text-v1.5</i> sentence embeddings, with the model's query and document prefixes.</p></div></li>
+      <li><div><p><strong>Same words.</strong> It also counts rare words the two share, like <em>bread</em> and <em>breaking</em>. That catches direct quotes. Old spellings like <em>walketh</em> count as <em>walk</em>.</p>
+        <p class="gloss">Lexical overlap: tf-idf cosine over stems, with Early Modern English inflections (<i>-eth</i>, <i>-est</i>) and archaic function words (<i>thou</i>, <i>hath</i>) normalised first.</p></div></li>
+      <li><div><p><strong>Combine.</strong> It blends both lists into one ranking, so a match that does well on both rises to the top.</p>
+        <p class="gloss">Reciprocal rank fusion, <i>k</i> = 60: each list contributes 1 / (60 + rank).</p></div></li>
+      <li><div><p><strong>Second opinion</strong><span class="opt">optional</span> A bigger model can re-read the top 30 and re-sort them. It's off for now: in our test it made the #1 pick worse, not better.</p>
+        <p class="gloss">Pointwise reranking by P(yes) from Qwen3-Reranker-0.6B over a candidate pool of 30. See §3 below.</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What you give it, what you get back</h2>
+    <ul class="plain">
+      <li><strong>A plain text file</strong> works. ligatura cuts it into sentences and numbers them.</li>
+      <li><strong>Or a list with your own labels</strong>, one line each, like a Bible verse: <code>{"ref": "MAT.5.3", "text": "Blessed are the poor in spirit..."}</code>. Then the results use your labels: verse numbers, Stephanus pages, <code>book.chapter.sentence</code>.</li>
+    </ul>
+    <p>You get back one line per possible match, with the evidence:</p>
+    <pre>{"source":"4.14.5","target":"LUK.24.35","rank":1,"score":0.792,"dense":0.792,"lex":0.295,
+ "shared":["breaking","bread","way"],"status":"suggested",
+ "method":{"embed":"nomic-embed-text-v1.5","rerank":"none"},"date":"2026-11-08"}</pre>
+    <p><code>score</code> is how close the meaning is, from 0 to 1. <code>shared</code> lists the words both passages use. You get the top 3 per sentence; change that with <code>--top</code>.</p>
+    <p class="gloss">Every record carries its method and date, so a link can be cited, re-run, and audited. <code>status</code> starts as <i>suggested</i>; promoting it is the scholar's act, not the tool's.</p>
+  </section>
+
+  <section>
+    <h2>Swapping the models</h2>
+    <p>The defaults are fine to start. If you already run a model server, you can point ligatura at it.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Stage</th><th>Built in</th><th>Or a server you run</th></tr></thead>
+      <tbody>
+        <tr><td>Meaning</td><td><code>nomic-embed-text-v1.5</code>, <code>bge-small-en-v1.5</code>, <code>bge-large-en-v1.5</code></td><td><code>--embed openai:&lt;base-url&gt;#&lt;model&gt;</code> (Ollama, LM Studio, llama.cpp, vLLM)</td></tr>
+        <tr><td>Second opinion</td><td>Off; <code>--rerank qwen3-reranker-0.6b</code></td><td><code>--rerank api:&lt;url&gt;#&lt;model&gt;</code>, any <code>/rerank</code> endpoint</td></tr>
+        <tr><td>Judge</td><td>–</td><td><code>--rerank chat:&lt;base-url&gt;#&lt;model&gt;</code>, a chat model picks the links</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="plain">
+      <li><strong>The default is fast.</strong> The second opinion is slow: about half a second per pair, so a whole book takes hours.</li>
+      <li><strong>Passwords for servers</strong> go in <code>LIGATURA_API_KEY</code>.</li>
+      <li><strong>Nothing costs money</strong> unless you point it at a paid service yourself.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What it can't do yet</h2>
+    <ul class="plain">
+      <li><strong>English only, for now.</strong> Greek or Latin needs a different model plugged in.</li>
+      <li><strong>Nods to a whole story</strong>, like a hint at the prodigal son with none of its words, usually slip past.</li>
+      <li><strong>It suggests; you check.</strong> Read both passages before you trust a match.</li>
+    </ul>
+  </section>
+
+  <div class="cut" aria-hidden="true">for scholars · offprint</div>
+
+  <article class="offprint" aria-labelledby="op-title">
+    <div class="running"><span>ligatura 0.1 · technical note</span><span>Kempis and the Gospels</span></div>
+    <h2 id="op-title">Finding the Gospels in <i>The Imitation of Christ</i></h2>
+    <p class="byline">An evaluation of ligatura 0.1 against an editor's footnotes · 2026-11-08</p>
+
+    <p class="abstract"><b>Abstract.</b> We test ligatura on a known case of dense biblical reuse: Thomas à Kempis's <i>Imitatio Christi</i> against the four Gospels, scored against the footnotes of the printed edition. Fused dense and lexical retrieval places the footnoted verse first for 35 of 49 links and within the top ten for 44. A small pointwise reranker, added to recover allusions, lowers first-rank accuracy in every configuration we tried. ligatura 0.1 therefore ships with reranking off.</p>
+
+    <h3><span>§1</span>Materials</h3>
+    <p>The source is William Benham's English translation, Books 1–4, cut into 2,432 sentences. The target is the Douay-Rheims Gospels (1899 American edition), 3,766 verses. The gold set is the edition's own Gospel footnotes: 51 links, of which 49 point at verses present in the target.<sup><a href="#n1" id="r1">1</a></sup> The 44 footnoted sentences are queried against every Gospel verse.</p>
+
+    <h3><span>§2</span>Measure</h3>
+    <p>Recall at <i>k</i>: the share of footnoted links whose verse appears among the first <i>k</i> suggestions. A neighbouring verse also counts, because the footnotes follow King James numbering in John 6 and sometimes cite the verse beside the one quoted.<sup><a href="#n2" id="r2">2</a></sup> The measure is conservative in one direction: footnotes are not exhaustive, so a suggestion absent from them is not thereby wrong.</p>
+
+    <h3><span>§3</span>Results</h3>
+    <figure>
+      <div class="chart" id="fig1">
+        <div class="legend" id="fig1-legend"></div>
+        <svg id="fig1-svg" viewBox="0 0 640 290" role="img" aria-label="Line chart of recall at k for four configurations; values are in Table 1."></svg>
+      </div>
+      <figcaption><b>Figure 1.</b> Recall at <i>k</i> (of 49 footnoted links). Retrieval alone leads at <i>k</i> = 1. Rerankers gain a little at <i>k</i> = 3 and 5 but lose the first rank. The dashed line is a local fp32 export, not shipped.</figcaption>
+    </figure>
+
+    <div class="table-wrap"><table>
+      <caption class="sr-only" style="position:absolute;left:-9999px">Table 1</caption>
+      <thead><tr><th>Table 1 · configuration</th><th class="n">R@1</th><th class="n">R@3</th><th class="n">R@5</th><th class="n">R@10</th></tr></thead>
+      <tbody>
+        <tr class="base"><td><span class="key" style="background:var(--s1)"></span>Retrieval (dense + lexical, fused) · default</td><td class="n">35</td><td class="n">40</td><td class="n">42</td><td class="n">44</td></tr>
+        <tr><td><span class="key" style="background:var(--s2)"></span>+ reranker, ONNX q8, generic instruction</td><td class="n">29</td><td class="n">41</td><td class="n">43</td><td class="n">43</td></tr>
+        <tr><td><span class="key" style="background:var(--s3)"></span>+ reranker, ONNX q8, task-specific instruction</td><td class="n">30</td><td class="n">43</td><td class="n">43</td><td class="n">45</td></tr>
+        <tr><td><span class="key" style="background:var(--s4)"></span>+ reranker, fp32 local export, task-specific (2026-11-08, before ties shared a rank)</td><td class="n">32</td><td class="n">43</td><td class="n">44</td><td class="n">45</td></tr>
+      </tbody>
+    </table></div>
+
+    <p>The q8 model is not simply a noisier copy of the full-precision one. Over 90 query–verse pairs, its P(yes) scores differ from a reference MLX run by 0.18 on average (at most 0.80); an fp32 export differs by 0.006 (at most 0.038).<sup><a href="#n3" id="r3">3</a></sup> Yet even at full precision the reranker does not beat retrieval at <i>k</i> = 1. Quantization explains part of the loss, not all of it.</p>
+
+    <figure>
+      <div class="chart" id="fig2">
+        <svg id="fig2-svg" viewBox="0 0 640 190" role="img" aria-label="Strip chart on a log scale of the fused rank of the five footnoted links that retrieval misses: 11, 25, 31, 147 and 216."></svg>
+      </div>
+      <figcaption><b>Figure 2.</b> Where the five misses fall, by fused retrieval rank (log scale). Ranks past 30 never reach a reranker. The deepest, Luke 15:20 at rank 216, is an allusion to the prodigal son with no shared vocabulary.</figcaption>
+    </figure>
+
+    <h3><span>§4</span>Discussion</h3>
+    <p>The misses sort into kinds a reader of the <i>Imitatio</i> will recognise. One is a second footnote on a sentence whose first is found: 3.56.10 quotes Matthew 19:17 directly (found) and the editor also cites 19:21 (rank 11). Two are paraphrase under different vocabulary: <i>honour</i> for <i>glory</i> at John 5:44 (rank 31), <i>give unto God</i> for <i>render</i> at Matthew 22:21 (rank 147). The last is narrative allusion, the prodigal's return, which no sentence-level method recovers by overlap of meaning or words. Widening the pool, or a judge that reads whole pericopes, are the next things to test.</p>
+
+    <ol class="notes">
+      <li id="n1">Benham's translation from Project Gutenberg #1653; Douay-Rheims from the open-bibles corpus. Eleven verses carry placeholder text and are excluded; two gold links point at them. <a href="#r1" aria-label="Back to text">↩</a></li>
+      <li id="n2">All figures use <code>--neighbours 1</code>. The fixture ships in the repository, not the npm package; to reproduce, follow <a href="#install">From source</a> above. <a href="#r2" aria-label="Back to text">↩</a></li>
+      <li id="n3">First three query sentences of the evaluation pool, 30 candidates each. Reranker: <code>onnx-community/Qwen3-Reranker-0.6B-ONNX</code> (q8) against <code>Qwen/Qwen3-Reranker-0.6B</code> exported to ONNX at fp32. Apple M3 CPU. <a href="#r3" aria-label="Back to text">↩</a></li>
+    </ol>
+  </article>
+
+  <footer>
+    <a href="https://www.npmjs.com/package/ligatura">npm: ligatura</a>
+    <a href="https://github.com/bretperry/ligatura">github.com/bretperry/ligatura</a>
+    <span>MIT · fixture texts public domain</span>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.cmd .copy').forEach((b) => b.addEventListener('click', async () => {
+  const pre = b.parentElement.querySelector('pre')
+  try { await navigator.clipboard.writeText(pre.textContent); b.textContent = 'Copied' }
+  catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected' }
+  setTimeout(() => { b.textContent = 'Copy' }, 1600)
+}))
+
+;(() => {
+  const tabs = [...document.querySelectorAll('.tabs [role=tab]')]
+  const pick = (t, focus) => {
+    for (const o of tabs) { const on = o === t; o.setAttribute('aria-selected', on); o.tabIndex = on ? 0 : -1; document.getElementById(o.getAttribute('aria-controls')).hidden = !on }
+    if (focus) t.focus()
+    try { localStorage.setItem('ligatura-install', t.id) } catch {}
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => pick(t))
+    t.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
+      if (d) { e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true) }
+    })
+  })
+  try { const saved = document.getElementById(localStorage.getItem('ligatura-install')); if (saved && tabs.includes(saved)) pick(saved) } catch {}
+})()
+
+const NS = 'http://www.w3.org/2000/svg'
+const el = (tag, attrs, parent, text) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; parent.appendChild(n); return n }
+function tipFor(box) { const t = document.createElement('div'); t.className = 'tip'; t.hidden = true; box.appendChild(t); return t }
+function place(tip, box, svg, x, y) {
+  const r = svg.getBoundingClientRect(), b = box.getBoundingClientRect(), s = r.width / svg.viewBox.baseVal.width
+  let left = r.left - b.left + x * s + 12, top = r.top - b.top + y * s - 10
+  tip.hidden = false
+  if (left + tip.offsetWidth > b.width - 4) left = r.left - b.left + x * s - tip.offsetWidth - 12
+  tip.style.left = Math.max(4, left) + 'px'; tip.style.top = Math.max(4, top) + 'px'
+}
+
+// Figure 1: recall at k.
+;(() => {
+  const ks = [1, 3, 5, 10]
+  const series = [
+    { name: 'Retrieval (default)', c: 'var(--s1)', v: [35, 40, 42, 44], w: 2.5 },
+    { name: 'Reranker q8', c: 'var(--s2)', v: [29, 41, 43, 43] },
+    { name: 'Reranker q8, task text', c: 'var(--s3)', v: [30, 43, 43, 45] },
+    { name: 'Reranker fp32 (local)', c: 'var(--s4)', v: [32, 43, 44, 45], dash: '5 4' },
+  ]
+  const svg = document.getElementById('fig1-svg'), box = document.getElementById('fig1')
+  const W = 640, H = 290, m = { l: 40, r: 20, t: 12, b: 38 }
+  const x = (i) => m.l + 64 + i * ((W - m.l - m.r - 110) / 3)
+  const y = (v) => m.t + (50 - v) / 25 * (H - m.t - m.b)
+  for (const v of [25, 30, 35, 40, 45, 50]) {
+    el('line', { class: 'gridline', x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, svg)
+    el('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end' }, svg, v)
+  }
+  el('line', { class: 'ceiling', x1: m.l, x2: W - m.r, y1: y(49), y2: y(49) }, svg)
+  el('text', { x: W - m.r, y: y(49) - 5, 'text-anchor': 'end' }, svg, 'all 49 footnoted links')
+  el('line', { class: 'axis', x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b }, svg)
+  ks.forEach((k, i) => el('text', { x: x(i), y: H - m.b + 18, 'text-anchor': 'middle' }, svg, 'top ' + k))
+  el('text', { x: m.l, y: H - 4 }, svg, 'found in top k →')
+  const cross = el('line', { class: 'axis', x1: 0, x2: 0, y1: m.t, y2: H - m.b, opacity: 0 }, svg)
+  const legend = document.getElementById('fig1-legend')
+  for (const s of series) {
+    el('polyline', { points: s.v.map((v, i) => `${x(i)},${y(v)}`).join(' '), fill: 'none', stroke: s.c, 'stroke-width': s.w || 2, 'stroke-dasharray': s.dash || '', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg)
+    s.v.forEach((v, i) => el('circle', { cx: x(i), cy: y(v), r: 4, fill: s.c, stroke: 'var(--sheet)', 'stroke-width': 2 }, svg))
+    legend.insertAdjacentHTML('beforeend', `<span><i class="key ${s.dash ? 'dash' : ''}" style="background:${s.dash ? '' : s.c};color:${s.c}"></i>${s.name}</span>`)
+  }
+  // Direct labels at top 1, nudged apart where values sit one unit apart.
+  const nudge = [0, 6, -6, 0]
+  series.forEach((s, j) => el('text', { class: 'lbl', x: x(0) - 12, y: y(s.v[0]) + 4 + nudge[j], 'text-anchor': 'end' }, svg, s.v[0]))
+  const tip = tipFor(box)
+  ks.forEach((k, i) => {
+    const hit = el('rect', { x: x(i) - 40, y: m.t, width: 80, height: H - m.t - m.b, fill: 'transparent' }, svg)
+    const show = () => {
+      cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('opacity', .5)
+      tip.innerHTML = `<div><b>Found in top ${k}</b></div>` + series.map((s) => `<div class="row"><span><i class="key" style="background:${s.c}"></i>${s.name}</span><span>${s.v[i]} / 49</span></div>`).join('')
+      place(tip, box, svg, x(i), m.t + 20)
+    }
+    hit.addEventListener('mouseenter', show); hit.addEventListener('mousemove', show)
+    hit.addEventListener('mouseleave', () => { tip.hidden = true; cross.setAttribute('opacity', 0) })
+  })
+})()
+
+// Figure 2: the misses, by fused rank on a log scale.
+;(() => {
+  const misses = [
+    { r: 11, s: '3.56.10', t: 'Matt 19:21', note: 'second footnote; 19:17 found' },
+    { r: 25, s: '3.30.18', t: 'John 14:27', note: 'paraphrase' },
+    { r: 31, s: '3.40.22', t: 'John 5:44', note: 'honour for glory' },
+    { r: 147, s: '2.10.15', t: 'Matt 22:21', note: 'give for render' },
+    { r: 216, s: '3.52.17', t: 'Luke 15:20', note: 'the prodigal son' },
+  ]
+  const svg = document.getElementById('fig2-svg'), box = document.getElementById('fig2')
+  const W = 640, H = 190, m = { l: 20, r: 24, t: 22, b: 40 }, base = H - m.b, mid = 92
+  const x = (r) => m.l + Math.log10(r) / 3 * (W - m.l - m.r)
+  el('rect', { class: 'band', x: x(1), y: m.t, width: x(10) - x(1), height: base - m.t }, svg)
+  el('rect', { class: 'band', x: x(10), y: m.t, width: x(30) - x(10), height: base - m.t, opacity: .35 }, svg)
+  el('text', { x: (x(1) + x(10)) / 2, y: m.t - 6, 'text-anchor': 'middle' }, svg, 'top 10: 44 found')
+  el('text', { x: (x(10) + x(30)) / 2, y: m.t - 6, 'text-anchor': 'middle' }, svg, 'pool')
+  el('text', { x: x(30) + 8, y: m.t - 6 }, svg, 'beyond any reranker →')
+  for (const t of [1, 3, 10, 30, 100, 300, 1000]) {
+    el('line', { class: 'gridline', x1: x(t), x2: x(t), y1: m.t, y2: base }, svg)
+    el('text', { x: x(t), y: base + 18, 'text-anchor': 'middle' }, svg, t)
+  }
+  el('line', { class: 'axis', x1: m.l, x2: W - m.r, y1: base, y2: base }, svg)
+  el('text', { x: W - m.r, y: H - 4, 'text-anchor': 'end' }, svg, 'fused retrieval rank (log)')
+  const tip = tipFor(box)
+  misses.forEach((d, i) => {
+    const up = i % 2 === 0, cy = mid
+    el('line', { x1: x(d.r), x2: x(d.r), y1: cy, y2: up ? cy - 22 : cy + 22, stroke: 'var(--muted)', 'stroke-width': 1 }, svg)
+    el('circle', { cx: x(d.r), cy, r: 5, fill: 'var(--s1)', stroke: 'var(--sheet)', 'stroke-width': 2 }, svg)
+    el('text', { class: 'lbl', x: x(d.r), y: up ? cy - 27 : cy + 34, 'text-anchor': i === 4 ? 'end' : 'middle' }, svg, d.t)
+    const hit = el('circle', { cx: x(d.r), cy, r: 14, fill: 'transparent' }, svg)
+    const show = () => { tip.innerHTML = `<div><b>${d.s} → ${d.t}</b></div><div class="row"><span>fused rank</span><span>${d.r}</span></div><div>${d.note}</div>`; place(tip, box, svg, x(d.r), cy) }
+    hit.addEventListener('mouseenter', show); hit.addEventListener('mouseleave', () => { tip.hidden = true })
+  })
+})()
+</script>

@@ -46,13 +46,20 @@ export function checkUnique(what: string, refs: string[]) {
 
 export const RRF_K = 60
 
-// Reciprocal rank fusion: each list adds 1 / (60 + rank). A list where every score is equal
-// says nothing, so it is left out.
+// Reciprocal rank fusion: each list adds weight / (60 + rank), weight 1 unless given. A list where
+// every score is equal says nothing, so it is left out; so is a list with weight 0, unless no
+// weighted list ranks anything, when the rest vote equally rather than leave every item tied.
 export function fuse(...lists: Float32Array[]): Float32Array {
-  const informative = lists.filter((l) => l.some((x) => x !== l[0]))
-  if (!informative.length) return new Float32Array(lists[0]?.length ?? 0)
-  const rs = informative.map(ranks)
-  return Float32Array.from(rs[0], (_, j) => rs.reduce((s, r) => s + 1 / (RRF_K + r[j]), 0))
+  return fuseWeighted(lists.map((l) => [l, 1]))
+}
+
+export function fuseWeighted(lists: [Float32Array, number][]): Float32Array {
+  const ranking = lists.filter(([l]) => l.some((x) => x !== l[0]))
+  const weighted = ranking.filter(([, w]) => w > 0)
+  const informative = weighted.length ? weighted : ranking.map(([l]): [Float32Array, number] => [l, 1])
+  if (!informative.length) return new Float32Array(lists[0]?.[0].length ?? 0)
+  const rs = informative.map(([l, w]) => [ranks(l), w] as const)
+  return Float32Array.from(rs[0][0], (_, j) => rs.reduce((s, [r, w]) => s + w / (RRF_K + r[j]), 0))
 }
 
 export const topK = (scores: Float32Array, k: number) => [...scores.keys()].sort((a, b) => scores[b] - scores[a]).slice(0, k)
