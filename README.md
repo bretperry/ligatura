@@ -50,6 +50,11 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `la` | Latin | case, macrons, æ/œ, u/v, i/j; -que split off | noun and verb endings |
 | `grc` | Ancient Greek | accents and breathings, final ς as σ; `;` and `·` end sentences | noun and verb endings |
 | `sa` | Sanskrit | Devanagari to IAST, then diacritics dropped; daṇḍas end sentences, verse numbers dropped | endings; character 6-grams of the text with spaces removed |
+| `fr` | French | case, accents, œ/æ; elisions (l', qu') split off | plural and verb endings, stems of 5+ letters |
+| `es` | Spanish | case, accents (ñ kept); ¿ and ¡ open sentences | plural, gender and verb endings, 5+ letters |
+| `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
+| `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
+| `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -166,10 +171,33 @@ fixture's README). Reranking the top 30 with `qwen3-reranker-0.6b` moved Latin R
 
 The Kempis numbers above are unchanged by the language work.
 
+### French, Spanish and German
+
+The same Swete quotations, renumbered for Bibles translated from the Hebrew: each New Testament
+against its own Old Testament, and against the KJV Old Testament. Built by
+`fixtures/nt-ot-fr/scripts/build.py`; runs of 2026-11-10 on the same Mac mini, bge-m3 q8,
+`--neighbours 1`, 269 links each:
+
+| Fixture | Bible | Languages | Embedding | Overlap | Fused R@1 / R@10 |
+|---|---|---|---|---|---|
+| `nt-ot-fr` | Ostervald | fr → fr | 201 | 186 | 150 / 225 |
+| `nt-ot-fr-en` | Ostervald, KJV | fr → en | 185 | – | 100 / 185 |
+| `nt-ot-es` | Reina-Valera 1909 | es → es | 192 | 183 | 143 / 218 |
+| `nt-ot-es-en` | Reina-Valera 1909, KJV | es → en | 186 | – | 107 / 186 |
+| `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
+| `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
+
+Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
+
 ## Limits
 
 - **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
   augmented verbs don't match their other forms.
+- **French, Spanish, Italian, German and Arabic stems are light.** They strip regular endings
+  only; Arabic splits off و, ف, ال, بال, كال and لل but not a lone ب, ل or ك, and finds no roots.
+- **One translator on both sides.** The modern-language fixtures quote within one Bible, whose
+  translators often matched the two Testaments' wording, so overlap is easier there than in a
+  later author quoting from memory.
 - **Across languages, only the embedder ranks.** bge-m3 finds 27% of the Latin-to-English links in
   the top 10, against 65% fused within Latin. SPhilBERTa scored higher on Latin and Greek in a lab
   test but has no ONNX export yet; `--embed openai:...` can serve it.
