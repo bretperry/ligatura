@@ -4,7 +4,7 @@ The French New Testament against the French Old Testament, both from the Osterva
 gold set is H. B. Swete's tables of the passages the New Testament formally quotes, the same
 links as `../lxx-nt`, renumbered for a Bible translated from the Hebrew.
 
-This folder's `scripts/` builds six fixtures, one pair per language:
+This folder's `scripts/` builds ten fixtures, one pair per language:
 
 | Fixture | Source (NT) | Target (OT) | Languages |
 |---|---|---|---|
@@ -14,6 +14,10 @@ This folder's `scripts/` builds six fixtures, one pair per language:
 | `nt-ot-es-en` | Reina-Valera 1909 | KJV | es → en |
 | `nt-ot-de` | Luther 1912 | Luther 1912 | de → de |
 | `nt-ot-de-en` | Luther 1912 | KJV | de → en |
+| `nt-ot-it` | Riveduta 1927 | Riveduta 1927 | it → it |
+| `nt-ot-it-en` | Riveduta 1927 | KJV | it → en |
+| `nt-ot-ar` | Van Dyck | Van Dyck | ar → ar |
+| `nt-ot-ar-en` | Van Dyck | KJV | ar → en |
 
 - `source.jsonl`: 7,958 verses of the New Testament, ref `BOOK.chapter.verse` (USFM codes).
   *La Bible J. F. Ostervald*, the 1996 revision of the 1744 text, public domain as distributed
@@ -76,7 +80,8 @@ give the LXX verse in First1KGreek's numbering. `scripts/build.py` renumbers the
    on). Luther also splits chapters where the Hebrew does (Joel 2:28 is Luther's 3:1; Mal.,
    Hos., Mic., Nah., Deut. 29, Isa. 9 and 64, Jer. 9 move too), and Ostervald does for
    Isa. 9:1 and Num. 30. The 13 moves are listed in `build.py`, each checked by
-   reading the verse.
+   reading the verse. The Riveduta and the Van Dyck number every chapter as the KJV does
+   (each has the KJV's 23,145 Old Testament verses, chapter for chapter), so nothing moves.
 
 One row is left out: Heb. 1:6 quotes "let all the angels of God worship him", which the LXX has
 at Deut. 32:43 and the Hebrew doesn't. Four rows `../lxx-nt` couldn't score (First1KGreek lacks
@@ -89,8 +94,8 @@ Heb. 1:6 / Ps. 97:7), or quotations where Greek and Hebrew differ (Matt. 8:17 / 
 ## Rebuild
 
 ```
-scripts/fetch.sh                 # clones open-bibles into raw/ (git-ignored)
-python3 -I scripts/build.py      # writes all six fixtures
+scripts/fetch.sh                 # clones open-bibles, downloads two eBible.org zips into raw/ (git-ignored)
+python3 -I scripts/build.py      # writes all ten fixtures
 ```
 
 ## Known problems
@@ -106,3 +111,7 @@ python3 -I scripts/build.py      # writes all six fixtures
   still be right.
 - **Ostervald 1996.** The text is the 1996 revision as the Unbound Bible distributes it, not the
   Louis Segond 1910 this fixture first meant to use; Segond wasn't available offline.
+- **Italian and Arabic come from eBible.org, not open-bibles.** open-bibles has no Arabic, and
+  its `ita-riveduta.osis.xml` is listed as the Riveduta 1927 but its header names the copyrighted
+  Riveduta 1990. eBible.org's zips are regenerated from time to time; `fetch.sh` checks the
+  SHA-256 of the copies used on 2026-11-13 and warns if a new download differs.
