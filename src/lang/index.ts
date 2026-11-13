@@ -10,6 +10,8 @@ import { it, foldItalian } from './it.js'
 import { de, foldGerman } from './de.js'
 import { ar, foldArabic, splitClitics } from './ar.js'
 
+import { syc, foldSyriac, splitProclitics } from './syc.js'
+
 export type { Lang } from './types.js'
 export { en, la, grc, sa }
 export { foldLatin } from './la.js'
@@ -20,6 +22,9 @@ export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 // Modern languages, kept in their own block.
 Object.assign(LANGS, { fr, es, it, de, ar })
 export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
+// Classical Syriac.
+Object.assign(LANGS, { syc })
+export { syc, foldSyriac, splitProclitics }
 export const DEFAULT_LANG = 'en'
 
 // The built-in embedder for cross-lingual runs (any two different languages).
