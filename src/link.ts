@@ -11,6 +11,9 @@ export interface LinkOptions {
   rerank?: string
   task?: string
   pool?: number // candidates the reranker reads per source unit
+  // English (or any) translations of target units, matched by ref. A target unit then scores
+  // the better of its own text and its translation, and word overlap reads both.
+  gloss?: Unit[]
 }
 
 export interface Scored {
@@ -32,18 +35,33 @@ export interface UnitResult {
 export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, pool: 30 }
 
 export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = {}): AsyncGenerator<UnitResult> {
-  const embedder = makeEmbedder(opts.embed ?? DEFAULTS.embed)
+  // "a+b" runs several embedders; each ranks the targets and the rankings are fused.
+  const embedders = (opts.embed ?? DEFAULTS.embed).split('+').map(makeEmbedder)
   const reranker = makeReranker(opts.rerank ?? DEFAULTS.rerank, opts.task)
   const pool = opts.pool ?? DEFAULTS.pool
-  log(`embedding ${target.length} target and ${source.length} source units with ${embedder.name}`)
-  const tVec = await embedder.embed(target.map((u) => u.text), 'doc')
-  const sVec = await embedder.embed(source.map((u) => u.text), 'query')
-  const lex = lexicalScorer(target.map((u) => u.text))
+  const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
+  const glossed = target.flatMap((u, j) => (glossByRef.has(u.ref) ? [j] : []))
+  if (opts.gloss) log(`gloss: ${glossed.length} of ${target.length} target units have a translation`)
+  const spaces: { t: Float32Array[]; s: Float32Array[]; g: Float32Array[] }[] = []
+  for (const embedder of embedders) {
+    log(`embedding ${target.length} target and ${source.length} source units with ${embedder.name}`)
+    const t = await embedder.embed(target.map((u) => u.text), 'doc')
+    const s = await embedder.embed(source.map((u) => u.text), 'query')
+    const g = glossed.length ? await embedder.embed(glossed.map((j) => glossByRef.get(target[j].ref)!), 'doc') : []
+    spaces.push({ t, s, g })
+  }
+  const lex = lexicalScorer(target.map((u) => (glossByRef.has(u.ref) ? `${u.text} ${glossByRef.get(u.ref)}` : u.text)))
   const started = Date.now()
   for (const [i, s] of source.entries()) {
-    const dense = Float32Array.from(tVec, (t) => dot(sVec[i], t))
+    const denses = spaces.map((sp) => {
+      const d = Float32Array.from(sp.t, (t) => dot(sp.s[i], t))
+      glossed.forEach((j, k) => { d[j] = Math.max(d[j], dot(sp.s[i], sp.g[k])) })
+      return d
+    })
+    // The reported cosine is the mean across embedders.
+    const dense = denses.length === 1 ? denses[0] : Float32Array.from(denses[0], (_, j) => denses.reduce((a, d) => a + d[j], 0) / denses.length)
     const lexical = lex.scores(s.text)
-    const fused = fuse(dense, lexical)
+    const fused = fuse(...denses, lexical)
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical[j], fusedRank: fusedRank[j] }))

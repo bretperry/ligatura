@@ -1,11 +1,12 @@
 // Recall against a gold set: known links between two texts. A fixture directory holds
 // source.jsonl and target.jsonl (units) and gold.jsonl ({"source", "target"} per line).
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { link, DEFAULTS, type LinkOptions } from './link.js'
 import { loadUnits } from './units.js'
 
 export interface EvalOptions extends LinkOptions {
+  glossFile?: string // translations of target units, by ref; a bare name is read from the fixture
   neighbours?: number // also count a target this many units away (a footnote citing the next verse)
 }
 
@@ -15,6 +16,7 @@ export async function evaluate(dir: string, opts: EvalOptions = {}) {
   const source = loadUnits(join(dir, 'source.jsonl'))
   const target = loadUnits(join(dir, 'target.jsonl'))
   const tIndex = new Map(target.map((u, i) => [u.ref, i]))
+  const gloss = opts.glossFile ? loadUnits(existsSync(opts.glossFile) ? opts.glossFile : join(dir, opts.glossFile)) : undefined
   const gold = readFileSync(join(dir, 'gold.jsonl'), 'utf8').split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l) as { source: string; target: string })
   const missing = gold.filter((g) => !tIndex.has(g.target))
   const usable = gold.filter((g) => tIndex.has(g.target))
@@ -22,7 +24,7 @@ export async function evaluate(dir: string, opts: EvalOptions = {}) {
   const units = source.filter((u) => wanted.has(u.ref))
   const near = opts.neighbours ?? 0
   const rows: { source: string; target: string; fused: number; final: number }[] = []
-  for await (const r of link(units, target, opts)) {
+  for await (const r of link(units, target, { ...opts, gloss })) {
     const finalRank = new Map(r.ranked.map((c, k) => [c.index, k + 1]))
     for (const g of usable.filter((x) => x.source === r.source.ref)) {
       const t = tIndex.get(g.target)!

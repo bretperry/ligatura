@@ -15,6 +15,9 @@ interface LocalModel {
   pooling: 'cls' | 'mean' | 'last_token'
   query?: string
   doc?: string
+  dtype?: 'q8' | 'q4' | 'fp32'
+  // A model built locally, read from <cache>/onnx/<id> and never downloaded.
+  local?: boolean
 }
 
 // Query and document prefixes follow each model card.
@@ -22,8 +25,19 @@ export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
   'nomic-embed-text-v1.5': { id: 'nomic-ai/nomic-embed-text-v1.5', pooling: 'mean', query: 'search_query: ', doc: 'search_document: ' },
   'bge-small-en-v1.5': { id: 'Xenova/bge-small-en-v1.5', pooling: 'cls' },
   'bge-large-en-v1.5': { id: 'Xenova/bge-large-en-v1.5', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ' },
+  // Multilingual: English against Italian, Latin, Greek, French, German, Sanskrit (lab/multilingual-probe.mjs).
+  'bge-m3': { id: 'Xenova/bge-m3', pooling: 'cls' },
+  // bge-m3 tuned on English against Latin, Greek and Sanskrit (lab/finetune.py); built locally, not published.
+  'bge-m3-classics': { id: 'bge-m3-classics', pooling: 'cls', local: true },
+  'snowflake-arctic-embed-l-v2.0': { id: 'Snowflake/snowflake-arctic-embed-l-v2.0', pooling: 'cls', query: 'query: ' },
+  'multilingual-e5-large': { id: 'Xenova/multilingual-e5-large', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'multilingual-e5-small': { id: 'Xenova/multilingual-e5-small', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'qwen3-embedding-0.6b': {
+    id: 'onnx-community/Qwen3-Embedding-0.6B-ONNX', pooling: 'last_token', dtype: 'fp32',
+    query: 'Instruct: Given a passage, retrieve the passage in another text, in any language, that it quotes, translates or alludes to\nQuery: ',
+  },
 }
-export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5'
+export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5+bge-m3'
 
 export function makeEmbedder(spec: string): Embedder {
   const inner = spec.startsWith('openai:') ? openaiEmbedder(spec) : localEmbedder(spec)
@@ -34,11 +48,19 @@ export function makeEmbedder(spec: string): Embedder {
 async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Promise<Float32Array[]> {
   const key = createHash('sha1').update(`${e.name}\0${role}\0${texts.join('\0')}`).digest('hex')
   const dir = join(cacheDir(), 'vectors')
-  const file = join(dir, `${key}.json`)
-  if (existsSync(file)) return (JSON.parse(readFileSync(file, 'utf8')) as number[][]).map((v) => Float32Array.from(v))
+  // Raw float32, row after row: JSON can't hold large texts (46k x 1024 floats overflows V8 strings).
+  const file = join(dir, `${key}.f32`)
+  if (existsSync(file)) {
+    const buf = readFileSync(file)
+    const all = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4)
+    const dim = all.length / texts.length
+    return texts.map((_, i) => all.slice(i * dim, (i + 1) * dim))
+  }
   const out = await e.embed(texts, role)
   mkdirSync(dir, { recursive: true })
-  writeFileSync(file, JSON.stringify(out.map((v) => Array.from(v))))
+  const flat = new Float32Array(out.length * (out[0]?.length ?? 0))
+  out.forEach((v, i) => flat.set(v, i * v.length))
+  writeFileSync(file, Buffer.from(flat.buffer))
   return out
 }
 
@@ -50,8 +72,12 @@ function localEmbedder(name: string): Embedder {
     name,
     async embed(texts, role) {
       if (!pipe) {
-        const { pipeline } = await import('@huggingface/transformers')
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: 'q8' })) as unknown as typeof pipe
+        const { pipeline, env } = await import('@huggingface/transformers')
+        if (cfg.local) {
+          env.localModelPath = join(cacheDir(), 'onnx') + '/'
+          if (!existsSync(join(env.localModelPath, cfg.id))) throw new Error(`embedder "${name}" is built locally; expected it at ${join(env.localModelPath, cfg.id)}`)
+        }
+        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: cfg.dtype ?? 'q8', ...(cfg.local ? { local_files_only: true } : {}) })) as unknown as typeof pipe
       }
       const prefix = cfg[role] ?? ''
       const out: Float32Array[] = []
