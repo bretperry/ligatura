@@ -157,13 +157,18 @@ is shown for each list alone, then fused:
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
 | `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
-| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 272 / 470 (66%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
 | `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
+- **Latin** gives character overlap 4 votes in the fusion (2026-11-13). With equal votes the
+  embedding buried 39 links that character overlap had in its top 10; now 31. R@1 went from 256
+  to 272 and R@10 from 463 to 470, with the same number of rows to review. Chosen on half the
+  links and held on the other (`lab/fusion-keep-top.md`). Keeping each list's top hits in the top
+  10 was tried too and lost R@10.
 - **Sanskrit** fuses on character overlap alone. bge-m3 is weak in Sanskrit, and with equal votes
   it dragged the fused list to 695 / 1,031, below character overlap alone. The weights were chosen
   on half the links and held on the other (see the fixture's README).
