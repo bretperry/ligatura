@@ -132,7 +132,7 @@ test('character n-grams match forms the stems miss, for Latin and Greek', () => 
 })
 
 // Modern languages: French, Spanish, Italian, German, Arabic.
-import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics } from '../dist/index.js'
+import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics, unvowelArabic } from '../dist/index.js'
 
 const fr = getLang('fr')
 const es = getLang('es')
@@ -198,6 +198,13 @@ test('Arabic strips harakat and tatweel, and folds alef, ya and ta marbuta', () 
   assert.equal(foldArabic('اللـــه'), 'الله')
   assert.equal(foldArabic('أإآٱ'), 'اااا')
   assert.equal(foldArabic('إِلَى مَدِينَةٍ'), 'الي مدينه')
+})
+
+test('Arabic text for the embedder loses its vowel marks and nothing else', () => {
+  assert.equal(unvowelArabic('قَالَ ٱلرَّبُّ لِرَبِّي'), 'قال الرب لربي')
+  assert.equal(unvowelArabic('إِلَى مَدِينَةٍ'), 'إلى مدينة')
+  assert.equal(getLang('ar').embedText('ٱلْكَلِمَةُ'), 'الكلمة')
+  assert.equal(getLang('fr').embedText, undefined)
 })
 
 test('Arabic splits off و ف and ب ل ك with the article, and keeps Allah whole', () => {
