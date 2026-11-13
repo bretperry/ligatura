@@ -16,6 +16,13 @@ export function foldArabic(s: string): string {
     .replace(/ة/g, 'ه')
 }
 
+// Vowel marks off and wasla alef written ا, as most Arabic online is written; nothing else changes.
+// bge-m3 read the fully vowelled Van Dyck poorly: on nt-ot-ar it found 124 of 269 links in the
+// top 10 with the marks and 186 without (2026-11-13).
+export function unvowelArabic(s: string): string {
+  return s.normalize('NFC').replace(/[ً-ٰٟۖ-ۭـ]/g, '').replace(/ٱ/g, 'ا')
+}
+
 // Prepositions, pronouns, particles, and the commonest forms of kāna and qāla, folded.
 const STOP = new Set(
   `في من الي علي عن ان انه انها انهم انك اني لا ما لم لن لما هو هي هم هن هما انت انتم انا نحن
@@ -59,5 +66,6 @@ export const ar: Lang = {
   // Two-letter stems are real words here: رب (lord), اب (father), ام (mother).
   stem: (w) => stripEnding(stripEnding(w, PRONOUNS, 2), ENDINGS, 2),
   minKey: 2,
+  embedText: unvowelArabic,
   embedder: 'bge-m3',
 }

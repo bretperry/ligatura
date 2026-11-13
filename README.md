@@ -56,7 +56,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `es` | Spanish | case, accents (ñ kept); ¿ and ¡ open sentences | plural, gender and verb endings, 5+ letters |
 | `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
 | `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
-| `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
+| `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off; the embedder reads the text without vowel marks | pronoun suffixes and plural endings |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -181,12 +181,12 @@ is shown for each list alone, then fused:
 
 The Kempis numbers above are unchanged by the language work.
 
-### French, Spanish and German
+### French, Spanish, German, Italian and Arabic
 
 The same Swete quotations, renumbered for Bibles translated from the Hebrew: each New Testament
 against its own Old Testament, and against the KJV Old Testament. Built by
-`fixtures/nt-ot-fr/scripts/build.py`; runs of 2026-11-10 on the same Mac mini, bge-m3 q8,
-`--neighbours 1`, 269 links each:
+`fixtures/nt-ot-fr/scripts/build.py`; runs of 2026-11-10 (Italian and Arabic 2026-11-13) on the
+same Mac mini, bge-m3 q8, `--neighbours 1`, 269 links each:
 
 | Fixture | Bible | Languages | Embedding | Overlap | Fused R@1 / R@10 |
 |---|---|---|---|---|---|
@@ -196,8 +196,15 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-es-en` | Reina-Valera 1909, KJV | es → en | 186 | – | 107 / 186 |
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
+| `nt-ot-it` | Riveduta 1927 | it → it | 192 | 174 | 122 / 232 |
+| `nt-ot-it-en` | Riveduta 1927, KJV | it → en | 175 | – | 104 / 175 |
+| `nt-ot-ar` | Van Dyck | ar → ar | 186 | 206 | 165 / 225 |
+| `nt-ot-ar-en` | Van Dyck, KJV | ar → en | 149 | – | 88 / 149 |
 
-Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
+The Van Dyck is printed with full vowel marks, which bge-m3 reads poorly: with them it found 124
+(ar → ar) and 80 (ar → en) links in the top 10. The Arabic profile now hands the embedder the
+text without them (`embedText`), which gives the 186 and 149 above and lifts fused R@10 from 211
+to 225; word overlap already ignored the marks.
 
 ## Limits
 

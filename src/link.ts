@@ -64,8 +64,9 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   checkUnique('source', source.map((u) => u.ref))
   checkUnique('target', target.map((u) => u.ref))
   log(`embedding ${target.length} target (${run.target.code}) and ${source.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
-  const tVec = await embedder.embed(target.map((u) => u.text), 'doc')
-  const sVec = await embedder.embed(source.map((u) => u.text), 'query')
+  const forEmbed = (lang: Lang, units: Unit[]) => units.map((u) => (lang.embedText ? lang.embedText(u.text) : u.text))
+  const tVec = await embedder.embed(forEmbed(run.target, target), 'doc')
+  const sVec = await embedder.embed(forEmbed(run.source, source), 'query')
   if (sVec[0] && tVec[0] && sVec[0].length !== tVec[0].length) throw new Error(`source and target vectors differ in length (${sVec[0].length}, ${tVec[0].length})`)
   const lex = run.lexical ? lexicalScorer(target.map((u) => u.text), run.target) : undefined
   // The profile's fusion weights apply only when both texts are in its language.
