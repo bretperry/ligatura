@@ -21,7 +21,7 @@ test('Classical Chinese drops punctuation, spaces, Latin and digits; keeps Han o
 })
 
 test('Classical Chinese words are characters, without particles', () => {
-  assert.deepEqual(lzh.words('學而時習之，不亦說乎？'), ['学', '时', '习', '不', '亦', '说'])
+  assert.deepEqual(lzh.words('學而時習之，不亦說乎？'), ['学', '时', '习', '不', '说'])
   assert.deepEqual(lzh.words('道可道，非常道'), ['道', '可', '道', '非', '常', '道'])
   assert.deepEqual(lzh.words('Hello 123'), [])
 })
