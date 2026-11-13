@@ -265,6 +265,8 @@ test('Akkadian uses bge-m3 and character 4-grams find a spelling variant', () =>
   const docs = ['a-na be-li-ia qi-bi-ma', 'ša-ma-mu u er-ṣe-tu']
   const s = charScorer(docs, akk, 4).scores('qi-bi-ma um-ma')
   assert.ok(s[0] > s[1])
+})
+
 // Syriac.
 import { foldSyriac, splitProclitics } from '../dist/index.js'
 const syc = getLang('syc')
