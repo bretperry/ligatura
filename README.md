@@ -57,6 +57,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
 | `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
 | `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
+| `akk` | Akkadian (transliteration) | determinatives, sign indices, aleph, vowel length and damage marks dropped; š ṣ ṭ ḫ as s s t h; doubled letters collapsed; sign hyphens joined, logogram dots split | pronoun suffix, then case ending; character 4-grams |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -71,6 +72,11 @@ The stems are suffix stripping, not a lemmatizer: they catch case endings but no
 4-grams, which catch forms the stems miss (*mortuos, mortuis*) and some OCR and spelling variants.
 Sanskrit sandhi joins and alters words at their edges, so Sanskrit takes 6-grams from the whole
 text with its spaces removed; there is no sandhi splitter.
+
+Akkadian is read in Latin-letter transliteration, as ORACC and CDLI publish it (`a-na be-li-ia`,
+`{d}UTU`, `LUGAL.MEŠ`, `[a-na]`, ATF line numbers). Cuneiform Unicode is not read: it folds to
+nothing, so transliterate it first. Sentences end at a stop after a letter, since transliteration
+is mostly unpunctuated lines; pass `--split line` for line units.
 
 ## Output
 
@@ -192,12 +198,16 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
 
-Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Italian, Arabic and Akkadian have profiles and tests but no fixture yet, so their numbers are unmeasured.
 
 ## Limits
 
 - **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
   augmented verbs don't match their other forms. Sanskrit has no sandhi splitter.
+- **Akkadian stems are light, and dialects aren't unified.** Old Babylonian, Neo-Assyrian and
+  Standard Babylonian spell the same word differently (voicing, vowel contraction, mimation);
+  only plene writing, gemination and case endings are folded. Logograms (Sumerian signs) match
+  only other logograms.
 - **French, Spanish, Italian, German and Arabic stems are light.** They strip regular endings
   only; Arabic splits off و, ف, ال, بال, كال and لل but not a lone ب, ل or ك, and finds no roots.
 - **One translator on both sides.** The modern-language fixtures quote within one Bible, whose

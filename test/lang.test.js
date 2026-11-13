@@ -226,3 +226,43 @@ test('Modern languages use bge-m3, and overlap finds a quotation', () => {
   const s = lexicalScorer(docs, fr).scores("l'Eternel est mon berger")
   assert.equal(s.indexOf(Math.max(...s)), 1)
 })
+
+// Akkadian.
+import { foldAkkadian } from '../dist/index.js'
+
+const akk = getLang('akk')
+
+test('Akkadian joins signs, drops determinatives, indices and vowel length', () => {
+  assert.equal(foldAkkadian('a-na be-li-ia'), 'ana belia')
+  assert.equal(foldAkkadian('{d}UTU ᵈUTU'), 'utu utu')
+  assert.equal(foldAkkadian('šu₂ šu2 ṣa-bi-tum'), 'su su sabitum')
+  assert.equal(foldAkkadian('ša-a-ti'), foldAkkadian('ša-ti'), 'plene writing')
+  assert.equal(foldAkkadian('ib-ba-ši'), foldAkkadian('i-ba-ši'), 'gemination')
+  assert.equal(foldAkkadian('šarrānu'), foldAkkadian('šar-ra-nu'))
+  assert.equal(foldAkkadian('LUGAL.MEŠ-ni'), 'lugal mesni')
+})
+
+test('Akkadian keeps damaged signs and ignores line numbers and flags', () => {
+  assert.equal(foldAkkadian("3'. [a-na] ⌈be⌉-li-ia# x ... <<ša>>"), 'ana belia x sa')
+  assert.deepEqual(akk.words("12. [LUGAL] ⌈be⌉-lu₂!"), ['lugal', 'belu'])
+})
+
+test('Akkadian drops particles and stems case and suffixes', () => {
+  assert.deepEqual(akk.words('a-na ša u LUGAL'), ['lugal'])
+  const stems = (s) => akk.words(s).map(akk.stem)
+  assert.deepEqual(stems('šar-rum šar-ri šar-ra'), ['sar', 'sar', 'sar'])
+  assert.deepEqual(stems('šar-ru-šu'), stems('šar-rum'))
+})
+
+test('Akkadian sentences end at stops after letters, not at ATF line numbers or logogram dots', () => {
+  assert.deepEqual(splitText('1. a-na LUGAL.MEŠ iq-bi. 2. u₂-ul i-di', 'sentence', 1, akk), ['1. a-na LUGAL.MEŠ iq-bi.', '2. u₂-ul i-di'])
+})
+
+test('Akkadian uses bge-m3 and character 4-grams find a spelling variant', () => {
+  assert.equal(akk.embedder, 'bge-m3')
+  assert.equal(akk.charGrams, 4)
+  assert.equal(akk.fusion, undefined)
+  const docs = ['a-na be-li-ia qi-bi-ma', 'ša-ma-mu u er-ṣe-tu']
+  const s = charScorer(docs, akk, 4).scores('qi-bi-ma um-ma')
+  assert.ok(s[0] > s[1])
+})
