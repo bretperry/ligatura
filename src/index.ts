@@ -9,3 +9,4 @@ export { getLang, LANGS, MULTILINGUAL_EMBEDDER, foldLatin, foldGreek, foldSanskr
 export { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics } from './lang/index.js'
 export { foldAkkadian } from './lang/index.js'
 export { lzh, foldClassicalChinese } from './lang/index.js'
+export { foldSyriac, splitProclitics } from './lang/index.js'

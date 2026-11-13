@@ -265,4 +265,44 @@ test('Akkadian uses bge-m3 and character 4-grams find a spelling variant', () =>
   const docs = ['a-na be-li-ia qi-bi-ma', 'ša-ma-mu u er-ṣe-tu']
   const s = charScorer(docs, akk, 4).scores('qi-bi-ma um-ma')
   assert.ok(s[0] > s[1])
+// Syriac.
+import { foldSyriac, splitProclitics } from '../dist/index.js'
+const syc = getLang('syc')
+
+test('Syriac drops vowel points, seyame, linea occultans and SAM, East and West alike', () => {
+  assert.equal(foldSyriac('ܒܪܺܫܺܝܬ'), 'ܒܪܫܝܬ')
+  assert.equal(foldSyriac('ܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(foldSyriac('ܡܰܠܟܳܐ'), foldSyriac('ܡܲܠܟܵܐ'), 'West and East vowels fold alike')
+  assert.equal(foldSyriac('ܡܠܟܐ'), foldSyriac('ܡܠ̈ܟܐ'), 'seyame (U+0308) dropped')
+  assert.equal(foldSyriac('ܐܠܗܐ̇'), 'ܐܠܗܐ', 'linea occultans / dot above dropped')
+  assert.equal(foldSyriac('܏ܐ'), 'ܐ')
+})
+
+test('Syriac splits ܘ and ܕ, and ܒ ܠ from longer words only', () => {
+  assert.equal(splitProclitics('ܘܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܕܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܘܕܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܒܪܫܝܬ'), 'ܪܫܝܬ')
+  for (const w of ['ܒܝܬ', 'ܠܒܐ', 'ܟܬܒܐ']) assert.equal(splitProclitics(w), w)
+})
+
+test('Syriac words drop stop words and stems fold endings', () => {
+  assert.deepEqual(syc.words('ܘܐܡܪ ܠܗ ܡܠܟܐ ܕܠܐ'), ['ܐܡܪ', 'ܡܠܟܐ'])
+  const stems = (s) => syc.words(s).map(syc.stem)
+  assert.deepEqual(stems('ܡܠܟܐ ܡܠܟܝܢ ܡܠܟܘܢ'), ['ܡܠܟ', 'ܡܠܟ', 'ܡܠܟ'])
+  assert.equal(syc.embedder, 'bge-m3')
+})
+
+test('Syriac sentences end at Syriac stops, not at verse colons', () => {
+  assert.deepEqual(splitText('ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ܀ ܘܐܡܪ ܐܠܗܐ ܢܗܘܐ ܢܘܗܪܐ܀ ܘܗܘܐ', 'sentence', 1, syc), [
+    'ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ܀',
+    'ܘܐܡܪ ܐܠܗܐ ܢܗܘܐ ܢܘܗܪܐ܀',
+    'ܘܗܘܐ',
+  ])
+})
+
+test('Syriac overlap finds a quotation across pointing', () => {
+  const docs = ['ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ ܐܝܬ ܫܡܝܐ ܘܐܝܬ ܐܪܥܐ', 'ܡܪܝܐ ܪܥܝܝ ܠܐ ܐܚܣܪ', 'ܘܒܟܐ ܝܫܘܥ']
+  const s = lexicalScorer(docs, syc).scores('ܡܳܪܝܳܐ ܪܳܥܝܝ ܠܳܐ ܐܶܚܣܰܪ')
+  assert.equal(s.indexOf(Math.max(...s)), 1)
 })

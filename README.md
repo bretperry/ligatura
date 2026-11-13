@@ -59,6 +59,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
 | `akk` | Akkadian (transliteration) | determinatives, sign indices, aleph, vowel length and damage marks dropped; š ṣ ṭ ḫ as s s t h; doubled letters collapsed; sign hyphens joined, logogram dots split | pronoun suffix, then case ending; character 4-grams |
 | `lzh` | Classical Chinese | traditional, simplified and variant characters fold to simplified; punctuation, Latin and digits dropped; 。！？； end sentences | each character is a word, particles (之乎者也…) dropped; character bigrams of the whole text |
+| `syc` | Classical Syriac | all points (East and West vowels, seyame, linea occultans) and SAM; ܘ ܕ split off, ܒ ܠ from longer words; Syriac stops end sentences | emphatic -ܐ, plural and pronoun endings, 3+ letters |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -202,7 +203,10 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
 
-Italian, Arabic, Akkadian and Classical Chinese have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Italian, Arabic, Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Syriac fixture plan: Peshitta NT→OT quotations (Peshitta text from the ETCBC/Peshitta open data or
+the Digital Syriac Corpus; check each licence before committing), run as `syc → syc`, and `syc → en`
+with a public-domain English Bible. Tune `charGrams` and the fusion weights by eval, as for Sanskrit.
 
 ## Limits
 
@@ -214,6 +218,8 @@ Italian, Arabic, Akkadian and Classical Chinese have profiles and tests but no f
   only other logograms.
 - **French, Spanish, Italian, German and Arabic stems are light.** They strip regular endings
   only; Arabic splits off و, ف, ال, بال, كال and لل but not a lone ب, ل or ك, and finds no roots.
+- **Syriac is light.** It reads Syriac script only (not Latin transliteration, Garshuni, or Biblical and
+  Imperial Aramaic in Hebrew script), splits ܘ ܕ ܒ ܠ but not ܟ or ܡ, and finds no roots.
 - **One translator on both sides.** The modern-language fixtures quote within one Bible, whose
   translators often matched the two Testaments' wording, so overlap is easier there than in a
   later author quoting from memory.
