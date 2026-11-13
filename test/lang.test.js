@@ -108,6 +108,11 @@ test('Sanskrit and Latin set fusion weights; the others fuse with equal votes', 
   for (const code of ['en', 'grc']) assert.equal(getLang(code).fusion, undefined)
 })
 
+test('only French sets a max-of-ranks blend', () => {
+  assert.deepEqual(getLang('fr').blend, { beta: 1, k: 5 })
+  for (const code of ['en', 'la', 'grc', 'sa', 'de', 'es', 'it', 'ar']) assert.equal(getLang(code).blend, undefined)
+})
+
 test('Latin fusion keeps a target that character overlap ranks first over the embedding', () => {
   const { dense, words, chars } = { dense: 1, words: 1, ...getLang('la').fusion }
   // Target 0: 1st by embedding and words, 3rd by characters. Target 1: 1st by characters only.

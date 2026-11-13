@@ -107,8 +107,40 @@ R@1 / R@3 / R@10. Only `augustine-vulgate` changes; every other fixture is ident
 
 Review volume is unchanged: the same number of rows per source, reordered.
 
+## Max-of-ranks blend on top of the Latin weights
+
+Run 2026-11-13 against branch head `ec01e60` (Latin `chars: 4`). Sweep: β {0.25, 0.5, 1, 2} ×
+k {1, 5, 20}, picked on dev. R@1 / R@3 / R@10; dev, then test.
+
+| Fixture | Base | β0.25 k5 | β0.5 k5 | β1 k5 | β1 k20 |
+|---|---|---|---|---|---|
+| kempis-gospels | 20/22/23, 15/18/21 | 22/22/23, 15/19/21 | 22/23/24, 14/19/20 | 21/23/24, 14/19/20 | 22/23/24, 14/19/20 |
+| augustine-vulgate | 136/200/233, 136/200/237 | 141/195/233, 141/201/234 | 135/192/233, 136/195/230 | 131/186/230, 132/189/229 | 138/195/230, 138/196/229 |
+| lxx-nt | 89/106/119, 76/101/109 | 92/107/120, 75/101/109 | 92/107/120, 76/103/109 | 93/110/119, 77/102/110 | 92/107/120, 74/103/110 |
+| nt-ot-de | 79/105/126, 72/96/107 | 82/107/122, 70/95/108 | 80/108/121, 70/97/109 | 77/109/120, 72/97/108 | 80/107/120, 71/97/108 |
+| nt-ot-es | 75/98/113, 66/85/105 | 76/98/113, 67/88/106 | 76/101/113, 69/89/105 | 74/98/114, 69/88/104 | 76/100/114, 69/89/105 |
+| nt-ot-fr | 80/102/125, 70/93/100 | 83/105/125, 72/94/101 | 84/107/125, 74/95/102 | 88/108/124, 76/97/102 | 82/105/124, 74/95/102 |
+| **Sum** | 479/633/739, 435/593/679 | 496/634/736, 440/598/679 | 489/638/736, 439/598/675 | 484/634/731, 440/592/673 | 490/637/732, 440/599/674 |
+
+Rule: adopt only if R@1 rises on both halves and R@10 drops by at most 2 links on every fixture's
+half. **No global setting passes:** German loses 4 to 6 links at R@10 on dev at every β and k, and
+Latin loses 3 or more on test at every setting that raises its R@1.
+
+Per language (best dev setting, then test):
+
+- **French passes, adopted:** β1 k5, R@1 80 → 88 dev, 70 → 76 test; R@10 125 → 124, 100 → 102.
+  Now a profile field (`fr.blend`). Full eval: 164 / 205 / 212 / 226 at R@1 / 3 / 5 / 10, from
+  150 / 195 / 209 / 225.
+- **Spanish: not adopted.** Best dev R@1 is +1 (75 → 76), within noise; test +3.
+- **Greek: not adopted.** Best dev R@1 + R@3 + R@10 (β0.5 k1 or β1 k5): R@1 dev +4, test +1
+  (noise). β2 k1 has the best dev R@1 (+5, test +3) but costs R@3 8 links on test (101 → 93).
+- **Kempis: not adopted.** Test R@1 never rises.
+- **German, Latin: not adopted.** They lose R@10 as above.
+
+French is one fixture (142 dev, 127 test links), and German, from the same kind of fixture, loses
+with the blend. The setting rests on that one fixture.
+
 ## Not checked
 
 - Keep-top on top of the Latin weights (append might still add a few Latin links).
-- Maxblend combined with the Latin weights, and per-language maxblend settings.
-- Reranking with the new Latin order.
+- Reranking with the new Latin and French orders.

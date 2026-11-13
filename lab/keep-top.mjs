@@ -23,6 +23,9 @@ const wanted = new Set(gold.map((g) => g.source))
 const units = source.filter((u) => wanted.has(u.ref))
 const near = 1
 const N = 10
+// --blend: only base and the max-of-ranks sweep.
+const BLEND = process.argv.includes('--blend')
+const BETAS = BLEND ? [0.25, 0.5, 1, 2] : [0.5, 1, 2], KS = BLEND ? [1, 5, 20] : [1, 5]
 const w = run.lexical ? run.target.fusion ?? {} : {}
 
 // Each variant maps a source's signals to its output order (at least the top N), best first.
@@ -63,7 +66,7 @@ for await (const r of link(units, target, opts)) {
   results.base = { top: base.slice(0, N), extra: 0 }
   // Reserve: each list's top n in the output's top N. They replace the lowest fused rows that no
   // list reserved; the top N stays in fused order, so rows above the newcomers don't move.
-  for (const who of ['voting', 'all']) for (const n of [1, 2, 3]) {
+  if (!BLEND) for (const who of ['voting', 'all']) for (const n of [1, 2, 3]) {
     const from = lists.filter((l) => who === 'all' || l[2] > 0)
     const U = new Set(from.flatMap(([, s, , pos]) => topBy(s, n, fr, pos)))
     const top10 = base.slice(0, N)
@@ -79,7 +82,7 @@ for await (const r of link(units, target, opts)) {
   const lr = lists.map(([name, s, wt]) => [name, ranks(s), wt])
   if (lists.length > 1) {
     // Max-of-ranks blended with RRF: a list's own top hit gets a bonus that fusion can't average away.
-    if (!process.argv.includes('--grid')) for (const beta of [0.5, 1, 2]) for (const k of [1, 5]) {
+    if (!process.argv.includes('--grid')) for (const beta of BETAS) for (const k of KS) {
       const voting = lr.filter(([, , wt]) => wt > 0)
       const s = Float32Array.from(r.dense, (_, j) => {
         let rrf = 0, mx = 0
