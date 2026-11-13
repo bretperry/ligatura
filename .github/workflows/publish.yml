@@ -28,3 +28,29 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm publish
+
+  # Mirrors the release to GitHub Packages so it shows on the repo page.
+  # GitHub's registry needs a scoped name, so the copy is @bretperry/ligatura.
+  publish-github:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: '@bretperry'
+      - name: Tag matches package.json
+        run: |
+          v="$(node -p 'require("./package.json").version')"
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME but package.json says $v"; exit 1; }
+      - run: npm ci
+      - run: npm test
+      - name: Scope the package name
+        run: npm pkg set name=@bretperry/ligatura
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
