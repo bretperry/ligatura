@@ -10,6 +10,9 @@ import { it, foldItalian } from './it.js'
 import { de, foldGerman } from './de.js'
 import { ar, foldArabic, splitClitics } from './ar.js'
 
+// Akkadian.
+import { akk, foldAkkadian } from './akk.js'
+
 export type { Lang } from './types.js'
 export { en, la, grc, sa }
 export { foldLatin } from './la.js'
@@ -20,6 +23,9 @@ export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 // Modern languages, kept in their own block.
 Object.assign(LANGS, { fr, es, it, de, ar })
 export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
+// Akkadian, in its own block.
+LANGS.akk = akk
+export { akk, foldAkkadian }
 export const DEFAULT_LANG = 'en'
 
 // The built-in embedder for cross-lingual runs (any two different languages).
