@@ -58,16 +58,6 @@ test('weighted fusion: weight 1 matches fuse, weight 0 leaves a list out', () =>
   assert.deepEqual([...ranks(fuseWeighted([[a, 0], [flat, 1]]))], [...ranks(a)])
 })
 
-test('max-of-ranks blend lifts a list\'s own top hit that plain fusion averages away', () => {
-  // Items 0 and 2 each top one list and come 4th in the other. Item 1 is 2nd in both, so plain
-  // fusion puts it first; the blend puts the two list winners first.
-  const a = Float32Array.from([0.9, 0.8, 0.1, 0.2]), b = Float32Array.from([0.1, 0.8, 0.9, 0.5])
-  assert.equal([...ranks(fuseWeighted([[a, 1], [b, 1]]))][1], 1)
-  assert.equal([...ranks(fuseWeighted([[a, 1], [b, 1]], { beta: 1, k: 5 }))][0], 1)
-  // beta 0 is plain fusion.
-  assert.deepEqual([...ranks(fuseWeighted([[a, 1], [b, 1]], { beta: 0, k: 5 }))], [...ranks(fuseWeighted([[a, 1], [b, 1]]))])
-})
-
 test('judgeRefs keeps only candidate refs, once each, and survives bad replies', () => {
   const c = ['MAT.1.1', 'JHN.3.16']
   assert.deepEqual(judgeRefs('{"refs": ["JHN.3.16", "X", "JHN.3.16", "MAT.1.1"]}', c), ['JHN.3.16', 'MAT.1.1'])

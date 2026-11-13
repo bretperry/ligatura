@@ -128,9 +128,10 @@ Latin loses 3 or more on test at every setting that raises its R@1.
 
 Per language (best dev setting, then test):
 
-- **French passes, adopted:** β1 k5, R@1 80 → 88 dev, 70 → 76 test; R@10 125 → 124, 100 → 102.
-  Now a profile field (`fr.blend`). Full eval: 164 / 205 / 212 / 226 at R@1 / 3 / 5 / 10, from
-  150 / 195 / 209 / 225.
+- **French passes, not adopted:** β1 k5, R@1 80 → 88 dev, 70 → 76 test; R@10 125 → 124, 100 → 102.
+  Full eval: 164 / 205 / 212 / 226 at R@1 / 3 / 5 / 10, from 150 / 195 / 209 / 225. Added as a
+  profile field (`fr.blend`) in `523ecef`, then removed by the owner (2026-11-13): one fixture is
+  too thin to set a per-language default.
 - **Spanish: not adopted.** Best dev R@1 is +1 (75 → 76), within noise; test +3.
 - **Greek: not adopted.** Best dev R@1 + R@3 + R@10 (β0.5 k1 or β1 k5): R@1 dev +4, test +1
   (noise). β2 k1 has the best dev R@1 (+5, test +3) but costs R@3 8 links on test (101 → 93).
@@ -139,6 +140,14 @@ Per language (best dev setting, then test):
 
 French is one fixture (142 dev, 127 test links), and German, from the same kind of fixture, loses
 with the blend. The setting rests on that one fixture.
+
+## Revisit
+
+The French blend is parked, not rejected. Bring it back (`git show 523ecef`: `Lang.blend`,
+`fuseWeighted`'s blend argument, 2 tests) if a second fixture shows the same trend: a language
+whose R@1 rises on both halves with R@10 within 2 links. Check first on any new same-language
+fixture, especially another French text or an Italian or Spanish one
+(`node lab/keep-top.mjs <fixture> --blend`, needs the blend code restored).
 
 ## Not checked
 

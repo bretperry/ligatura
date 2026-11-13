@@ -70,7 +70,6 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   const lex = run.lexical ? lexicalScorer(target.map((u) => u.text), run.target) : undefined
   // The profile's fusion weights apply only when both texts are in its language.
   const w = run.lexical ? run.target.fusion ?? {} : {}
-  const blend = run.lexical ? run.target.blend : undefined
   const chr = run.lexical && run.target.charGrams ? charScorer(target.map((u) => u.text), run.target, run.target.charGrams) : undefined
   const started = Date.now()
   for (const [i, s] of source.entries()) {
@@ -78,7 +77,7 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
     const lexical = lex?.scores(s.text)
     const chars = chr?.scores(s.text)
     // Across languages, overlap is left out and the fused order is the embedding order.
-    const fused = fuseWeighted([[dense, w.dense ?? 1], [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined), blend)
+    const fused = fuseWeighted([[dense, w.dense ?? 1], [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical?.[j] ?? 0, fusedRank: fusedRank[j] }))

@@ -39,10 +39,5 @@ export const fr: Lang = {
   // on the nt-ot-fr fixture (see its README).
   stem: (w) => stripEnding(w, ENDINGS, 5),
   minKey: 3,
-  // Max-of-ranks blend in French-to-French fusion. On nt-ot-fr it lifted R@1 from 80 to 88 on the
-  // dev half it was chosen on and from 70 to 76 on the test half, R@10 125 → 124 and 100 → 102.
-  // The same blend lost 4 to 6 links at R@10 in German, so it is per language (2026-11-13;
-  // lab/fusion-keep-top.md).
-  blend: { beta: 1, k: 5 },
   embedder: 'bge-m3',
 }

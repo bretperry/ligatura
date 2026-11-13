@@ -20,9 +20,6 @@ export interface Lang {
   // Optional: each list's vote in reciprocal rank fusion when both texts are in this language;
   // 0 leaves a list out. Unset lists vote 1, so a profile without it fuses with equal votes.
   fusion?: { dense?: number; words?: number; chars?: number }
-  // Optional: a max-of-ranks blend on top of the fusion when both texts are in this language
-  // (see fuseWeighted). Off when absent.
-  blend?: { beta: number; k: number }
   // The built-in embedder used when this language is on both sides.
   embedder: string
 }

@@ -53,24 +53,13 @@ export function fuse(...lists: Float32Array[]): Float32Array {
   return fuseWeighted(lists.map((l) => [l, 1]))
 }
 
-// Max-of-ranks blend: each target also earns beta times its best single list's weight / (k + rank),
-// scaled so first place in one list is worth beta votes at rank 1. A list's own top hit then
-// survives lists that rank it low.
-export interface Blend { beta: number; k: number }
-
-export function fuseWeighted(lists: [Float32Array, number][], blend?: Blend): Float32Array {
+export function fuseWeighted(lists: [Float32Array, number][]): Float32Array {
   const ranking = lists.filter(([l]) => l.some((x) => x !== l[0]))
   const weighted = ranking.filter(([, w]) => w > 0)
   const informative = weighted.length ? weighted : ranking.map(([l]): [Float32Array, number] => [l, 1])
   if (!informative.length) return new Float32Array(lists[0]?.[0].length ?? 0)
   const rs = informative.map(([l, w]) => [ranks(l), w] as const)
-  if (!blend) return Float32Array.from(rs[0][0], (_, j) => rs.reduce((s, [r, w]) => s + w / (RRF_K + r[j]), 0))
-  const scale = (blend.beta * (blend.k + 1)) / (RRF_K + 1)
-  return Float32Array.from(rs[0][0], (_, j) => {
-    let s = 0, best = 0
-    for (const [r, w] of rs) { s += w / (RRF_K + r[j]); best = Math.max(best, w / (blend.k + r[j])) }
-    return s + scale * best
-  })
+  return Float32Array.from(rs[0][0], (_, j) => rs.reduce((s, [r, w]) => s + w / (RRF_K + r[j]), 0))
 }
 
 export const topK = (scores: Float32Array, k: number) => [...scores.keys()].sort((a, b) => scores[b] - scores[a]).slice(0, k)

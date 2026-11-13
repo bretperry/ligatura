@@ -190,17 +190,12 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 
 | Fixture | Bible | Languages | Embedding | Overlap | Fused R@1 / R@10 |
 |---|---|---|---|---|---|
-| `nt-ot-fr` | Ostervald | fr → fr | 201 | 186 | 164 / 226 |
+| `nt-ot-fr` | Ostervald | fr → fr | 201 | 186 | 150 / 225 |
 | `nt-ot-fr-en` | Ostervald, KJV | fr → en | 185 | – | 100 / 185 |
 | `nt-ot-es` | Reina-Valera 1909 | es → es | 192 | 183 | 143 / 218 |
 | `nt-ot-es-en` | Reina-Valera 1909, KJV | es → en | 186 | – | 107 / 186 |
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
-
-French adds a max-of-ranks blend to the fusion (2026-11-13): a list's own top hits earn a bonus
-that the other list can't average away. R@1 went from 150 to 164 and R@10 from 225 to 226. It was
-chosen on half the links and held on the other; German and Latin lost R@10 with it, so the other
-languages leave it off (`lab/fusion-keep-top.md`).
 
 Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
 
