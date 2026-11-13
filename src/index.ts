@@ -10,3 +10,4 @@ export { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClit
 export { foldAkkadian } from './lang/index.js'
 export { lzh, foldClassicalChinese } from './lang/index.js'
 export { foldSyriac, splitProclitics } from './lang/index.js'
+export { hbo, foldHebrew, splitHebrewProclitics } from './lang/index.js'

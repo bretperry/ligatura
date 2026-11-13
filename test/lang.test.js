@@ -133,6 +133,7 @@ test('character n-grams match forms the stems miss, for Latin and Greek', () => 
 
 // Modern languages: French, Spanish, Italian, German, Arabic.
 import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics } from '../dist/index.js'
+import { foldHebrew, splitHebrewProclitics } from '../dist/index.js'
 
 const fr = getLang('fr')
 const es = getLang('es')
@@ -306,5 +307,55 @@ test('Syriac sentences end at Syriac stops, not at verse colons', () => {
 test('Syriac overlap finds a quotation across pointing', () => {
   const docs = ['ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ ܐܝܬ ܫܡܝܐ ܘܐܝܬ ܐܪܥܐ', 'ܡܪܝܐ ܪܥܝܝ ܠܐ ܐܚܣܪ', 'ܘܒܟܐ ܝܫܘܥ']
   const s = lexicalScorer(docs, syc).scores('ܡܳܪܝܳܐ ܪܳܥܝܝ ܠܳܐ ܐܶܚܣܰܪ')
+  assert.equal(s.indexOf(Math.max(...s)), 1)
+})
+
+// Biblical Hebrew.
+const hbo = getLang('hbo')
+
+test('Hebrew strips niqqud and cantillation, joins pointed and bare text, folds final letters', () => {
+  const pointed = 'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃'
+  assert.equal(foldHebrew(pointed), 'בראשית ברא אלהימ את השמימ ואת הארצ׃')
+  assert.equal(foldHebrew('שׁ שׂ'), 'ש ש', 'shin and sin dots')
+  assert.equal(foldHebrew('\uFB2A\uFB2B'), 'שש', 'presentation forms')
+  assert.equal(foldHebrew('ךםןףץ'), 'כמנפצ')
+  assert.deepEqual(hbo.words(pointed), hbo.words('בראשית ברא אלהים את השמים ואת הארץ'))
+})
+
+test('Hebrew reads the maqaf as a space and ignores bidi marks', () => {
+  assert.equal(foldHebrew('כִּי־טוֹב'), 'כי טוב')
+  assert.deepEqual(hbo.words('וַיְהִי־אוֹר'), ['אור'])
+  assert.equal(foldHebrew('\u200Fאור\u200E'), 'אור')
+})
+
+test('Hebrew splits proclitics, drops stop words and stems endings', () => {
+  assert.equal(splitHebrewProclitics('והארצ'), 'ארצ')
+  assert.equal(splitHebrewProclitics('ובבית'), 'בית')
+  assert.equal(splitHebrewProclitics('לב'), 'לב', 'two letters after a prefix stay whole')
+  assert.equal(splitHebrewProclitics('בן'), 'בן')
+  assert.equal(splitHebrewProclitics('ואת'), 'את', 'a prefix comes off a stop word, which the filter then drops')
+  assert.deepEqual(hbo.words('ואת הארץ כאשר מאת'), ['ארצ'])
+  assert.deepEqual(hbo.words('וַיֹּאמֶר אֱלֹהִים'), ['יאמר', 'אלהימ'])
+  assert.deepEqual(hbo.words('אֲשֶׁר לֹא כִּי'), [])
+  const stems = (s) => hbo.words(s).map(hbo.stem)
+  assert.deepEqual(stems('דברים דברות דבריהם'), ['דבר', 'דבר', 'דבר'])
+  assert.deepEqual(stems('אב יד'), ['אב', 'יד'], 'two-letter stems stay')
+})
+
+test('Hebrew sentences end at the sof pasuq, not at the paseq or maqaf', () => {
+  assert.deepEqual(splitText('בראשית ברא אלהים׃ והארץ היתה תהו ׀ ובהו־וחשך׃ ויאמר', 'sentence', 1, hbo), [
+    'בראשית ברא אלהים׃',
+    'והארץ היתה תהו ׀ ובהו־וחשך׃',
+    'ויאמר',
+  ])
+})
+
+test('Hebrew uses bge-m3, char 3-grams, and overlap finds a parallel verse', () => {
+  assert.equal(hbo.embedder, 'bge-m3')
+  assert.equal(hbo.charGrams, 3)
+  assert.equal(resolve({ lang: 'hbo' }).embed, 'bge-m3')
+  assert.equal(resolve({ sourceLang: 'hbo', targetLang: 'en' }).lexical, false)
+  const docs = ['בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם', 'יְהוָ֥ה רֹ֖עִי לֹ֥א אֶחְסָֽר׃', 'וַיֵּ֖בְךְּ יֵשׁוּעַ']
+  const s = lexicalScorer(docs, hbo).scores('יהוה רעי לא אחסר')
   assert.equal(s.indexOf(Math.max(...s)), 1)
 })

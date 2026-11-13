@@ -15,6 +15,7 @@ import { lzh, foldClassicalChinese } from './lzh.js'
 import { akk, foldAkkadian } from './akk.js'
 
 import { syc, foldSyriac, splitProclitics } from './syc.js'
+import { hbo, foldHebrew, splitHebrewProclitics } from './hbo.js'
 
 export type { Lang } from './types.js'
 export { en, la, grc, sa }
@@ -34,6 +35,9 @@ export { akk, foldAkkadian }
 // Classical Syriac.
 Object.assign(LANGS, { syc })
 export { syc, foldSyriac, splitProclitics }
+// Biblical Hebrew.
+LANGS.hbo = hbo
+export { hbo, foldHebrew, splitHebrewProclitics }
 export const DEFAULT_LANG = 'en'
 
 // The built-in embedder for cross-lingual runs (any two different languages).

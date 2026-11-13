@@ -18,8 +18,8 @@ account or API key.
 1. **Embed** both texts and score every target unit by meaning. English uses
    nomic-embed-text-v1.5; every other language, and any pair of two languages, uses bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
-   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek and
-   Sanskrit also score shared character n-grams, which catch inflected forms the stems miss.
+   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek,
+   Sanskrit and Hebrew also score shared character n-grams, which catch inflected forms the stems miss.
    Overlap needs one language on both sides, so it is left out when the two texts differ.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
    Sanskrit gives the embedder and word overlap no vote (see Results).
@@ -60,6 +60,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `akk` | Akkadian (transliteration) | determinatives, sign indices, aleph, vowel length and damage marks dropped; š ṣ ṭ ḫ as s s t h; doubled letters collapsed; sign hyphens joined, logogram dots split | pronoun suffix, then case ending; character 4-grams |
 | `lzh` | Classical Chinese | traditional, simplified and variant characters fold to simplified; punctuation, Latin and digits dropped; 。！？； end sentences | each character is a word, particles (之乎者也…) dropped; character bigrams of the whole text |
 | `syc` | Classical Syriac | all points (East and West vowels, seyame, linea occultans) and SAM; ܘ ܕ split off, ܒ ܠ from longer words; Syriac stops end sentences | emphatic -ܐ, plural and pronoun endings, 3+ letters |
+| `hbo` | Biblical Hebrew | niqqud, cantillation, final letters (ם as מ); maqaf read as a space; ו, ה, ב, כ, ל, מ, ש split off; sof pasuq ׃ ends sentences | pronoun suffixes and plural endings; character 3-grams |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -210,6 +211,15 @@ Syriac fixture plan: Peshitta NT→OT quotations (Peshitta text from the ETCBC/P
 the Digital Syriac Corpus; check each licence before committing), run as `syc → syc`, and `syc → en`
 with a public-domain English Bible. Tune `charGrams` and the fusion weights by eval, as for Sanskrit.
 
+### Hebrew
+
+`hbo-parallels`: Chronicles, Isaiah, Obadiah and Deuteronomy against the passages they retell in
+Samuel–Kings, Psalms, Jeremiah and Exodus, 471 verse links, from the Open Scriptures Hebrew Bible
+(pointed text with cantillation). Overlap alone, measured 2026-11-13: R@1 433 / R@10 464 on
+words, 441 / 464 on character 3-grams, 443 / 464 fused. The Chronicler copied closely, so this
+checks the Hebrew folding more than it tests recall of loose allusions. The embedder's numbers
+are not measured yet.
+
 ## Limits
 
 - **Latin and Greek morphology is suffix stripping.** Without a lemmatizer, irregular stems and
@@ -218,6 +228,9 @@ with a public-domain English Bible. Tune `charGrams` and the fusion weights by e
   Standard Babylonian spell the same word differently (voicing, vowel contraction, mimation);
   only plene writing, gemination and case endings are folded. Logograms (Sumerian signs) match
   only other logograms.
+- **Hebrew prefixes are guessed.** ו, ה, ב, כ, ל, מ and ש come off any word of four letters or
+  more, so a word that begins with one of them loses it too: מלכים (kings) stems to לכ. Both
+  sides lose it alike, so overlap still matches; character 3-grams catch more. No roots.
 - **French, Spanish, Italian, German and Arabic stems are light.** They strip regular endings
   only; Arabic splits off و, ف, ال, بال, كال and لل but not a lone ب, ل or ك, and finds no roots.
 - **Syriac is light.** It reads Syriac script only (not Latin transliteration, Garshuni, or Biblical and
