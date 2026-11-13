@@ -2,9 +2,24 @@
 // OpenAI-compatible /v1/embeddings server (Ollama, LM Studio, llama.cpp, vLLM).
 import { createHash, randomBytes } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { availableParallelism } from 'node:os'
+import { createRequire } from 'node:module'
 import { cacheDir, log } from './util.js'
+
+// The runtime decides q8 vectors as much as the model file does: transformers.js 4 (newer
+// onnxruntime) moved them about 0.02 in cosine. Keying the cache on it keeps old vectors out.
+const RUNTIME = (() => {
+  try {
+    // The package's exports hide package.json, so walk up from its entry point.
+    let dir = dirname(createRequire(import.meta.url).resolve('@huggingface/transformers'))
+    for (let i = 0; i < 5; i++, dir = dirname(dir)) {
+      const p = join(dir, 'package.json')
+      if (existsSync(p)) { const j = JSON.parse(readFileSync(p, 'utf8')); if (j.name === '@huggingface/transformers') return j.version as string }
+    }
+  } catch {}
+  return 'unknown'
+})()
 
 export interface Embedder {
   name: string
@@ -108,7 +123,7 @@ function localEmbedder(name: string): Embedder {
   let pipe: ((t: string[], o: object) => Promise<{ tolist(): number[][] }>) | undefined
   return {
     name,
-    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: LOCAL_DTYPE }),
+    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: LOCAL_DTYPE, runtime: RUNTIME }),
     cacheable: true,
     async embed(texts, role) {
       if (!pipe) {

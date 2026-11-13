@@ -23,10 +23,12 @@ ligatura eval fixtures/lxx-nt --neighbours 1
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Embedding only (bge-m3) | 110 | 140 | 154 | 164 |
+| Embedding only (bge-m3) | 112 | 142 | 151 | 169 |
 | Overlap only | 146 | 178 | 195 | 208 |
 | Character overlap only (4-grams) | 160 | 192 | 204 | 217 |
-| Retrieval (embedding + both overlaps) | 165 | 207 | 217 | 228 |
+| Retrieval (embedding + both overlaps) | 163 | 208 | 221 | 231 |
+
+Embedding and fused rows re-run 2026-11-13 under transformers.js 4.3.2.
 
 Of 266 links, `--neighbours 1`. Run 2026-11-10 from cached vectors; the first run, 2026-11-09, on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, took 1,611 s, nearly all of it embedding the 28,113 LXX verses
 once (later runs read the cache). Fused, 86% of the quotations are in the top 10. Overlap does more

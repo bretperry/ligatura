@@ -24,11 +24,13 @@ ligatura eval fixtures/augustine-vulgate --neighbours 1
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Embedding only (bge-m3) | 159 | 210 | 240 | 275 |
+| Embedding only (bge-m3) | 158 | 218 | 237 | 266 |
 | Overlap only | 218 | 303 | 338 | 374 |
 | Character overlap only (4-grams) | 258 | 364 | 400 | 441 |
-| Retrieval (embedding + both overlaps) | 256 | 389 | 427 | 463 |
-| Reranked, top 30 (`qwen3-reranker-0.6b`) | 210 | 349 | 406 | 469 |
+| Retrieval (embedding + both overlaps) | 258 | 385 | 424 | 463 |
+| Reranked, top 30 (`qwen3-reranker-0.6b`, transformers.js 3) | 210 | 349 | 406 | 469 |
+
+Embedding and fused rows re-run 2026-11-13 under transformers.js 4.3.2.
 
 Of 713 scored links (after the corrections below), `--neighbours 1`. Run 2026-11-10 on a Mac mini (Apple M2 Pro, 10 CPU cores) with bge-m3 q8, from cached vectors (the first run, 2026-11-09, took 929 s, nearly all of it embedding the 35,837 verses).
 Fused, 65% are in the top 10 (56% before character overlap, 62% before the corrections).

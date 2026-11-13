@@ -25,7 +25,7 @@ ligatura eval fixtures/shankara-upanisads --neighbours 1
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Embedding only (bge-m3) | 317 | 413 | 479 | 557 |
+| Embedding only (bge-m3, transformers.js 4.3.2, 2026-11-13) | 323 | 423 | 483 | 570 |
 | Word overlap only (stems) | 630 | 785 | 835 | 882 |
 | Character overlap only (6-grams, spaces removed) | 1,004 | 1,123 | 1,142 | 1,153 |
 | Retrieval (fused; character overlap only, see below) | 1,004 | 1,124 | 1,143 | 1,154 |

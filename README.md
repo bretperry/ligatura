@@ -147,7 +147,7 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Retrieval (embedding + overlap) | 35 | 40 | 42 | 44 |
+| Retrieval (embedding + overlap) | 32 | 42 | 42 | 44 |
 | Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
 | Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
 
@@ -163,14 +163,16 @@ shared a rank; not re-run).
 
 More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
-is shown for each list alone, then fused:
+is shown for each list alone, then fused. The `lxx-nt`, `augustine-vulgate` and
+`shankara-upanisads` rows and the retrieval row above were re-run 2026-11-13 under transformers.js 4.3.2,
+whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
-| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
-| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
+| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 169 | 208 | 217 | 163 / 231 (87%) |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 266 | 374 | 441 | 258 / 463 (65%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
-| `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 1,004 / 1,154 (95%) |
+| `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 570 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
