@@ -57,6 +57,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
 | `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
 | `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
+| `lzh` | Classical Chinese | traditional, simplified and variant characters fold to simplified; punctuation, Latin and digits dropped; 。！？； end sentences | each character is a word, particles (之乎者也…) dropped; character bigrams of the whole text |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -71,6 +72,9 @@ The stems are suffix stripping, not a lemmatizer: they catch case endings but no
 4-grams, which catch forms the stems miss (*mortuos, mortuis*) and some OCR and spelling variants.
 Sanskrit sandhi joins and alters words at their edges, so Sanskrit takes 6-grams from the whole
 text with its spaces removed; there is no sandhi splitter.
+Classical Chinese has no word spacing, so each Han character is a word and character bigrams of the
+whole text carry phrase quotation; there is no word segmenter. Its folding table (`src/lang/lzh-chars.ts`)
+is generated from ICU's Hant-Hans transform plus a short list of variants.
 
 ## Output
 
@@ -192,7 +196,7 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
 
-Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Italian, Arabic and Classical Chinese have profiles and tests but no fixture yet, so their numbers are unmeasured.
 
 ## Limits
 

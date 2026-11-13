@@ -9,6 +9,7 @@ import { es, foldSpanish } from './es.js'
 import { it, foldItalian } from './it.js'
 import { de, foldGerman } from './de.js'
 import { ar, foldArabic, splitClitics } from './ar.js'
+import { lzh, foldClassicalChinese } from './lzh.js'
 
 export type { Lang } from './types.js'
 export { en, la, grc, sa }
@@ -19,6 +20,8 @@ export { foldSanskrit, devanagariToIast } from './sa.js'
 export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 // Modern languages, kept in their own block.
 Object.assign(LANGS, { fr, es, it, de, ar })
+LANGS.lzh = lzh
+export { lzh, foldClassicalChinese }
 export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
 export const DEFAULT_LANG = 'en'
 
