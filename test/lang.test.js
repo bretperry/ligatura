@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve } from '../dist/index.js'
+import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve, foldCoptic } from '../dist/index.js'
 
 const la = getLang('la')
 const grc = getLang('grc')
@@ -357,5 +357,47 @@ test('Hebrew uses bge-m3, char 3-grams, and overlap finds a parallel verse', () 
   assert.equal(resolve({ sourceLang: 'hbo', targetLang: 'en' }).lexical, false)
   const docs = ['בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם', 'יְהוָ֥ה רֹ֖עִי לֹ֥א אֶחְסָֽר׃', 'וַיֵּ֖בְךְּ יֵשׁוּעַ']
   const s = lexicalScorer(docs, hbo).scores('יהוה רעי לא אחסר')
+  assert.equal(s.indexOf(Math.max(...s)), 1)
+})
+
+// Coptic.
+const cop = getLang('cop')
+
+test('Coptic folds Greek-block lookalikes, case, and supralinear strokes', () => {
+  // Coptic-block ⲁⲃⲅ, Greek-block αβγ, capitals, and combining overline/macron/conjoining strokes.
+  assert.equal(foldCoptic('ⲀⲂⲄ'), 'ⲁⲃⲅ')
+  assert.equal(foldCoptic('αβγ'), 'ⲁⲃⲅ')
+  assert.equal(foldCoptic('ⲛ̄ⲧⲟϥ ⲛⲏⲧ︤ⲛ︥ ⲧⲏⲣϥ̄'), 'ⲛⲧⲟϥ ⲛⲏⲧⲛ ⲧⲏⲣϥ')
+  assert.equal(foldCoptic('ϲοφια'), foldCoptic('ⲥⲟⲫⲓⲁ'), 'lunate sigma and Greek letters match Coptic ones')
+  assert.equal(foldCoptic('Ϣϣ'), 'ϣϣ', 'Coptic-only letters live in the Greek block and keep their place')
+  assert.equal(foldCoptic('ϧⲉⲛ'), 'ϩⲉⲛ', 'Bohairic ϧ folds to ϩ')
+})
+
+test('Coptic words drop function words; stems peel conjugation bases, articles and suffixes', () => {
+  assert.deepEqual(cop.words('ⲁⲩⲱ ⲁϥϫⲟⲟⲥ ⲛⲁϥ ϫⲉ ⲡⲛⲟⲩⲧⲉ'), ['ⲁϥϫⲟⲟⲥ', 'ⲡⲛⲟⲩⲧⲉ'])
+  assert.deepEqual(cop.words('ⲛ̄ⲧⲟϥ ⲡⲛⲟⲩⲧⲉ'), cop.words('ⲛⲧⲟϥ ⲡⲛⲟⲩⲧⲉ'))
+  assert.equal(cop.stem('ⲁϥϫⲟⲟⲥ'), cop.stem('ⲁⲩϫⲟⲟⲥ'))
+  assert.equal(cop.stem('ⲛⲟⲩⲣⲱⲙⲉ'), cop.stem('ⲣⲱⲙⲉ'))
+  assert.equal(cop.stem('ⲡⲣⲟ'), 'ⲡⲣⲟ', 'a short word keeps its first letter')
+  assert.deepEqual(cop.words('ⲧⲉ'), [], 'copula')
+})
+
+test('Coptic sentences end at . · ; ! and the Coptic full stops', () => {
+  assert.deepEqual(splitText('ⲁϥⲉⲓ ⲉⲃⲟⲗ. ⲁϥⲛⲁⲩ· ⲁⲩⲱ ⲁϥϫⲟⲟⲥ⳹ ϫⲉ ⲟⲩⲛ ⲟⲩⲛⲟⲩⲧⲉ;', 'sentence', 1, cop), [
+    'ⲁϥⲉⲓ ⲉⲃⲟⲗ.',
+    'ⲁϥⲛⲁⲩ·',
+    'ⲁⲩⲱ ⲁϥϫⲟⲟⲥ⳹',
+    'ϫⲉ ⲟⲩⲛ ⲟⲩⲛⲟⲩⲧⲉ;',
+  ])
+})
+
+test('Coptic uses bge-m3, scores 3-grams, and finds a quotation across spellings', () => {
+  assert.equal(cop.embedder, 'bge-m3')
+  assert.equal(cop.charGrams, 3)
+  assert.equal(resolve({ lang: 'cop' }).embed, 'bge-m3')
+  assert.equal(resolve({ lang: 'cop' }).lexical, true)
+  const docs = ['ϩⲛⲧⲁⲣⲭⲏ ⲛⲉⲣⲉⲡϣⲁϫⲉ ϣⲟⲟⲡ', 'ⲡϫⲟⲉⲓⲥ ⲡⲉ ⲡⲁϣⲱⲙⲉ ⲙⲛⲡⲁⲥⲱϯ', 'ⲁⲩⲱ ⲁϥⲉⲓ ⲉⲃⲟⲗ']
+  // Quoted with strokes and a Greek-block ϲ.
+  const s = lexicalScorer(docs, cop).scores('ⲡϫⲟⲉⲓϲ ⲡⲉ ⲡⲁϣⲱⲙⲉ')
   assert.equal(s.indexOf(Math.max(...s)), 1)
 })

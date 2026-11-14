@@ -16,6 +16,8 @@ import { akk, foldAkkadian } from './akk.js'
 
 import { syc, foldSyriac, splitProclitics } from './syc.js'
 import { hbo, foldHebrew, splitHebrewProclitics } from './hbo.js'
+// Coptic.
+import { cop, foldCoptic } from './cop.js'
 
 export type { Lang } from './types.js'
 export { en, la, grc, sa }
@@ -25,7 +27,7 @@ export { foldSanskrit, devanagariToIast } from './sa.js'
 
 export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 // Modern languages, kept in their own block.
-Object.assign(LANGS, { fr, es, it, de, ar })
+Object.assign(LANGS, { fr, es, it, de, ar, cop })
 LANGS.lzh = lzh
 export { lzh, foldClassicalChinese }
 export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
@@ -38,6 +40,8 @@ export { syc, foldSyriac, splitProclitics }
 // Biblical Hebrew.
 LANGS.hbo = hbo
 export { hbo, foldHebrew, splitHebrewProclitics }
+// Coptic.
+export { cop, foldCoptic }
 export const DEFAULT_LANG = 'en'
 
 // The built-in embedder for cross-lingual runs (any two different languages).

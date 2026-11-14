@@ -18,7 +18,7 @@ account or API key.
 1. **Embed** both texts and score every target unit by meaning. English uses
    nomic-embed-text-v1.5; every other language, and any pair of two languages, uses bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
-   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek,
+   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek, Coptic,
    Sanskrit and Hebrew also score shared character n-grams, which catch inflected forms the stems miss.
    Overlap needs one language on both sides, so it is left out when the two texts differ.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
@@ -61,6 +61,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `lzh` | Classical Chinese | traditional, simplified and variant characters fold to simplified; punctuation, Latin and digits dropped; 。！？； end sentences | each character is a word, particles (之乎者也…) dropped; character bigrams of the whole text |
 | `syc` | Classical Syriac | all points (East and West vowels, seyame, linea occultans) and SAM; ܘ ܕ split off, ܒ ܠ from longer words; Syriac stops end sentences | emphatic -ܐ, plural and pronoun endings, 3+ letters |
 | `hbo` | Biblical Hebrew | niqqud, cantillation, final letters (ם as מ); maqaf read as a space; ו, ה, ב, כ, ל, מ, ש split off; sof pasuq ׃ ends sentences | pronoun suffixes and plural endings; character 3-grams |
+| `cop` | Coptic (Sahidic) | case, supralinear strokes and other marks; Greek-block letters (α ϲ) written as Coptic-block ones; Bohairic ϧ as ϩ; `.` `·` `;` `⳹` `⳾` end sentences | conjugation bases, articles and pronoun suffixes peeled off bound groups; character 3-grams |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -68,6 +69,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 ligatura link --lang grc nt.jsonl lxx.jsonl
 ligatura link --source-lang la --target-lang en confessiones.txt douay.jsonl
 ligatura link --source-lang sa --target-lang en gita.txt translation.jsonl
+ligatura link --lang cop nt.jsonl ot.jsonl
 ```
 
 The stems are suffix stripping, not a lemmatizer: they catch case endings but not stem changes
@@ -83,6 +85,14 @@ Akkadian is read in Latin-letter transliteration, as ORACC and CDLI publish it (
 `{d}UTU`, `LUGAL.MEŠ`, `[a-na]`, ATF line numbers). Cuneiform Unicode is not read: it folds to
 nothing, so transliterate it first. Sentences end at a stop after a letter, since transliteration
 is mostly unpunctuated lines; pass `--split line` for line units.
+
+Coptic is **Sahidic first**: the literary standard, with the most open text. Bohairic reads with
+the same profile but shares fewer words with Sahidic (ⲡⲓ- for ⲡⲉ-, ⲫ ⲑ ⲭ for ⲡ ⲧ ⲕ), so only ϧ
+is folded into ϩ. Unicode keeps seven Coptic letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ) in the Greek block and
+many editions type the rest with Greek letters, so both are folded to the Coptic block.
+Coptic writes bound groups (article, conjugation base, verb and suffix run together); there is
+no segmenter, so the stems and character 3-grams do the work. Editions differ on where they
+cut groups.
 
 ## Output
 
