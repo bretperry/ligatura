@@ -165,14 +165,14 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Retrieval, default (nomic + bge-m3 + overlap) | 35 | 40 | 43 | 45 |
-| Retrieval, `--embed nomic-embed-text-v1.5` | 35 | 40 | 42 | 44 |
+| Retrieval, default (nomic + bge-m3 + overlap) | 32 | 44 | 44 | 45 |
+| Retrieval, `--embed nomic-embed-text-v1.5` | 32 | 42 | 42 | 44 |
 | Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
 | Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
 
 Recall counts a link found when the gold verse or its neighbour is in the top k (`--neighbours 1`),
-of 49. Retrieval rows from 2026-11-14 on a Mac mini (Apple M2 Pro CPU); reranked rows from
-2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
+of 49. Retrieval rows from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2;
+reranked rows from 2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
 
 A second fixture, *The Waste Land* against its sources in seven languages
 (`fixtures/waste-land`, 64 links, built by a script from public-domain texts), shows why the
@@ -186,7 +186,7 @@ default has a multilingual model. With `--gloss target-en.jsonl --neighbours 1`:
 
 The default gives up one link at R@1 for two more from R@3 on. Without translations, nomic alone
 missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10, before the language profiles).
-Runs from 2026-11-14 on a Mac mini (Apple M2 Pro CPU).
+Runs from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2.
 
 Reranking costs R@1 on Kempis, so it's off by default. The cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the
@@ -198,8 +198,8 @@ shared a rank; not re-run).
 More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
 is shown for each list alone, then fused. The `lxx-nt`, `augustine-vulgate` and
-`shankara-upanisads` rows and the retrieval row above were re-run 2026-11-13 under transformers.js 4.3.2,
-whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
+`shankara-upanisads` rows were re-run 2026-11-13 under transformers.js 4.3.2, whose newer ONNX
+runtime moves q8 vectors about 0.02 in cosine:
 
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|

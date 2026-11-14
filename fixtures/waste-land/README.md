@@ -22,7 +22,7 @@ ligatura eval fixtures/waste-land --neighbours 1 --gloss target-en.jsonl
 ## Results
 
 Retrieval only (no reranker), recall of 64 links at 1 / 3 / 5 / 10. The `--gloss` columns are
-from 2026-11-14 on a Mac mini (Apple M2 Pro), after the 0.2.0 language profiles changed word
+from 2026-11-14 on a Mac mini (Apple M2 Pro, transformers.js 4.3.2), after the 0.2.0 language profiles changed word
 overlap. Cells marked * are from 2026-11-09 and 2026-11-10 on an Apple M3, before that change;
 they weren't re-run.
 
