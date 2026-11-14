@@ -25,16 +25,18 @@ ligatura eval fixtures/hbo-parallels
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
+| Embedding only (bge-m3) | 427 | 445 | 450 | 453 |
 | Overlap only | 433 | 455 | 458 | 464 |
 | Character overlap only (3-grams) | 441 | 460 | 463 | 464 |
-| Both overlaps, fused | 443 | 458 | 462 | 464 |
-| Embedding (bge-m3), and all three fused | not yet measured | | | |
+| Retrieval (embedding + both overlaps) | 448 | 461 | 462 | 464 |
 
-Of 471 links, `--neighbours 0`. Measured 2026-11-13 by scoring the two overlap lists directly
-(the same scorers `eval` uses), without the embedder. The bge-m3 run was still embedding the
-target when this was written, on a machine shared with other jobs. Character 3-grams beat
-4-grams (R@1 445) and 5-grams (430) here, so the profile uses 3: Hebrew words are short once
-the vowels are gone. Seven links are in no top 10; they share fewer than three stems.
+Of 471 links, `--neighbours 0`. Run 2026-11-14 on a Mac mini (Apple M2 Pro, 10 CPU cores) with
+bge-m3 q8: 46 minutes, nearly all of it embedding the 9,959 target verses once. Fused, 98.5% of
+the links are in the top 10. Character 3-grams beat 4-grams (R@1 445, overlap alone) and
+5-grams (430), so the profile uses 3: Hebrew words are short once the vowels are gone. Of the
+seven misses, two are outside the top 30: 2 Chr. 12:9 / 1 Kgs 14:25 (rank 47) and the
+Decalogue's sabbath reason, Deut. 5:15 / Exod. 20:11 (rank 111), which give different reasons in
+different words.
 
 ## Where the gold links come from
 

@@ -215,10 +215,10 @@ with a public-domain English Bible. Tune `charGrams` and the fusion weights by e
 
 `hbo-parallels`: Chronicles, Isaiah, Obadiah and Deuteronomy against the passages they retell in
 Samuel–Kings, Psalms, Jeremiah and Exodus, 471 verse links, from the Open Scriptures Hebrew Bible
-(pointed text with cantillation). Overlap alone, measured 2026-11-13: R@1 433 / R@10 464 on
-words, 441 / 464 on character 3-grams, 443 / 464 fused. The Chronicler copied closely, so this
-checks the Hebrew folding more than it tests recall of loose allusions. The embedder's numbers
-are not measured yet.
+(pointed text with cantillation). Run 2026-11-14 on the Mac mini, bge-m3 q8: R@10 453 for the
+embedder, 464 for words, 464 for character 3-grams; fused R@1 / R@10 448 / 464 (98.5%). The
+Chronicler copied closely, so this checks the Hebrew folding more than it tests recall of loose
+allusions.
 
 ## Limits
 
