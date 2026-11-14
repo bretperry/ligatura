@@ -19,20 +19,47 @@ export const dot = (a: Float32Array, b: Float32Array) => {
   return s
 }
 
-// Ranks from scores: 1 is best. Ties keep input order.
+// Ranks from scores: 1 is best. Tied scores share the best rank they cover ("1, 2, 2, 4"), so
+// file order never breaks a tie: thousands of zero-overlap targets all rank equal, not 1..n.
 export function ranks(scores: Float32Array): Int32Array {
   const order = [...scores.keys()].sort((a, b) => scores[b] - scores[a])
   const r = new Int32Array(scores.length)
-  order.forEach((j, i) => { r[j] = i + 1 })
+  order.forEach((j, i) => { r[j] = i > 0 && scores[j] === scores[order[i - 1]] ? r[order[i - 1]] : i + 1 })
   return r
+}
+
+// A whole number at least min, or an error naming the option.
+export function checkInt(name: string, v: number | undefined, min: number): number | undefined {
+  if (v === undefined) return undefined
+  if (!Number.isInteger(v) || v < min) throw new Error(`${name} must be a whole number of at least ${min}, got ${v}`)
+  return v
+}
+
+// Refs must be unique: a link names its passages by ref.
+export function checkUnique(what: string, refs: string[]) {
+  const seen = new Set<string>()
+  for (const r of refs) {
+    if (seen.has(r)) throw new Error(`${what}: ref "${r}" appears more than once; refs must be unique`)
+    seen.add(r)
+  }
 }
 
 export const RRF_K = 60
 
-// Reciprocal rank fusion: each list adds 1 / (60 + rank).
+// Reciprocal rank fusion: each list adds weight / (60 + rank), weight 1 unless given. A list where
+// every score is equal says nothing, so it is left out; so is a list with weight 0, unless no
+// weighted list ranks anything, when the rest vote equally rather than leave every item tied.
 export function fuse(...lists: Float32Array[]): Float32Array {
-  const rs = lists.map(ranks)
-  return Float32Array.from(rs[0], (_, j) => rs.reduce((s, r) => s + 1 / (RRF_K + r[j]), 0))
+  return fuseWeighted(lists.map((l) => [l, 1]))
+}
+
+export function fuseWeighted(lists: [Float32Array, number][]): Float32Array {
+  const ranking = lists.filter(([l]) => l.some((x) => x !== l[0]))
+  const weighted = ranking.filter(([, w]) => w > 0)
+  const informative = weighted.length ? weighted : ranking.map(([l]): [Float32Array, number] => [l, 1])
+  if (!informative.length) return new Float32Array(lists[0]?.[0].length ?? 0)
+  const rs = informative.map(([l, w]) => [ranks(l), w] as const)
+  return Float32Array.from(rs[0][0], (_, j) => rs.reduce((s, [r, w]) => s + w / (RRF_K + r[j]), 0))
 }
 
 export const topK = (scores: Float32Array, k: number) => [...scores.keys()].sort((a, b) => scores[b] - scores[a]).slice(0, k)

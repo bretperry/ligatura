@@ -1,67 +1,120 @@
 // Embedding backends. Local models run in process (transformers.js, ONNX); `openai:` calls any
 // OpenAI-compatible /v1/embeddings server (Ollama, LM Studio, llama.cpp, vLLM).
-import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createHash, randomBytes } from 'node:crypto'
+import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { availableParallelism } from 'node:os'
 import { cacheDir, log } from './util.js'
 
 export interface Embedder {
   name: string
+  // Everything that changes the vectors: model, revision, prefixes, pooling, precision, server.
+  fingerprint: string
+  // false for a server whose model can change under the same name; its vectors aren't cached.
+  cacheable: boolean
   embed(texts: string[], role: 'query' | 'doc'): Promise<Float32Array[]>
 }
 
 interface LocalModel {
   id: string
+  revision: string
   pooling: 'cls' | 'mean' | 'last_token'
   query?: string
   doc?: string
-  dtype?: 'q8' | 'q4' | 'fp32'
+  dtype?: 'q8' | 'q4' | 'fp32' // default q8
   // A model built locally, read from <cache>/onnx/<id> and never downloaded.
   local?: boolean
 }
 
-// Query and document prefixes follow each model card.
+// Query and document prefixes follow each model card. The revision is part of the cache key;
+// a commit hash there pins the model, 'main' follows the Hugging Face repo.
 export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
-  'nomic-embed-text-v1.5': { id: 'nomic-ai/nomic-embed-text-v1.5', pooling: 'mean', query: 'search_query: ', doc: 'search_document: ' },
-  'bge-small-en-v1.5': { id: 'Xenova/bge-small-en-v1.5', pooling: 'cls' },
-  'bge-large-en-v1.5': { id: 'Xenova/bge-large-en-v1.5', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ' },
-  // Multilingual: English against Italian, Latin, Greek, French, German, Sanskrit (lab/multilingual-probe.mjs).
-  'bge-m3': { id: 'Xenova/bge-m3', pooling: 'cls' },
-  // bge-m3 tuned on English against Latin, Greek and Sanskrit (lab/finetune.py); built locally, not published.
-  'bge-m3-classics': { id: 'bge-m3-classics', pooling: 'cls', local: true },
-  'snowflake-arctic-embed-l-v2.0': { id: 'Snowflake/snowflake-arctic-embed-l-v2.0', pooling: 'cls', query: 'query: ' },
-  'multilingual-e5-large': { id: 'Xenova/multilingual-e5-large', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
-  'multilingual-e5-small': { id: 'Xenova/multilingual-e5-small', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'nomic-embed-text-v1.5': { id: 'nomic-ai/nomic-embed-text-v1.5', revision: 'main', pooling: 'mean', query: 'search_query: ', doc: 'search_document: ' },
+  'bge-small-en-v1.5': { id: 'Xenova/bge-small-en-v1.5', revision: 'main', pooling: 'cls' },
+  'bge-large-en-v1.5': { id: 'Xenova/bge-large-en-v1.5', revision: 'main', pooling: 'cls', query: 'Represent this sentence for searching relevant passages: ' },
+  // Multilingual (MIT): the default for Latin and Greek, and for any run across two languages.
+  // ONNX export of BAAI/bge-m3, pinned to the commit measured in the README.
+  'bge-m3': { id: 'Xenova/bge-m3', revision: '4de13258303883538bd53b696b452bf8099f0858', pooling: 'cls' },
+  // Others measured against English in lab/multilingual-probe.mjs and lab/yardstick.mjs.
+  'snowflake-arctic-embed-l-v2.0': { id: 'Snowflake/snowflake-arctic-embed-l-v2.0', revision: 'main', pooling: 'cls', query: 'query: ' },
+  'multilingual-e5-large': { id: 'Xenova/multilingual-e5-large', revision: 'main', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'multilingual-e5-small': { id: 'Xenova/multilingual-e5-small', revision: 'main', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  // q8 hurts this one badly; fp32 is slow (hours for a book).
   'qwen3-embedding-0.6b': {
-    id: 'onnx-community/Qwen3-Embedding-0.6B-ONNX', pooling: 'last_token', dtype: 'fp32',
+    id: 'onnx-community/Qwen3-Embedding-0.6B-ONNX', revision: 'main', pooling: 'last_token', dtype: 'fp32',
     query: 'Instruct: Given a passage, retrieve the passage in another text, in any language, that it quotes, translates or alludes to\nQuery: ',
   },
+  // bge-m3 tuned on English against Latin, Greek and Sanskrit (lab/finetune.py); built locally, not published.
+  'bge-m3-classics': { id: 'bge-m3-classics', revision: 'local', pooling: 'cls', local: true },
 }
+// English against English: two embedders fused (see "a+b" in link.ts and the README results).
 export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5+bge-m3'
+const LOCAL_DTYPE = 'q8'
 
 export function makeEmbedder(spec: string): Embedder {
   const inner = spec.startsWith('openai:') ? openaiEmbedder(spec) : localEmbedder(spec)
-  return { name: inner.name, embed: (texts, role) => cached(inner, texts, role) }
+  return { ...inner, embed: (texts, role) => cached(inner, texts, role) }
 }
 
-// Vectors are cached per model, role and exact input, so a rerun embeds nothing.
+const CACHE_VERSION = 2
+
+// Vectors are cached by everything that shapes them, so a rerun embeds nothing and a changed
+// model or prefix never reuses old vectors. LIGATURA_NO_CACHE=1 turns the cache off.
 async function cached(e: Embedder, texts: string[], role: 'query' | 'doc'): Promise<Float32Array[]> {
-  const key = createHash('sha1').update(`${e.name}\0${role}\0${texts.join('\0')}`).digest('hex')
+  if (!e.cacheable || process.env.LIGATURA_NO_CACHE) return checked(await e.embed(texts, role), texts.length, e.name)
+  const key = createHash('sha256').update(JSON.stringify({ v: CACHE_VERSION, fp: e.fingerprint, role, texts })).digest('hex')
   const dir = join(cacheDir(), 'vectors')
-  // Raw float32, row after row: JSON can't hold large texts (46k x 1024 floats overflows V8 strings).
-  const file = join(dir, `${key}.f32`)
+  // Binary: two uint32 (count, dimension), then the floats. JSON from older versions is still read;
+  // it can't hold a large text (36k vectors of 1024 overflow a string), so new files are binary.
+  const file = join(dir, `${key}.bin`)
+  const legacy = join(dir, `${key}.json`)
   if (existsSync(file)) {
-    const buf = readFileSync(file)
-    const all = new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4)
-    const dim = all.length / texts.length
-    return texts.map((_, i) => all.slice(i * dim, (i + 1) * dim))
+    try {
+      const buf = readFileSync(file)
+      const n = buf.readUInt32LE(0), dim = buf.readUInt32LE(4)
+      if (buf.length !== 8 + 4 * n * dim) throw new Error('size')
+      const all = new Float32Array(buf.buffer.slice(buf.byteOffset + 8, buf.byteOffset + buf.length))
+      return checked(Array.from({ length: n }, (_, i) => all.slice(i * dim, (i + 1) * dim)), texts.length, e.name)
+    } catch {
+      log(`cache: ${file} is unreadable; embedding again`)
+    }
+  } else if (existsSync(legacy)) {
+    try {
+      return checked((JSON.parse(readFileSync(legacy, 'utf8')) as number[][]).map((v) => Float32Array.from(v)), texts.length, e.name)
+    } catch {
+      log(`cache: ${legacy} is unreadable; embedding again`)
+    }
   }
-  const out = await e.embed(texts, role)
-  mkdirSync(dir, { recursive: true })
-  const flat = new Float32Array(out.length * (out[0]?.length ?? 0))
-  out.forEach((v, i) => flat.set(v, i * v.length))
-  writeFileSync(file, Buffer.from(flat.buffer))
+  const out = checked(await e.embed(texts, role), texts.length, e.name)
+  // Private directory and file; write to a temporary name, then rename, so a crash or a parallel
+  // run never leaves half a file under the real name.
+  mkdirSync(dir, { recursive: true, mode: 0o700 })
+  try { chmodSync(dir, 0o700) } catch {}
+  const tmp = `${file}.${process.pid}.${randomBytes(4).toString('hex')}.tmp`
+  try {
+    const dim = out[0]?.length ?? 0
+    const buf = Buffer.alloc(8 + 4 * out.length * dim)
+    buf.writeUInt32LE(out.length, 0)
+    buf.writeUInt32LE(dim, 4)
+    out.forEach((v, i) => Buffer.from(v.buffer, v.byteOffset, v.byteLength).copy(buf, 8 + 4 * i * dim))
+    writeFileSync(tmp, buf, { mode: 0o600 })
+    renameSync(tmp, file)
+  } catch (err) {
+    try { unlinkSync(tmp) } catch {}
+    log(`cache: could not write ${file}: ${(err as Error).message}`)
+  }
   return out
+}
+
+// One finite vector per text, all the same length.
+function checked(vs: Float32Array[], n: number, name: string): Float32Array[] {
+  if (!Array.isArray(vs) || vs.length !== n) throw new Error(`${name}: expected ${n} vectors, got ${vs?.length}`)
+  const dim = vs[0]?.length
+  for (const v of vs) {
+    if (!dim || v.length !== dim) throw new Error(`${name}: vectors differ in length (${dim} and ${v.length})`)
+    for (const x of v) if (!Number.isFinite(x)) throw new Error(`${name}: a vector holds a non-finite value`)
+  }
+  return vs
 }
 
 function localEmbedder(name: string): Embedder {
@@ -70,6 +123,8 @@ function localEmbedder(name: string): Embedder {
   let pipe: ((t: string[], o: object) => Promise<{ tolist(): number[][] }>) | undefined
   return {
     name,
+    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: cfg.dtype ?? LOCAL_DTYPE }),
+    cacheable: true,
     async embed(texts, role) {
       if (!pipe) {
         const { pipeline, env } = await import('@huggingface/transformers')
@@ -77,14 +132,22 @@ function localEmbedder(name: string): Embedder {
           env.localModelPath = join(cacheDir(), 'onnx') + '/'
           if (!existsSync(join(env.localModelPath, cfg.id))) throw new Error(`embedder "${name}" is built locally; expected it at ${join(env.localModelPath, cfg.id)}`)
         }
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: cfg.dtype ?? 'q8', ...(cfg.local ? { local_files_only: true } : {}) })) as unknown as typeof pipe
+        // ONNX Runtime's default left most cores idle (about one in use on an M3).
+        const session_options = { intraOpNumThreads: Math.max(1, availableParallelism() - 1) }
+        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: cfg.dtype ?? LOCAL_DTYPE, session_options, ...(cfg.local ? { local_files_only: true } : { revision: cfg.revision }) })) as unknown as typeof pipe
       }
       const prefix = cfg[role] ?? ''
+      // Batches stay in input order: q8 quantizes each batch as a whole, so regrouping texts
+      // (say, by length) changes their vectors.
       const out: Float32Array[] = []
+      const started = Date.now()
       for (let i = 0; i < texts.length; i += 32) {
         const t = await pipe!(texts.slice(i, i + 32).map((x) => prefix + x), { pooling: cfg.pooling, normalize: true })
         out.push(...t.tolist().map((v) => Float32Array.from(v)))
-        log(`embed ${name} ${role}: ${Math.min(i + 32, texts.length)}/${texts.length}`, true)
+        const done = Math.min(i + 32, texts.length)
+        const msg = `embed ${name} ${role}: ${done}/${texts.length}`
+        if (process.stderr.isTTY) log(msg, true)
+        else if (done % 2048 < 32 || done === texts.length) log(`${msg} (${Math.round((Date.now() - started) / 1000)} s)`)
       }
       return out
     },
@@ -92,23 +155,37 @@ function localEmbedder(name: string): Embedder {
 }
 
 // openai:http://localhost:11434/v1#nomic-embed-text sends {model, input} to <base>/embeddings.
-// A key, if the server needs one, comes from LIGATURA_API_KEY.
+// A server can swap the model behind a name, so these vectors aren't cached.
 function openaiEmbedder(spec: string): Embedder {
   const [base, model] = spec.slice('openai:'.length).split('#')
   if (!base || !model) throw new Error('openai embedder needs openai:<base-url>#<model>')
+  const url = `${base.replace(/\/$/, '')}/embeddings`
   return {
     name: spec,
+    fingerprint: JSON.stringify({ kind: 'openai', url, model }),
+    cacheable: false,
     async embed(texts) {
       const out: Float32Array[] = []
       for (let i = 0; i < texts.length; i += 64) {
-        const res = await fetch(`${base.replace(/\/$/, '')}/embeddings`, {
+        const batch = texts.slice(i, i + 64)
+        const res = await fetch(url, {
           method: 'POST',
-          headers: { 'content-type': 'application/json', ...auth() },
-          body: JSON.stringify({ model, input: texts.slice(i, i + 64) }),
+          headers: { 'content-type': 'application/json', ...auth('embed', url) },
+          body: JSON.stringify({ model, input: batch }),
         })
-        if (!res.ok) throw new Error(`${base}/embeddings: ${res.status} ${await res.text()}`)
-        const body = (await res.json()) as { data: { index: number; embedding: number[] }[] }
-        for (const d of body.data.sort((a, b) => a.index - b.index)) out.push(normalize(Float32Array.from(d.embedding)))
+        if (!res.ok) throw new Error(`${url}: ${res.status} ${await res.text()}`)
+        const body = (await res.json()) as { data?: { index?: unknown; embedding?: unknown }[] }
+        const got = new Array<Float32Array | undefined>(batch.length)
+        for (const d of Array.isArray(body.data) ? body.data : []) {
+          const k = d.index
+          if (typeof k !== 'number' || !Number.isInteger(k) || k < 0 || k >= batch.length || got[k] || !Array.isArray(d.embedding)) {
+            throw new Error(`${url}: malformed or duplicate embedding at index ${String(k)}`)
+          }
+          got[k] = normalize(Float32Array.from(d.embedding as number[]))
+        }
+        const lost = got.findIndex((v) => !v)
+        if (lost >= 0 || got.length !== batch.length) throw new Error(`${url}: no embedding for input ${i + Math.max(lost, 0)}`)
+        out.push(...(got as Float32Array[]))
         log(`embed ${model}: ${Math.min(i + 64, texts.length)}/${texts.length}`, true)
       }
       return out
@@ -116,9 +193,30 @@ function openaiEmbedder(spec: string): Embedder {
   }
 }
 
-export const auth = (): Record<string, string> => (process.env.LIGATURA_API_KEY ? { authorization: `Bearer ${process.env.LIGATURA_API_KEY}` } : {})
+// Keys. LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY go only to their own backend.
+// LIGATURA_API_KEY is a shared fallback, sent to one server only: if the embedder and the
+// reranker are different servers, each needs its own key. A key never goes over plain http
+// except to this machine.
+const sharedKeyOrigin: { origin?: string } = {}
+export function auth(kind: 'embed' | 'rerank', url: string): Record<string, string> {
+  const own = process.env[kind === 'embed' ? 'LIGATURA_EMBED_API_KEY' : 'LIGATURA_RERANK_API_KEY']
+  const key = own || process.env.LIGATURA_API_KEY
+  if (!key) return {}
+  const u = new URL(url)
+  const local = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(u.hostname)
+  if (u.protocol !== 'https:' && !local) throw new Error(`refusing to send an API key over ${u.protocol} to ${u.host}; use https`)
+  if (!own) {
+    if (sharedKeyOrigin.origin && sharedKeyOrigin.origin !== u.origin) {
+      throw new Error(`LIGATURA_API_KEY would go to both ${sharedKeyOrigin.origin} and ${u.origin}; set LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY instead`)
+    }
+    sharedKeyOrigin.origin = u.origin
+  }
+  return { authorization: `Bearer ${key}` }
+}
 
 function normalize(v: Float32Array): Float32Array {
-  const n = Math.hypot(...v) || 1
+  let s = 0
+  for (const x of v) s += x * x
+  const n = Math.sqrt(s) || 1
   return v.map((x) => x / n)
 }

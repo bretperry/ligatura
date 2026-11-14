@@ -3,7 +3,8 @@ import { parseArgs } from 'node:util'
 import { readFileSync } from 'node:fs'
 import { LOCAL_EMBEDDERS } from './embed.js'
 import { evaluate, formatEval } from './eval.js'
-import { link, toLinks, DEFAULTS } from './link.js'
+import { LANGS, MULTILINGUAL_EMBEDDER } from './lang/index.js'
+import { link, resolve, toLinks, DEFAULTS } from './link.js'
 import { loadUnits, type Split } from './units.js'
 import { setQuiet } from './util.js'
 
@@ -17,37 +18,82 @@ Inputs are JSONL ({"ref", "text"} per line) or plain text, split into sentences.
 Every link is a suggestion for a person to confirm.
 
 Options
-  --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}),
-                      or openai:<base-url>#<model> for any OpenAI-compatible server
+  --lang <code>       language of both texts: ${Object.keys(LANGS).join(', ')} (default en)
+  --source-lang <c>   language of the source, overriding --lang
+  --target-lang <c>   language of the target, overriding --lang. Word overlap is left out when
+                      the two differ
+  --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}
+                      for English, ${MULTILINGUAL_EMBEDDER} for any other language or pair),
+                      or openai:<base-url>#<model> for any OpenAI-compatible server; join
+                      several with + to fuse their rankings
   --rerank <model>    none (default), qwen3-reranker-0.6b (in process), api:<url>#<model> for a
                       /v1/rerank server, or chat:<base-url>#<model> for a chat model as judge
   --pool <n>          candidates the reranker reads per unit (default ${DEFAULTS.pool})
   --top <n>           links kept per source unit (default 3)
-  --min-score <x>     keep only links scoring at least x (reranker P(yes), or embedding cosine)
+  --min-score <x>     keep only links scoring at least x (see "score" in the README)
   --gloss <file>      translations of the target's units, matched by ref (JSONL); for eval, a name
                       inside the fixture such as target-en.jsonl
   --task <text>       the instruction the reranker reads
   --split <mode>      for plain text: sentence (default), paragraph or line
+  --min-words <n>     for plain text: drop units shorter than n words (default 1, keep all)
   --neighbours <n>    eval: also count a target n units away from the gold one (default 0)
   --json              eval: print JSON
   --quiet             no progress on stderr
 
 Defaults run locally and need no account. Models download on first use and are cached.
-API keys for remote servers come from LIGATURA_API_KEY.`
+API keys for remote servers: LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY, or
+LIGATURA_API_KEY when only one server needs a key. Keys go only over https, or to localhost.
+LIGATURA_NO_CACHE=1 turns off the vector cache.`
 
-const { values, positionals } = parseArgs({
+let parsed: ReturnType<typeof parseOpts>
+try {
+  parsed = parseOpts()
+} catch (err) {
+  console.error(`ligatura: ${(err as Error).message}`)
+  process.exit(2)
+}
+const { values, positionals } = parsed
+
+function parseOpts() {
+  return parseArgs({
   allowPositionals: true,
   options: {
     embed: { type: 'string' }, rerank: { type: 'string' }, pool: { type: 'string' }, top: { type: 'string' },
-    'min-score': { type: 'string' }, task: { type: 'string' }, gloss: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' },
+    'min-score': { type: 'string' }, task: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' }, 'min-words': { type: 'string' }, gloss: { type: 'string' },
+    lang: { type: 'string' }, 'source-lang': { type: 'string' }, 'target-lang': { type: 'string' },
     json: { type: 'boolean' }, quiet: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean', short: 'v' },
   },
-})
+  })
+}
 
-const num = (s: string | undefined) => (s === undefined ? undefined : Number(s))
+function fail(msg: string): never {
+  console.error(`ligatura: ${msg}`)
+  process.exit(2)
+}
+// --name n: a whole number at least min.
+const int = (name: string, min: number) => {
+  const s = values[name as keyof typeof values] as string | undefined
+  if (s === undefined) return undefined
+  const n = Number(s)
+  if (s.trim() === '' || !Number.isInteger(n) || n < min) fail(`--${name} must be a whole number of at least ${min}, got "${s}"`)
+  return n
+}
+const real = (name: string) => {
+  const s = values[name as keyof typeof values] as string | undefined
+  if (s === undefined) return undefined
+  const n = Number(s)
+  if (s.trim() === '' || !Number.isFinite(n)) fail(`--${name} must be a number, got "${s}"`)
+  return n
+}
+const SPLITS = ['auto', 'sentence', 'paragraph', 'line']
 const [cmd, ...args] = positionals
 setQuiet(!!values.quiet)
-const opts = { embed: values.embed, rerank: values.rerank, pool: num(values.pool), task: values.task }
+const opts = {
+  embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task,
+  lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
+}
+let run: ReturnType<typeof resolve>
+try { run = resolve(opts) } catch (err) { fail((err as Error).message) }
 
 if (values.version) {
   console.log((JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version)
@@ -55,14 +101,23 @@ if (values.version) {
   console.log(HELP)
 } else if (cmd === 'link' && args.length === 2) {
   const split = (values.split ?? 'auto') as Split
-  const source = loadUnits(args[0], split)
-  const target = loadUnits(args[1], split)
-  const gloss = values.gloss ? loadUnits(values.gloss, split) : undefined
-  for await (const r of link(source, target, { ...opts, gloss })) {
-    for (const l of toLinks(r, target, { ...opts, top: num(values.top) ?? 3, minScore: num(values['min-score']) })) process.stdout.write(`${JSON.stringify(l)}\n`)
+  if (!SPLITS.includes(split)) fail(`--split must be one of ${SPLITS.join(', ')}, got "${split}"`)
+  const minWords = int('min-words', 1) ?? 1
+  const top = int('top', 0) ?? 3
+  const minScore = real('min-score')
+  try {
+    const source = loadUnits(args[0], split, minWords, run.source)
+    const target = loadUnits(args[1], split, minWords, run.target)
+    const gloss = values.gloss ? loadUnits(values.gloss, split, 1, run.target) : undefined
+    for await (const r of link(source, target, { ...opts, gloss })) {
+      for (const l of toLinks(r, target, { ...opts, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
+    }
+  } catch (err) {
+    fail((err as Error).message)
   }
 } else if (cmd === 'eval' && args.length === 1) {
-  const e = await evaluate(args[0], { ...opts, glossFile: values.gloss, neighbours: num(values.neighbours) })
+  const neighbours = int('neighbours', 0)
+  const e = await evaluate(args[0], { ...opts, neighbours, glossFile: values.gloss }).catch((err: Error) => fail(err.message))
   console.log(values.json ? JSON.stringify(e, null, 1) : formatEval(e))
 } else {
   console.error(HELP)

@@ -21,16 +21,21 @@ ligatura eval fixtures/waste-land --neighbours 1 --gloss target-en.jsonl
 
 ## Results
 
-Retrieval only (no reranker), recall of 64 links at 1 / 3 / 5 / 10. Apple M3, 2026-11-09 and
-2026-11-10.
+Retrieval only (no reranker), recall of 64 links at 1 / 3 / 5 / 10. The `--gloss` columns are
+from 2026-11-14 on a Mac mini (Apple M2 Pro), after the 0.2.0 language profiles changed word
+overlap. Cells marked * are from 2026-11-09 and 2026-11-10 on an Apple M3, before that change;
+they weren't re-run.
 
 | Embed | plain | `--gloss` | `--gloss --neighbours 1` |
 |---|---|---|---|
-| nomic + bge-m3 (default) | – | 14 / 19 / 19 / 23 | 22 / 30 / 30 / 35 |
-| nomic + bge-m3-classics | – | 12 / 18 / 21 / 24 | 17 / 27 / 32 / 38 |
-| nomic-embed-text-v1.5 | 13 / 17 / 17 / 18 | 14 / 19 / 21 / 22 | 21 / 28 / 31 / 31 |
-| bge-m3 | 11 / 16 / 16 / 19 | 12 / 17 / 17 / 20 | 19 / 26 / 26 / 32 |
-| bge-m3-classics | 12 / 15 / 16 / 16 | 12 / 16 / 18 / 18 | 17 / 22 / 28 / 28 |
+| nomic + bge-m3 (default) | – | 14 / 18 / 19 / 22 | 21 / 28 / 29 / 33 |
+| nomic + bge-m3-classics | – | 12 / 18 / 21 / 24 * | 17 / 27 / 32 / 38 * |
+| nomic-embed-text-v1.5 | 13 / 17 / 17 / 18 * | 15 / 19 / 20 / 22 | 22 / 26 / 27 / 31 |
+| bge-m3 | 11 / 16 / 16 / 19 * | 12 / 16 / 16 / 18 | 18 / 24 / 24 / 27 |
+| bge-m3-classics | 12 / 15 / 16 / 16 * | 12 / 16 / 18 / 18 * | 17 / 22 / 28 / 28 * |
+
+nomic's gloss pass holds units of up to 8,900 characters in batches of 32; on a 16 GB machine
+running other jobs it was killed for memory, and ran once the machine was free.
 
 `bge-m3-classics` is bge-m3 tuned locally on English against Latin, Greek and Sanskrit
 (`lab/finetune.py`); it isn't published, so `--embed bge-m3-classics` works only where it was
