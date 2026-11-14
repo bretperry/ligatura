@@ -18,7 +18,7 @@ account or API key.
 1. **Embed** both texts and score every target unit by meaning. English uses
    nomic-embed-text-v1.5; every other language, and any pair of two languages, uses bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
-   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek and
+   embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek, Coptic and
    Sanskrit also score shared character n-grams, which catch inflected forms the stems miss.
    Overlap needs one language on both sides, so it is left out when the two texts differ.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
@@ -57,6 +57,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
 | `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
 | `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
+| `cop` | Coptic (Sahidic) | case, supralinear strokes and other marks; Greek-block letters (α ϲ) written as Coptic-block ones; Bohairic ϧ as ϩ; `.` `·` `;` `⳹` `⳾` end sentences | conjugation bases, articles and pronoun suffixes peeled off bound groups; character 3-grams |
 
 `--lang` sets both texts. For two languages, set `--source-lang` and `--target-lang`:
 
@@ -64,6 +65,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 ligatura link --lang grc nt.jsonl lxx.jsonl
 ligatura link --source-lang la --target-lang en confessiones.txt douay.jsonl
 ligatura link --source-lang sa --target-lang en gita.txt translation.jsonl
+ligatura link --lang cop nt.jsonl ot.jsonl
 ```
 
 The stems are suffix stripping, not a lemmatizer: they catch case endings but not stem changes
@@ -71,6 +73,14 @@ The stems are suffix stripping, not a lemmatizer: they catch case endings but no
 4-grams, which catch forms the stems miss (*mortuos, mortuis*) and some OCR and spelling variants.
 Sanskrit sandhi joins and alters words at their edges, so Sanskrit takes 6-grams from the whole
 text with its spaces removed; there is no sandhi splitter.
+
+Coptic is **Sahidic first**: the literary standard, with the most open text. Bohairic reads with
+the same profile but shares fewer words with Sahidic (ⲡⲓ- for ⲡⲉ-, ⲫ ⲑ ⲭ for ⲡ ⲧ ⲕ), so only ϧ
+is folded into ϩ. Unicode keeps seven Coptic letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ) in the Greek block and
+many editions type the rest with Greek letters, so both are folded to the Coptic block.
+Coptic writes bound groups (article, conjugation base, verb and suffix run together); there is
+no segmenter, so the stems and character 3-grams do the work. Editions differ on where they
+cut groups.
 
 ## Output
 
