@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve } from '../dist/index.js'
+import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve, foldCoptic } from '../dist/index.js'
+import { fuseWeighted, ranks } from '../dist/util.js'
 
 const la = getLang('la')
 const grc = getLang('grc')
@@ -101,9 +102,19 @@ test('English is unchanged and the default', () => {
   assert.deepEqual(splitText('He came. it was. And then.'), ['He came. it was.', 'And then.'])
 })
 
-test('only Sanskrit sets fusion weights; the others fuse with equal votes', () => {
+test('Sanskrit, Latin and Arabic set fusion weights; the others fuse with equal votes', () => {
   assert.deepEqual(sa.fusion, { dense: 0, words: 0 })
-  for (const code of ['en', 'la', 'grc']) assert.equal(getLang(code).fusion, undefined)
+  assert.deepEqual(getLang('la').fusion, { chars: 4 })
+  assert.deepEqual(getLang('ar').fusion, { dense: 0 })
+  for (const code of ['en', 'grc']) assert.equal(getLang(code).fusion, undefined)
+})
+
+test('Latin fusion keeps a target that character overlap ranks first over the embedding', () => {
+  const { dense, words, chars } = { dense: 1, words: 1, ...getLang('la').fusion }
+  // Target 0: 1st by embedding and words, 3rd by characters. Target 1: 1st by characters only.
+  const d = Float32Array.from([0.9, 0.2, 0.5]), w = Float32Array.from([0.9, 0.2, 0.5]), c = Float32Array.from([0.1, 0.9, 0.5])
+  assert.equal([...ranks(fuseWeighted([[d, 1], [w, 1], [c, 1]]))][0], 1)
+  assert.equal([...ranks(fuseWeighted([[d, dense], [w, words], [c, chars]]))][1], 1)
 })
 
 test('languages resolve the embedder and turn overlap off across languages', () => {
@@ -132,7 +143,8 @@ test('character n-grams match forms the stems miss, for Latin and Greek', () => 
 })
 
 // Modern languages: French, Spanish, Italian, German, Arabic.
-import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics } from '../dist/index.js'
+import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics, unvowelArabic } from '../dist/index.js'
+import { foldHebrew, splitHebrewProclitics } from '../dist/index.js'
 
 const fr = getLang('fr')
 const es = getLang('es')
@@ -200,6 +212,13 @@ test('Arabic strips harakat and tatweel, and folds alef, ya and ta marbuta', () 
   assert.equal(foldArabic('إِلَى مَدِينَةٍ'), 'الي مدينه')
 })
 
+test('Arabic text for the embedder loses its vowel marks and nothing else', () => {
+  assert.equal(unvowelArabic('قَالَ ٱلرَّبُّ لِرَبِّي'), 'قال الرب لربي')
+  assert.equal(unvowelArabic('إِلَى مَدِينَةٍ'), 'إلى مدينة')
+  assert.equal(getLang('ar').embedText('ٱلْكَلِمَةُ'), 'الكلمة')
+  assert.equal(getLang('fr').embedText, undefined)
+})
+
 test('Arabic splits off و ف and ب ل ك with the article, and keeps Allah whole', () => {
   assert.equal(splitClitics('وبالكلمه'), 'كلمه')
   assert.equal(splitClitics('للرب'), 'رب')
@@ -209,6 +228,12 @@ test('Arabic splits off و ف and ب ل ك with the article, and keeps Allah who
   for (const w of ['الله', 'والله', 'بالله', 'لله']) assert.equal(splitClitics(w), 'الله')
   assert.deepEqual(ar.words('وَقَالَ ٱللَّهُ: لِيَكُنْ نُورٌ'), ['الله', 'ليكن', 'نور'])
   assert.deepEqual(stemsOf(ar, 'كلماتهم الكلمات'), ['كلم', 'كلم'])
+})
+
+test('Arabic Uthmani Quran spelling and a plain quotation give the same words', () => {
+  const verse = 'وَلَوْ رَدُّوهُ إِلَى ٱلرَّسُولِ وَإِلَىٰٓ أُو۟لِى ٱلْأَمْرِ مِنْهُمْ لَعَلِمَهُ'
+  const quote = 'ولو ردوه إلى الرسول وإلى أولي الأمر منهم لعلمه'
+  assert.deepEqual(ar.words(verse), ar.words(quote))
 })
 
 test('Arabic sentences end at . ؟ and ؛ but not the Arabic comma', () => {
@@ -224,5 +249,180 @@ test('Modern languages use bge-m3, and overlap finds a quotation', () => {
   for (const l of [fr, es, it, de, ar]) assert.equal(l.embedder, 'bge-m3')
   const docs = ["Au commencement, Dieu créa les cieux et la terre.", "L'Éternel est mon berger: je ne manquerai de rien.", 'Jésus pleura.']
   const s = lexicalScorer(docs, fr).scores("l'Eternel est mon berger")
+  assert.equal(s.indexOf(Math.max(...s)), 1)
+})
+
+// Akkadian.
+import { foldAkkadian } from '../dist/index.js'
+
+const akk = getLang('akk')
+
+test('Akkadian joins signs, drops determinatives, indices and vowel length', () => {
+  assert.equal(foldAkkadian('a-na be-li-ia'), 'ana belia')
+  assert.equal(foldAkkadian('{d}UTU ᵈUTU'), 'utu utu')
+  assert.equal(foldAkkadian('šu₂ šu2 ṣa-bi-tum'), 'su su sabitum')
+  assert.equal(foldAkkadian('ša-a-ti'), foldAkkadian('ša-ti'), 'plene writing')
+  assert.equal(foldAkkadian('ib-ba-ši'), foldAkkadian('i-ba-ši'), 'gemination')
+  assert.equal(foldAkkadian('šarrānu'), foldAkkadian('šar-ra-nu'))
+  assert.equal(foldAkkadian('LUGAL.MEŠ-ni'), 'lugal mesni')
+})
+
+test('Akkadian keeps damaged signs and ignores line numbers and flags', () => {
+  assert.equal(foldAkkadian("3'. [a-na] ⌈be⌉-li-ia# x ... <<ša>>"), 'ana belia x sa')
+  assert.deepEqual(akk.words("12. [LUGAL] ⌈be⌉-lu₂!"), ['lugal', 'belu'])
+})
+
+test('Akkadian drops particles and stems case and suffixes', () => {
+  assert.deepEqual(akk.words('a-na ša u LUGAL'), ['lugal'])
+  const stems = (s) => akk.words(s).map(akk.stem)
+  assert.deepEqual(stems('šar-rum šar-ri šar-ra'), ['sar', 'sar', 'sar'])
+  assert.deepEqual(stems('šar-ru-šu'), stems('šar-rum'))
+})
+
+test('Akkadian sentences end at stops after letters, not at ATF line numbers or logogram dots', () => {
+  assert.deepEqual(splitText('1. a-na LUGAL.MEŠ iq-bi. 2. u₂-ul i-di', 'sentence', 1, akk), ['1. a-na LUGAL.MEŠ iq-bi.', '2. u₂-ul i-di'])
+})
+
+test('Akkadian uses bge-m3 and character 4-grams find a spelling variant', () => {
+  assert.equal(akk.embedder, 'bge-m3')
+  assert.equal(akk.charGrams, 4)
+  assert.equal(akk.fusion, undefined)
+  const docs = ['a-na be-li-ia qi-bi-ma', 'ša-ma-mu u er-ṣe-tu']
+  const s = charScorer(docs, akk, 4).scores('qi-bi-ma um-ma')
+  assert.ok(s[0] > s[1])
+})
+
+// Syriac.
+import { foldSyriac, splitProclitics } from '../dist/index.js'
+const syc = getLang('syc')
+
+test('Syriac drops vowel points, seyame, linea occultans and SAM, East and West alike', () => {
+  assert.equal(foldSyriac('ܒܪܺܫܺܝܬ'), 'ܒܪܫܝܬ')
+  assert.equal(foldSyriac('ܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(foldSyriac('ܡܰܠܟܳܐ'), foldSyriac('ܡܲܠܟܵܐ'), 'West and East vowels fold alike')
+  assert.equal(foldSyriac('ܡܠܟܐ'), foldSyriac('ܡܠ̈ܟܐ'), 'seyame (U+0308) dropped')
+  assert.equal(foldSyriac('ܐܠܗܐ̇'), 'ܐܠܗܐ', 'linea occultans / dot above dropped')
+  assert.equal(foldSyriac('܏ܐ'), 'ܐ')
+})
+
+test('Syriac splits ܘ and ܕ, and ܒ ܠ from longer words only', () => {
+  assert.equal(splitProclitics('ܘܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܕܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܘܕܡܠܟܐ'), 'ܡܠܟܐ')
+  assert.equal(splitProclitics('ܒܪܫܝܬ'), 'ܪܫܝܬ')
+  for (const w of ['ܒܝܬ', 'ܠܒܐ', 'ܟܬܒܐ']) assert.equal(splitProclitics(w), w)
+})
+
+test('Syriac words drop stop words and stems fold endings', () => {
+  assert.deepEqual(syc.words('ܘܐܡܪ ܠܗ ܡܠܟܐ ܕܠܐ'), ['ܐܡܪ', 'ܡܠܟܐ'])
+  const stems = (s) => syc.words(s).map(syc.stem)
+  assert.deepEqual(stems('ܡܠܟܐ ܡܠܟܝܢ ܡܠܟܘܢ'), ['ܡܠܟ', 'ܡܠܟ', 'ܡܠܟ'])
+  assert.equal(syc.embedder, 'bge-m3')
+})
+
+test('Syriac sentences end at Syriac stops, not at verse colons', () => {
+  assert.deepEqual(splitText('ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ܀ ܘܐܡܪ ܐܠܗܐ ܢܗܘܐ ܢܘܗܪܐ܀ ܘܗܘܐ', 'sentence', 1, syc), [
+    'ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ܀',
+    'ܘܐܡܪ ܐܠܗܐ ܢܗܘܐ ܢܘܗܪܐ܀',
+    'ܘܗܘܐ',
+  ])
+})
+
+test('Syriac overlap finds a quotation across pointing', () => {
+  const docs = ['ܒܪܫܝܬ ܒܪܐ ܐܠܗܐ ܐܝܬ ܫܡܝܐ ܘܐܝܬ ܐܪܥܐ', 'ܡܪܝܐ ܪܥܝܝ ܠܐ ܐܚܣܪ', 'ܘܒܟܐ ܝܫܘܥ']
+  const s = lexicalScorer(docs, syc).scores('ܡܳܪܝܳܐ ܪܳܥܝܝ ܠܳܐ ܐܶܚܣܰܪ')
+  assert.equal(s.indexOf(Math.max(...s)), 1)
+})
+
+// Biblical Hebrew.
+const hbo = getLang('hbo')
+
+test('Hebrew strips niqqud and cantillation, joins pointed and bare text, folds final letters', () => {
+  const pointed = 'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃'
+  assert.equal(foldHebrew(pointed), 'בראשית ברא אלהימ את השמימ ואת הארצ׃')
+  assert.equal(foldHebrew('שׁ שׂ'), 'ש ש', 'shin and sin dots')
+  assert.equal(foldHebrew('\uFB2A\uFB2B'), 'שש', 'presentation forms')
+  assert.equal(foldHebrew('ךםןףץ'), 'כמנפצ')
+  assert.deepEqual(hbo.words(pointed), hbo.words('בראשית ברא אלהים את השמים ואת הארץ'))
+})
+
+test('Hebrew reads the maqaf as a space and ignores bidi marks', () => {
+  assert.equal(foldHebrew('כִּי־טוֹב'), 'כי טוב')
+  assert.deepEqual(hbo.words('וַיְהִי־אוֹר'), ['אור'])
+  assert.equal(foldHebrew('\u200Fאור\u200E'), 'אור')
+})
+
+test('Hebrew splits proclitics, drops stop words and stems endings', () => {
+  assert.equal(splitHebrewProclitics('והארצ'), 'ארצ')
+  assert.equal(splitHebrewProclitics('ובבית'), 'בית')
+  assert.equal(splitHebrewProclitics('לב'), 'לב', 'two letters after a prefix stay whole')
+  assert.equal(splitHebrewProclitics('בן'), 'בן')
+  assert.equal(splitHebrewProclitics('ואת'), 'את', 'a prefix comes off a stop word, which the filter then drops')
+  assert.deepEqual(hbo.words('ואת הארץ כאשר מאת'), ['ארצ'])
+  assert.deepEqual(hbo.words('וַיֹּאמֶר אֱלֹהִים'), ['יאמר', 'אלהימ'])
+  assert.deepEqual(hbo.words('אֲשֶׁר לֹא כִּי'), [])
+  const stems = (s) => hbo.words(s).map(hbo.stem)
+  assert.deepEqual(stems('דברים דברות דבריהם'), ['דבר', 'דבר', 'דבר'])
+  assert.deepEqual(stems('אב יד'), ['אב', 'יד'], 'two-letter stems stay')
+})
+
+test('Hebrew sentences end at the sof pasuq, not at the paseq or maqaf', () => {
+  assert.deepEqual(splitText('בראשית ברא אלהים׃ והארץ היתה תהו ׀ ובהו־וחשך׃ ויאמר', 'sentence', 1, hbo), [
+    'בראשית ברא אלהים׃',
+    'והארץ היתה תהו ׀ ובהו־וחשך׃',
+    'ויאמר',
+  ])
+})
+
+test('Hebrew uses bge-m3, char 3-grams, and overlap finds a parallel verse', () => {
+  assert.equal(hbo.embedder, 'bge-m3')
+  assert.equal(hbo.charGrams, 3)
+  assert.equal(resolve({ lang: 'hbo' }).embed, 'bge-m3')
+  assert.equal(resolve({ sourceLang: 'hbo', targetLang: 'en' }).lexical, false)
+  const docs = ['בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם', 'יְהוָ֥ה רֹ֖עִי לֹ֥א אֶחְסָֽר׃', 'וַיֵּ֖בְךְּ יֵשׁוּעַ']
+  const s = lexicalScorer(docs, hbo).scores('יהוה רעי לא אחסר')
+  assert.equal(s.indexOf(Math.max(...s)), 1)
+})
+
+// Coptic.
+const cop = getLang('cop')
+
+test('Coptic folds Greek-block lookalikes, case, and supralinear strokes', () => {
+  // Coptic-block ⲁⲃⲅ, Greek-block αβγ, capitals, and combining overline/macron/conjoining strokes.
+  assert.equal(foldCoptic('ⲀⲂⲄ'), 'ⲁⲃⲅ')
+  assert.equal(foldCoptic('αβγ'), 'ⲁⲃⲅ')
+  assert.equal(foldCoptic('ⲛ̄ⲧⲟϥ ⲛⲏⲧ︤ⲛ︥ ⲧⲏⲣϥ̄'), 'ⲛⲧⲟϥ ⲛⲏⲧⲛ ⲧⲏⲣϥ')
+  assert.equal(foldCoptic('ϲοφια'), foldCoptic('ⲥⲟⲫⲓⲁ'), 'lunate sigma and Greek letters match Coptic ones')
+  assert.equal(foldCoptic('Ϣϣ'), 'ϣϣ', 'Coptic-only letters live in the Greek block and keep their place')
+  assert.equal(foldCoptic('ϧⲉⲛ'), 'ϩⲉⲛ', 'Bohairic ϧ folds to ϩ')
+})
+
+test('Coptic words drop function words; stems peel conjugation bases, articles and suffixes', () => {
+  assert.deepEqual(cop.words('ⲁⲩⲱ ⲁϥϫⲟⲟⲥ ⲛⲁϥ ϫⲉ ⲡⲛⲟⲩⲧⲉ'), ['ⲁϥϫⲟⲟⲥ', 'ⲡⲛⲟⲩⲧⲉ'])
+  assert.deepEqual(cop.words('ⲛ̄ⲧⲟϥ ⲡⲛⲟⲩⲧⲉ'), cop.words('ⲛⲧⲟϥ ⲡⲛⲟⲩⲧⲉ'))
+  assert.equal(cop.stem('ⲁϥϫⲟⲟⲥ'), cop.stem('ⲁⲩϫⲟⲟⲥ'))
+  assert.equal(cop.stem('ⲛⲟⲩⲣⲱⲙⲉ'), cop.stem('ⲣⲱⲙⲉ'))
+  assert.equal(cop.stem('ⲡⲣⲟ'), 'ⲡⲣⲟ', 'a short word keeps its first letter')
+  assert.deepEqual(cop.words('ⲧⲉ'), [], 'copula')
+})
+
+test('Coptic sentences end at . · ; ! and the Coptic full stops', () => {
+  assert.deepEqual(splitText('ⲁϥⲉⲓ ⲉⲃⲟⲗ. ⲁϥⲛⲁⲩ· ⲁⲩⲱ ⲁϥϫⲟⲟⲥ⳹ ϫⲉ ⲟⲩⲛ ⲟⲩⲛⲟⲩⲧⲉ;', 'sentence', 1, cop), [
+    'ⲁϥⲉⲓ ⲉⲃⲟⲗ.',
+    'ⲁϥⲛⲁⲩ·',
+    'ⲁⲩⲱ ⲁϥϫⲟⲟⲥ⳹',
+    'ϫⲉ ⲟⲩⲛ ⲟⲩⲛⲟⲩⲧⲉ;',
+  ])
+})
+
+test('Coptic uses bge-m3, scores 3-grams, and finds a quotation across spellings', () => {
+  assert.equal(cop.embedder, 'bge-m3')
+  assert.equal(cop.charGrams, 3)
+  assert.deepEqual(cop.fusion, { dense: 0, words: 0 }, 'character 3-grams fuse alone')
+  assert.equal(resolve({ lang: 'cop' }).embed, 'bge-m3')
+  assert.equal(resolve({ lang: 'cop' }).lexical, true)
+  const docs = ['ϩⲛⲧⲁⲣⲭⲏ ⲛⲉⲣⲉⲡϣⲁϫⲉ ϣⲟⲟⲡ', 'ⲡϫⲟⲉⲓⲥ ⲡⲉ ⲡⲁϣⲱⲙⲉ ⲙⲛⲡⲁⲥⲱϯ', 'ⲁⲩⲱ ⲁϥⲉⲓ ⲉⲃⲟⲗ']
+  // Quoted with strokes and a Greek-block ϲ.
+  const s = lexicalScorer(docs, cop).scores('ⲡϫⲟⲉⲓϲ ⲡⲉ ⲡⲁϣⲱⲙⲉ')
   assert.equal(s.indexOf(Math.max(...s)), 1)
 })

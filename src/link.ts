@@ -70,11 +70,12 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
   const glossed = target.flatMap((u, j) => (glossByRef.has(u.ref) ? [j] : []))
   if (opts.gloss) log(`gloss: ${glossed.length} of ${target.length} target units have a translation`)
+  const forEmbed = (lang: Lang, units: Unit[]) => units.map((u) => (lang.embedText ? lang.embedText(u.text) : u.text))
   const spaces: { t: Float32Array[]; s: Float32Array[]; g: Float32Array[] }[] = []
   for (const embedder of embedders) {
     log(`embedding ${target.length} target (${run.target.code}) and ${source.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
-    const t = await embedder.embed(target.map((u) => u.text), 'doc')
-    const s = await embedder.embed(source.map((u) => u.text), 'query')
+    const t = await embedder.embed(forEmbed(run.target, target), 'doc')
+    const s = await embedder.embed(forEmbed(run.source, source), 'query')
     if (s[0] && t[0] && s[0].length !== t[0].length) throw new Error(`source and target vectors differ in length (${s[0].length}, ${t[0].length})`)
     const g = glossed.length ? await embedder.embed(glossed.map((j) => glossByRef.get(target[j].ref)!), 'doc') : []
     spaces.push({ t, s, g })

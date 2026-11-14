@@ -1,6 +1,6 @@
 {
   "name": "ligatura",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Find where one text quotes, paraphrases or alludes to another. Local models by default; every link is a suggestion for a person to confirm.",
   "keywords": [
     "intertextuality",
@@ -43,7 +43,7 @@
     "prepublishOnly": "npm test"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.8.1"
+    "@huggingface/transformers": "^4.3.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

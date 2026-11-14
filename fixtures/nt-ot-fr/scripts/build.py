@@ -1,7 +1,7 @@
-"""Build the New-Testament-quotes-the-Old fixtures in French, Spanish and German, and against English.
+"""Build the New-Testament-quotes-the-Old fixtures in French, Spanish, German, Italian and Arabic, and against English.
 
-    scripts/fetch.sh                      # clones open-bibles into raw/ (git-ignored)
-    python3 -I scripts/build.py           # writes ../nt-ot-{fr,es,de} and ../nt-ot-{fr,es,de}-en
+    scripts/fetch.sh                      # fetches the Bibles into raw/ (git-ignored)
+    python3 -I scripts/build.py           # writes ../nt-ot-{fr,es,de,it,ar} and ../nt-ot-{fr,es,de,it,ar}-en
     python3 -I scripts/build.py --show    # also prints every gold link in the KJV, with a word-overlap check
 
 Each same-language fixture: source.jsonl is the New Testament and target.jsonl the Old Testament
@@ -20,14 +20,17 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent.parent
 FIXTURES = HERE.parent
-RAW = HERE / 'raw' / 'open-bibles'
+RAW = HERE / 'raw'
 
 BIBLES = {
-    'fr': 'fra-ostervald.osis.xml',
-    'es': 'spa-rv1909.usfx.xml',
-    'de': 'deu-luther1912.osis.xml',
-    'en': 'eng-kjv.osis.xml',
+    'fr': 'open-bibles/fra-ostervald.osis.xml',
+    'es': 'open-bibles/spa-rv1909.usfx.xml',
+    'de': 'open-bibles/deu-luther1912.osis.xml',
+    'it': 'ebible/ita1927_usfx.xml',
+    'ar': 'ebible/arb-vd_usfx.xml',
+    'en': 'open-bibles/eng-kjv.osis.xml',
 }
+LANGS = ('fr', 'es', 'de', 'it', 'ar')
 
 OSIS = dict(zip(
     'Gen Exod Lev Num Deut Josh Judg Ruth 1Sam 2Sam 1Kgs 2Kgs 1Chr 2Chr Ezra Neh Esth Job Ps Prov Eccl Song Isa Jer Lam Ezek '
@@ -45,6 +48,10 @@ def clean(s):
     s = re.sub(r'<note\b.*?</note>', '', s, flags=re.S)
     s = re.sub(r'<f\b.*?</f>', '', s, flags=re.S)
     s = re.sub(r'<title\b.*?</title>', '', s, flags=re.S)
+    # eBible's USFX: section headings, psalm titles, chapter labels.
+    s = re.sub(r'<(s|d|cl|h)\b[^>]*>.*?</\1>', '', s, flags=re.S)
+    # The Riveduta's notes of the Hebrew (H8-23) or Greek (G3-16) verse number.
+    s = re.sub(r'\([HG]\d+-\d+\)', '', s)
     s = re.sub(r'<[^>]+>', '', s)
     s = s.replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&apos;', "'")
     return ' '.join(s.split())
@@ -72,8 +79,8 @@ def usfx(path):
     out = {}
     for bm in re.finditer(r'<book id="(\w+)">(.*?)</book>', xml, flags=re.S):
         book = bm.group(1)
-        for cm in re.finditer(r'<c id="(\d+)"\s*/>(.*?)(?=<c id=|$)', bm.group(2), flags=re.S):
-            for vm in re.finditer(r'<v id="(\d+)"\s*/>(.*?)(?:<ve\s*/>|(?=<v id=)|$)', cm.group(2), flags=re.S):
+        for cm in re.finditer(r'<c id="(\d+)"[^>]*/>(.*?)(?=<c id=|$)', bm.group(2), flags=re.S):
+            for vm in re.finditer(r'<v id="(\d+)"[^>]*/>(.*?)(?:<ve\s*/>|(?=<v id=)|$)', cm.group(2), flags=re.S):
                 out[f'{book}.{cm.group(1)}.{vm.group(1)}'] = clean(vm.group(2))
     return out
 
@@ -132,6 +139,8 @@ LXX_ONLY = {('HEB.1.6', 'DEU.32.43')}
 HEBREW_CHAPTERS = {
     'fr': {'ISA.9.1': 'ISA.8.23', 'NUM.30.2': 'NUM.30.3'},
     'es': {},
+    'it': {},
+    'ar': {},
     'de': {
         'ISA.9.1': 'ISA.8.23', 'NUM.30.2': 'NUM.30.3', 'JER.9.24': 'JER.9.23', 'ISA.64.4': 'ISA.64.3', 'JOL.2.28': 'JOL.3.1',
         'DEU.29.18': 'DEU.29.17', 'DEU.29.4': 'DEU.29.3', 'MIC.5.2': 'MIC.5.1', 'HOS.2.23': 'HOS.2.25', 'HOS.1.10': 'HOS.2.1',
@@ -221,7 +230,7 @@ def main():
             flag = '' if len(shared) >= 2 else '  <-- few shared words'
             print(f"{g['source']} -> {g['target']} ({g['note']}){flag}\n  NT: {kjv[g['source']]}\n  OT: {kjv[g['target']]}\n  shared: {sorted(shared)}\n")
     ot = set(ORDER[:39])
-    for lang in ('fr', 'es', 'de'):
+    for lang in LANGS:
         bible = hebrew if lang == 'fr' else load(lang)
         own = title_shift(bible, kjv)
         hebrew_psalms = sum(own.values()) > 50
