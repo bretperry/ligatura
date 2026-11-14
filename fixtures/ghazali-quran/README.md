@@ -16,9 +16,23 @@ ligatura eval fixtures/ghazali-quran
 
 ## Results
 
-Not yet measured: the first run was stopped on 2026-11-14 after 1.5 hours (CPU shared with other
-jobs, bge-m3 embedding 6,236 verses). The embedding cache keeps finished batches, so a rerun
-resumes. Do not quote numbers for Arabic until this table is filled in.
+| Stage | R@1 | R@3 | R@5 | R@10 |
+|---|---|---|---|---|
+| Embedding only (bge-m3) | 164 | 205 | 217 | 251 |
+| Word overlap only (stems) | 401 | 483 | 503 | 510 |
+| Retrieval (fused; embedder votes 0, see below) | 401 | 483 | 503 | 510 |
+| Retrieval, equal votes (before 2026-11-14) | 253 | 334 | 358 | 399 |
+
+Of 526 links, `--neighbours 0`. Run 2026-11-14 on the Mac mini (first embedding pass 100 minutes,
+shared load), bge-m3 q8. Word overlap alone finds 97% in the top 10; 16 links are outside the
+overlap top 10 (not examined).
+
+**Fusion weight.** With equal votes, bge-m3 (48% at R@10) pulled correct verses down: fused R@10
+was 399. The Arabic profile now sets the embedder's vote to 0 (`fusion` in `src/lang/ar.ts`).
+Embedder vote, R@1 / R@10: 0 gives 401 / 510; 0.1 gives 355 / 509; 0.25 gives 302 / 500; 0.5 gives
+275 / 484; 1 gives 253 / 399. The weight was chosen on all of this fixture, with no held-out half,
+and the fixture is verbatim quotation, so it favours overlap. Paraphrase and allusion may earn the
+embedder's vote back. Arabic character n-grams were not tried.
 
 ## Sources and licenses
 
