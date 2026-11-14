@@ -211,6 +211,12 @@ test('Arabic splits off و ف and ب ل ك with the article, and keeps Allah who
   assert.deepEqual(stemsOf(ar, 'كلماتهم الكلمات'), ['كلم', 'كلم'])
 })
 
+test('Arabic Uthmani Quran spelling and a plain quotation give the same words', () => {
+  const verse = 'وَلَوْ رَدُّوهُ إِلَى ٱلرَّسُولِ وَإِلَىٰٓ أُو۟لِى ٱلْأَمْرِ مِنْهُمْ لَعَلِمَهُ'
+  const quote = 'ولو ردوه إلى الرسول وإلى أولي الأمر منهم لعلمه'
+  assert.deepEqual(ar.words(verse), ar.words(quote))
+})
+
 test('Arabic sentences end at . ؟ and ؛ but not the Arabic comma', () => {
   assert.deepEqual(splitText('في البدء كان الكلمة. من انت؟ انا هو؛ فقال، نعم', 'sentence', 1, ar), [
     'في البدء كان الكلمة.',
