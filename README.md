@@ -184,10 +184,14 @@ whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 | `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 266 | 374 | 441 | 258 / 463 (65%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
 | `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 570 | 882 | 1,153 | 1,004 / 1,154 (95%) |
+| `ghazali-quran`: Quranic verses quoted in {braces} in al-Ghazālī's *Iḥyāʾ*, matched by text | ar → ar | 526 | 251 | 510 | – | 401 / 510 (97%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
+- **Arabic** fuses on word overlap alone, for the same reason: equal votes gave 399 of 526 in the top 10
+  against 510 for overlap. The links are verbatim quotations, so this favours overlap; no paraphrase
+  fixture exists yet.
 - **Sanskrit** fuses on character overlap alone. bge-m3 is weak in Sanskrit, and with equal votes
   it dragged the fused list to 695 / 1,031, below character overlap alone. The weights were chosen
   on half the links and held on the other (see the fixture's README).
@@ -216,7 +220,7 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
 
-Italian, Arabic, Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Italian, Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
 Syriac fixture plan: Peshitta NT→OT quotations (Peshitta text from the ETCBC/Peshitta open data or
 the Digital Syriac Corpus; check each licence before committing), run as `syc → syc`, and `syc → en`
 with a public-domain English Bible. Tune `charGrams` and the fusion weights by eval, as for Sanskrit.

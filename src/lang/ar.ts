@@ -59,5 +59,9 @@ export const ar: Lang = {
   // Two-letter stems are real words here: رب (lord), اب (father), ام (mother).
   stem: (w) => stripEnding(stripEnding(w, PRONOUNS, 2), ENDINGS, 2),
   minKey: 2,
+  // bge-m3 doesn't vote in Arabic-to-Arabic fusion. On ghazali-quran, equal votes found 399 of 526
+  // links in the top 10 against 510 for word overlap alone; a vote of 0.1 gave 509, 0.25 gave 500.
+  // The fixture is verbatim quotation, which favours overlap; paraphrase may earn the vote back.
+  fusion: { dense: 0 },
   embedder: 'bge-m3',
 }

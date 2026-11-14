@@ -101,8 +101,9 @@ test('English is unchanged and the default', () => {
   assert.deepEqual(splitText('He came. it was. And then.'), ['He came. it was.', 'And then.'])
 })
 
-test('only Sanskrit sets fusion weights; the others fuse with equal votes', () => {
+test('only Sanskrit and Arabic set fusion weights; the others fuse with equal votes', () => {
   assert.deepEqual(sa.fusion, { dense: 0, words: 0 })
+  assert.deepEqual(getLang('ar').fusion, { dense: 0 })
   for (const code of ['en', 'la', 'grc']) assert.equal(getLang(code).fusion, undefined)
 })
 
