@@ -24,8 +24,28 @@ ligatura eval fixtures/sahidic-nt-ot --neighbours 1
 
 ## Results
 
-**Pending.** The first eval run (bge-m3, 20,036 target verses) was started on 2026-11-13 and
-interrupted. A rerun on the Mac mini is under way; numbers go here when it finishes.
+| Stage | R@1 | R@3 | R@5 | R@10 |
+|---|---|---|---|---|
+| Embedding only (bge-m3) | 0 | 0 | 0 | 0 |
+| Overlap only | 103 | 130 | 136 | 151 |
+| Character overlap only (3-grams) | 141 | 169 | 182 | 196 |
+| Retrieval, equal votes (embedding + both overlaps) | 102 | 152 | 162 | 177 |
+| Retrieval, no embedder vote | 125 | 154 | 162 | 178 |
+| Retrieval, as shipped (character overlap alone) | 141 | 169 | 182 | 196 |
+
+Of 251 links, `--neighbours 1`. Run 2026-11-14 on the Mac mini (10 cores) with bge-m3 q8; embedding
+the 20,036 target verses took 8,797 s under heavy load (later runs read the cache). Fused, 78% of
+the quotations are in the top 10.
+
+- **bge-m3 does not read Coptic.** It finds none of the 251 links at any rank cut. With an
+  equal vote it pulled the fused R@1 down to 102, below character overlap alone.
+- **Character 3-grams beat word overlap** (141 against 103 at R@1): the two editions cut bound
+  groups differently, so whole stems often differ where the letters agree. The Coptic profile
+  therefore fuses on character overlap alone, as Sanskrit does.
+- **The weights were chosen on the whole fixture,** not on one half with the other held out, so
+  the 196 is not a held-out number. The margin over the next best list (125 / 178) is large.
+- The 55 links outside the top 10 are mostly short or loose quotations (the Exod. 20 commandments,
+  Isa. 64:4); the pool-miss counts above were not re-tallied for the shipped weights.
 
 ## Rebuild
 

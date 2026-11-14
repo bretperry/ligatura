@@ -22,7 +22,7 @@ account or API key.
    Sanskrit also score shared character n-grams, which catch inflected forms the stems miss.
    Overlap needs one language on both sides, so it is left out when the two texts differ.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
-   Sanskrit gives the embedder and word overlap no vote (see Results).
+   Sanskrit and Coptic give the embedder and word overlap no vote (see Results).
 4. **Rerank (opt-in):** with `--rerank`, a reranker model reads the top 30 for each unit and
    scores each pair. It's off by default: the in-process Qwen3-Reranker-0.6B scored below plain
    retrieval on the test fixture (see Results). A reranker server or a chat model as judge may do
@@ -158,7 +158,7 @@ ONNX export: an fp32 export of the same model, built locally, scores pairs withi
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).
 
-### Latin, Greek and Sanskrit
+### Latin, Greek, Sanskrit and Coptic
 
 More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
@@ -169,11 +169,14 @@ is shown for each list alone, then fused:
 | `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
 | `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 256 / 463 (65%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
+| `sahidic-nt-ot`: Sahidic NT quotations of the Sahidic OT, from Swete's tables | cop → cop | 251 | 0 | 151 | 196 | 141 / 196 (78%) |
 | `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
+- **Coptic** also fuses on character overlap alone: bge-m3 finds none of the 251 links, and the
+  weights were chosen on the whole fixture, not a held-out half (see the fixture's README).
 - **Sanskrit** fuses on character overlap alone. bge-m3 is weak in Sanskrit, and with equal votes
   it dragged the fused list to 695 / 1,031, below character overlap alone. The weights were chosen
   on half the links and held on the other (see the fixture's README).
@@ -225,7 +228,9 @@ Italian and Arabic have profiles and tests but no fixture yet, so their numbers 
 ## License
 
 MIT. The fixture texts are public domain, except the Greek New Testament (SBLGNT, CC BY 4.0)
-and Swete's Septuagint (First1KGreek, CC BY-SA 4.0) in `fixtures/lxx-nt`; the GRETIL texts in
+and Swete's Septuagint (First1KGreek, CC BY-SA 4.0) in `fixtures/lxx-nt`; the Sahidic Old
+Testament (CoptOT via Coptic Scriptorium, CC BY-SA 4.0) in `fixtures/sahidic-nt-ot`, whose New
+Testament text (Sahidica, academic use only) is rebuilt by script and not shipped; the GRETIL texts in
 `fixtures/shankara-upanisads` (CC BY-NC-SA 4.0); and the Itihāsa dataset in
 `fixtures/itihasa-sa-en` (Apache-2.0). Fixtures are not in the npm package. Models download
 from Hugging Face under their own licenses; check each model card before redistributing a model.

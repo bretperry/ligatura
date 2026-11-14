@@ -85,5 +85,10 @@ export const cop: Lang = {
   minKey: MIN_STEM,
   // 3-grams, since a bound group is short and rich in clitics.
   charGrams: 3,
+  // bge-m3 scores 0 of 251 links on the Sahidic fixture: it does not read Coptic. With equal votes
+  // fused R@1 was 102 against 141 for character overlap alone; leaving out only the embedder gave
+  // 125. Word overlap also loses to character 3-grams, since editions cut bound groups differently.
+  // So character overlap fuses alone, as in Sanskrit. Chosen on the whole fixture, not a held-out half.
+  fusion: { dense: 0, words: 0 },
   embedder: 'bge-m3',
 }

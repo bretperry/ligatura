@@ -261,6 +261,7 @@ test('Coptic sentences end at . · ; ! and the Coptic full stops', () => {
 test('Coptic uses bge-m3, scores 3-grams, and finds a quotation across spellings', () => {
   assert.equal(cop.embedder, 'bge-m3')
   assert.equal(cop.charGrams, 3)
+  assert.deepEqual(cop.fusion, { dense: 0, words: 0 }, 'character 3-grams fuse alone')
   assert.equal(resolve({ lang: 'cop' }).embed, 'bge-m3')
   assert.equal(resolve({ lang: 'cop' }).lexical, true)
   const docs = ['ϩⲛⲧⲁⲣⲭⲏ ⲛⲉⲣⲉⲡϣⲁϫⲉ ϣⲟⲟⲡ', 'ⲡϫⲟⲉⲓⲥ ⲡⲉ ⲡⲁϣⲱⲙⲉ ⲙⲛⲡⲁⲥⲱϯ', 'ⲁⲩⲱ ⲁϥⲉⲓ ⲉⲃⲟⲗ']
