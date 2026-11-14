@@ -56,7 +56,7 @@ Or run it with `npx ligatura`. Needs Node 20 or later.
 | `es` | Spanish | case, accents (ñ kept); ¿ and ¡ open sentences | plural, gender and verb endings, 5+ letters |
 | `it` | Italian | case, accents; elisions (l', dell') split off | plural, gender and verb endings, 5+ letters |
 | `de` | German | case, umlauts, ß as ss, old th as t | case, plural and verb endings, 6+ letters |
-| `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off | pronoun suffixes and plural endings |
+| `ar` | Arabic | diacritics and tatweel, alef forms, ى as ي, ة as ه; و/ف and ال split off; the embedder reads the text without vowel marks | pronoun suffixes and plural endings |
 | `akk` | Akkadian (transliteration) | determinatives, sign indices, aleph, vowel length and damage marks dropped; š ṣ ṭ ḫ as s s t h; doubled letters collapsed; sign hyphens joined, logogram dots split | pronoun suffix, then case ending; character 4-grams |
 | `lzh` | Classical Chinese | traditional, simplified and variant characters fold to simplified; punctuation, Latin and digits dropped; 。！？； end sentences | each character is a word, particles (之乎者也…) dropped; character bigrams of the whole text |
 | `syc` | Classical Syriac | all points (East and West vowels, seyame, linea occultans) and SAM; ܘ ܕ split off, ܒ ܠ from longer words; Syriac stops end sentences | emphatic -ܐ, plural and pronoun endings, 3+ letters |
@@ -180,8 +180,8 @@ whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
-| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 169 | 208 | 217 | 163 / 231 (87%) |
-| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 266 | 374 | 441 | 258 / 463 (65%) |
+| `lxx-nt`: NT quotations of the Septuagint, from Swete's tables | grc → grc | 266 | 164 | 208 | 217 | 165 / 228 (86%) |
+| `augustine-vulgate`: Augustine's *Confessions*, from Pusey's sidenotes | la → la | 713 | 275 | 374 | 441 | 272 / 470 (66%) |
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
 | `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 570 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `ghazali-quran`: Quranic verses quoted in {braces} in al-Ghazālī's *Iḥyāʾ*, matched by text | ar → ar | 526 | 251 | 510 | – | 401 / 510 (97%) |
@@ -190,6 +190,11 @@ whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
+- **Latin** gives character overlap 4 votes in the fusion (2026-11-13). With equal votes the
+  embedding buried 39 links that character overlap had in its top 10; now 31. R@1 went from 256
+  to 272 and R@10 from 463 to 470, with the same number of rows to review. Chosen on half the
+  links and held on the other (`lab/fusion-keep-top.md`). Keeping each list's top hits in the top
+  10 was tried too and lost R@10.
 - **Arabic** fuses on word overlap alone, for the same reason: equal votes gave 399 of 526 in the top 10
   against 510 for overlap. The links are verbatim quotations, so this favours overlap; no paraphrase
   fixture exists yet.
@@ -207,12 +212,12 @@ whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 
 The Kempis numbers above are unchanged by the language work.
 
-### French, Spanish and German
+### French, Spanish, German, Italian and Arabic
 
 The same Swete quotations, renumbered for Bibles translated from the Hebrew: each New Testament
 against its own Old Testament, and against the KJV Old Testament. Built by
-`fixtures/nt-ot-fr/scripts/build.py`; runs of 2026-11-10 on the same Mac mini, bge-m3 q8,
-`--neighbours 1`, 269 links each:
+`fixtures/nt-ot-fr/scripts/build.py`; runs of 2026-11-10 (Italian and Arabic 2026-11-13) on the
+same Mac mini, bge-m3 q8, `--neighbours 1`, 269 links each:
 
 | Fixture | Bible | Languages | Embedding | Overlap | Fused R@1 / R@10 |
 |---|---|---|---|---|---|
@@ -222,8 +227,17 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-es-en` | Reina-Valera 1909, KJV | es → en | 186 | – | 107 / 186 |
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
+| `nt-ot-it` | Riveduta 1927 | it → it | 192 | 174 | 122 / 232 |
+| `nt-ot-it-en` | Riveduta 1927, KJV | it → en | 175 | – | 104 / 175 |
+| `nt-ot-ar` | Van Dyck | ar → ar | 186 | 206 | 165 / 225 |
+| `nt-ot-ar-en` | Van Dyck, KJV | ar → en | 149 | – | 88 / 149 |
 
-Italian, Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
+The Van Dyck is printed with full vowel marks, which bge-m3 reads poorly: with them it found 124
+(ar → ar) and 80 (ar → en) links in the top 10. The Arabic profile now hands the embedder the
+text without them (`embedText`), which gives the 186 and 149 above and lifts fused R@10 from 211
+to 225; word overlap already ignored the marks.
+
+Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
 Syriac fixture plan: Peshitta NT→OT quotations (Peshitta text from the ETCBC/Peshitta open data or
 the Digital Syriac Corpus; check each licence before committing), run as `syc → syc`, and `syc → en`
 with a public-domain English Bible. Tune `charGrams` and the fusion weights by eval, as for Sanskrit.

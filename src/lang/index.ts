@@ -8,7 +8,7 @@ import { fr, foldFrench } from './fr.js'
 import { es, foldSpanish } from './es.js'
 import { it, foldItalian } from './it.js'
 import { de, foldGerman } from './de.js'
-import { ar, foldArabic, splitClitics } from './ar.js'
+import { ar, foldArabic, splitClitics, unvowelArabic } from './ar.js'
 import { lzh, foldClassicalChinese } from './lzh.js'
 
 // Akkadian.
@@ -30,7 +30,7 @@ export const LANGS: Record<string, Lang> = { en, la, grc, sa }
 Object.assign(LANGS, { fr, es, it, de, ar, cop })
 LANGS.lzh = lzh
 export { lzh, foldClassicalChinese }
-export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics }
+export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics, unvowelArabic }
 // Akkadian, in its own block.
 LANGS.akk = akk
 export { akk, foldAkkadian }

@@ -16,6 +16,13 @@ export function foldArabic(s: string): string {
     .replace(/ة/g, 'ه')
 }
 
+// Vowel marks off and wasla alef written ا, as most Arabic online is written; nothing else changes.
+// bge-m3 read the fully vowelled Van Dyck poorly: on nt-ot-ar it found 124 of 269 links in the
+// top 10 with the marks and 186 without (2026-11-13).
+export function unvowelArabic(s: string): string {
+  return s.normalize('NFC').replace(/[ً-ٰٟۖ-ۭـ]/g, '').replace(/ٱ/g, 'ا')
+}
+
 // Prepositions, pronouns, particles, and the commonest forms of kāna and qāla, folded.
 const STOP = new Set(
   `في من الي علي عن ان انه انها انهم انك اني لا ما لم لن لما هو هي هم هن هما انت انتم انا نحن
@@ -63,5 +70,6 @@ export const ar: Lang = {
   // links in the top 10 against 510 for word overlap alone; a vote of 0.1 gave 509, 0.25 gave 500.
   // The fixture is verbatim quotation, which favours overlap; paraphrase may earn the vote back.
   fusion: { dense: 0 },
+  embedText: unvowelArabic,
   embedder: 'bge-m3',
 }

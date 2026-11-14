@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { getLang, foldLatin, foldGreek, foldSanskrit, devanagariToIast, splitText, lexicalScorer, charScorer, sharedWords, resolve, foldCoptic } from '../dist/index.js'
+import { fuseWeighted, ranks } from '../dist/util.js'
 
 const la = getLang('la')
 const grc = getLang('grc')
@@ -101,10 +102,19 @@ test('English is unchanged and the default', () => {
   assert.deepEqual(splitText('He came. it was. And then.'), ['He came. it was.', 'And then.'])
 })
 
-test('only Sanskrit and Arabic set fusion weights; the others fuse with equal votes', () => {
+test('Sanskrit, Latin and Arabic set fusion weights; the others fuse with equal votes', () => {
   assert.deepEqual(sa.fusion, { dense: 0, words: 0 })
+  assert.deepEqual(getLang('la').fusion, { chars: 4 })
   assert.deepEqual(getLang('ar').fusion, { dense: 0 })
-  for (const code of ['en', 'la', 'grc']) assert.equal(getLang(code).fusion, undefined)
+  for (const code of ['en', 'grc']) assert.equal(getLang(code).fusion, undefined)
+})
+
+test('Latin fusion keeps a target that character overlap ranks first over the embedding', () => {
+  const { dense, words, chars } = { dense: 1, words: 1, ...getLang('la').fusion }
+  // Target 0: 1st by embedding and words, 3rd by characters. Target 1: 1st by characters only.
+  const d = Float32Array.from([0.9, 0.2, 0.5]), w = Float32Array.from([0.9, 0.2, 0.5]), c = Float32Array.from([0.1, 0.9, 0.5])
+  assert.equal([...ranks(fuseWeighted([[d, 1], [w, 1], [c, 1]]))][0], 1)
+  assert.equal([...ranks(fuseWeighted([[d, dense], [w, words], [c, chars]]))][1], 1)
 })
 
 test('languages resolve the embedder and turn overlap off across languages', () => {
@@ -133,7 +143,7 @@ test('character n-grams match forms the stems miss, for Latin and Greek', () => 
 })
 
 // Modern languages: French, Spanish, Italian, German, Arabic.
-import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics } from '../dist/index.js'
+import { foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics, unvowelArabic } from '../dist/index.js'
 import { foldHebrew, splitHebrewProclitics } from '../dist/index.js'
 
 const fr = getLang('fr')
@@ -200,6 +210,13 @@ test('Arabic strips harakat and tatweel, and folds alef, ya and ta marbuta', () 
   assert.equal(foldArabic('اللـــه'), 'الله')
   assert.equal(foldArabic('أإآٱ'), 'اااا')
   assert.equal(foldArabic('إِلَى مَدِينَةٍ'), 'الي مدينه')
+})
+
+test('Arabic text for the embedder loses its vowel marks and nothing else', () => {
+  assert.equal(unvowelArabic('قَالَ ٱلرَّبُّ لِرَبِّي'), 'قال الرب لربي')
+  assert.equal(unvowelArabic('إِلَى مَدِينَةٍ'), 'إلى مدينة')
+  assert.equal(getLang('ar').embedText('ٱلْكَلِمَةُ'), 'الكلمة')
+  assert.equal(getLang('fr').embedText, undefined)
 })
 
 test('Arabic splits off و ف and ب ل ك with the article, and keeps Allah whole', () => {
