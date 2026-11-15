@@ -29,7 +29,7 @@ export function foldAkkadian(s: string): string {
     .toLowerCase()
     .replace(/[ʾʼʿ'’`′]/g, '') // aleph, ayin, primes of broken line numbers
     .replace(/(?<=[a-z])[₀-₉0-9]+/g, '') // sign indices: a₂ a2 šu₂
-    .replace(/(?<=[a-z])-(?=[a-z])/g, '') // sign hyphens
+    .replace(/(?<=[a-z])[-–—](?=[a-z])/g, '') // sign hyphens, and the dashes ORACC uses inside compounds
     .replace(/(?<=[a-z])\.(?=[a-z])/g, ' ') // logogram dots
     .replace(/([a-z])\1+/g, '$1') // plene writing and gemination
     .replace(/[^a-z]+/g, ' ')

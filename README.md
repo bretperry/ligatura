@@ -167,6 +167,7 @@ is shown for each list alone, then fused:
 | `augustine-drc`: the same links, against the Douay-Rheims | la → en | 712 | 203 | – | – | 103 / 203 (29%) |
 | `shankara-upanisads`: Śaṅkara's quotations, from the edition's citations | sa → sa | 1,217 | 557 | 882 | 1,153 | 1,004 / 1,154 (95%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
+| `saao-akk-en`: Neo-Assyrian scholars' letters to their English, SAAo/SAA10 | akk → en | 1,944 | 141 | – | – | 36 / 141 (7%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
@@ -198,7 +199,7 @@ against its own Old Testament, and against the KJV Old Testament. Built by
 | `nt-ot-de` | Luther 1912 | de → de | 200 | 198 | 154 / 233 |
 | `nt-ot-de-en` | Luther 1912, KJV | de → en | 175 | – | 104 / 175 |
 
-Italian, Arabic and Akkadian have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Italian and Arabic have profiles and tests but no fixture yet, so their numbers are unmeasured.
 
 ## Limits
 
@@ -227,5 +228,5 @@ Italian, Arabic and Akkadian have profiles and tests but no fixture yet, so thei
 MIT. The fixture texts are public domain, except the Greek New Testament (SBLGNT, CC BY 4.0)
 and Swete's Septuagint (First1KGreek, CC BY-SA 4.0) in `fixtures/lxx-nt`; the GRETIL texts in
 `fixtures/shankara-upanisads` (CC BY-NC-SA 4.0); and the Itihāsa dataset in
-`fixtures/itihasa-sa-en` (Apache-2.0). Fixtures are not in the npm package. Models download
+`fixtures/itihasa-sa-en` (Apache-2.0); and the SAAo letters in `fixtures/saao-akk-en` (CC0 per the project's metadata). Fixtures are not in the npm package. Models download
 from Hugging Face under their own licenses; check each model card before redistributing a model.
