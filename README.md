@@ -187,6 +187,7 @@ whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
 | `ghazali-quran`: Quranic verses quoted in {braces} in al-Ghazālī's *Iḥyāʾ*, matched by text | ar → ar | 526 | 251 | 510 | – | 401 / 510 (97%) |
 | `sahidic-nt-ot`: Sahidic NT quotations of the Sahidic OT, from Swete's tables | cop → cop | 251 | 0 | 151 | 196 | 141 / 196 (78%) |
 | `itihasa-sa-en`: epic shlokas to Dutt's English, Itihāsa test split | sa → en | 500 | 311 | – | – | 169 / 311 (62%) |
+| `saao-akk-en`: Neo-Assyrian scholars' letters to their English, SAAo/SAA10 | akk → en | 1,944 | 141 | – | – | 36 / 141 (7%) |
 
 - **Character overlap** (4-grams inside words, a third list in the fusion) added 6 points of R@10
   to Latin and 4 to Greek. It was chosen on one half of the links and held on the other.
@@ -237,7 +238,7 @@ The Van Dyck is printed with full vowel marks, which bge-m3 reads poorly: with t
 text without them (`embedText`), which gives the 186 and 149 above and lifts fused R@10 from 211
 to 225; word overlap already ignored the marks.
 
-Akkadian, Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
+Classical Chinese and Syriac have profiles and tests but no fixture yet, so their numbers are unmeasured.
 Syriac fixture plan: Peshitta NT→OT quotations (Peshitta text from the ETCBC/Peshitta open data or
 the Digital Syriac Corpus; check each licence before committing), run as `syc → syc`, and `syc → en`
 with a public-domain English Bible. Tune `charGrams` and the fusion weights by eval, as for Sanskrit.
@@ -285,5 +286,5 @@ and Swete's Septuagint (First1KGreek, CC BY-SA 4.0) in `fixtures/lxx-nt`; the Sa
 Testament (CoptOT via Coptic Scriptorium, CC BY-SA 4.0) in `fixtures/sahidic-nt-ot`, whose New
 Testament text (Sahidica, academic use only) is rebuilt by script and not shipped; the GRETIL texts in
 `fixtures/shankara-upanisads` (CC BY-NC-SA 4.0); and the Itihāsa dataset in
-`fixtures/itihasa-sa-en` (Apache-2.0). Fixtures are not in the npm package. Models download
+`fixtures/itihasa-sa-en` (Apache-2.0); and the SAAo letters in `fixtures/saao-akk-en` (CC0 per the project's metadata). Fixtures are not in the npm package. Models download
 from Hugging Face under their own licenses; check each model card before redistributing a model.
