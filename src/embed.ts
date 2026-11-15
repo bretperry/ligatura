@@ -36,6 +36,9 @@ interface LocalModel {
   pooling: 'cls' | 'mean' | 'last_token'
   query?: string
   doc?: string
+  dtype?: 'q8' | 'q4' | 'fp32' // default q8
+  // A model built locally, read from <cache>/onnx/<id> and never downloaded.
+  local?: boolean
 }
 
 // Query and document prefixes follow each model card. The revision is part of the cache key;
@@ -47,8 +50,20 @@ export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
   // Multilingual (MIT): the default for Latin and Greek, and for any run across two languages.
   // ONNX export of BAAI/bge-m3, pinned to the commit measured in the README.
   'bge-m3': { id: 'Xenova/bge-m3', revision: '4de13258303883538bd53b696b452bf8099f0858', pooling: 'cls' },
+  // Others measured against English in lab/multilingual-probe.mjs and lab/yardstick.mjs.
+  'snowflake-arctic-embed-l-v2.0': { id: 'Snowflake/snowflake-arctic-embed-l-v2.0', revision: 'main', pooling: 'cls', query: 'query: ' },
+  'multilingual-e5-large': { id: 'Xenova/multilingual-e5-large', revision: 'main', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'multilingual-e5-small': { id: 'Xenova/multilingual-e5-small', revision: 'main', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  // q8 hurts this one badly; fp32 is slow (hours for a book).
+  'qwen3-embedding-0.6b': {
+    id: 'onnx-community/Qwen3-Embedding-0.6B-ONNX', revision: 'main', pooling: 'last_token', dtype: 'fp32',
+    query: 'Instruct: Given a passage, retrieve the passage in another text, in any language, that it quotes, translates or alludes to\nQuery: ',
+  },
+  // bge-m3 tuned on English against Latin, Greek and Sanskrit (lab/finetune.py); built locally, not published.
+  'bge-m3-classics': { id: 'bge-m3-classics', revision: 'local', pooling: 'cls', local: true },
 }
-export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5'
+// English against English: two embedders fused (see "a+b" in link.ts and the README results).
+export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5+bge-m3'
 const LOCAL_DTYPE = 'q8'
 
 export function makeEmbedder(spec: string): Embedder {
@@ -123,14 +138,18 @@ function localEmbedder(name: string): Embedder {
   let pipe: ((t: string[], o: object) => Promise<{ tolist(): number[][] }>) | undefined
   return {
     name,
-    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: LOCAL_DTYPE, runtime: RUNTIME }),
+    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: cfg.dtype ?? LOCAL_DTYPE, runtime: RUNTIME }),
     cacheable: true,
     async embed(texts, role) {
       if (!pipe) {
-        const { pipeline } = await import('@huggingface/transformers')
+        const { pipeline, env } = await import('@huggingface/transformers')
+        if (cfg.local) {
+          env.localModelPath = join(cacheDir(), 'onnx') + '/'
+          if (!existsSync(join(env.localModelPath, cfg.id))) throw new Error(`embedder "${name}" is built locally; expected it at ${join(env.localModelPath, cfg.id)}`)
+        }
         // ONNX Runtime's default left most cores idle (about one in use on an M3).
         const session_options = { intraOpNumThreads: Math.max(1, availableParallelism() - 1) }
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision, session_options })) as unknown as typeof pipe
+        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: cfg.dtype ?? LOCAL_DTYPE, session_options, ...(cfg.local ? { local_files_only: true } : { revision: cfg.revision }) })) as unknown as typeof pipe
       }
       const prefix = cfg[role] ?? ''
       // Batches stay in input order: q8 quantizes each batch as a whole, so regrouping texts

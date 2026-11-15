@@ -15,6 +15,9 @@ export interface LinkOptions {
   lang?: string // language of both texts: en (default), la, grc or sa
   sourceLang?: string // overrides lang for the source
   targetLang?: string // overrides lang for the target
+  // Translations of target units, matched by ref. A target unit then scores the better of its
+  // own text and its translation, and word overlap reads both.
+  gloss?: Unit[]
 }
 
 export interface Resolved {
@@ -58,27 +61,43 @@ export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, poo
 
 export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = {}): AsyncGenerator<UnitResult> {
   const run = resolve(opts)
-  const embedder = makeEmbedder(run.embed)
+  // "a+b" runs several embedders; each ranks the targets and the rankings are fused.
+  const embedders = run.embed.split('+').map(makeEmbedder)
   const reranker = makeReranker(opts.rerank ?? DEFAULTS.rerank, opts.task)
   const pool = checkInt('pool', opts.pool, 1) ?? DEFAULTS.pool
   checkUnique('source', source.map((u) => u.ref))
   checkUnique('target', target.map((u) => u.ref))
-  log(`embedding ${target.length} target (${run.target.code}) and ${source.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
+  const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
+  const glossed = target.flatMap((u, j) => (glossByRef.has(u.ref) ? [j] : []))
+  if (opts.gloss) log(`gloss: ${glossed.length} of ${target.length} target units have a translation`)
   const forEmbed = (lang: Lang, units: Unit[]) => units.map((u) => (lang.embedText ? lang.embedText(u.text) : u.text))
-  const tVec = await embedder.embed(forEmbed(run.target, target), 'doc')
-  const sVec = await embedder.embed(forEmbed(run.source, source), 'query')
-  if (sVec[0] && tVec[0] && sVec[0].length !== tVec[0].length) throw new Error(`source and target vectors differ in length (${sVec[0].length}, ${tVec[0].length})`)
-  const lex = run.lexical ? lexicalScorer(target.map((u) => u.text), run.target) : undefined
+  const spaces: { t: Float32Array[]; s: Float32Array[]; g: Float32Array[] }[] = []
+  for (const embedder of embedders) {
+    log(`embedding ${target.length} target (${run.target.code}) and ${source.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
+    const t = await embedder.embed(forEmbed(run.target, target), 'doc')
+    const s = await embedder.embed(forEmbed(run.source, source), 'query')
+    if (s[0] && t[0] && s[0].length !== t[0].length) throw new Error(`source and target vectors differ in length (${s[0].length}, ${t[0].length})`)
+    const g = glossed.length ? await embedder.embed(glossed.map((j) => glossByRef.get(target[j].ref)!), 'doc') : []
+    spaces.push({ t, s, g })
+  }
+  const targetText = target.map((u) => (glossByRef.has(u.ref) ? `${u.text} ${glossByRef.get(u.ref)}` : u.text))
+  const lex = run.lexical ? lexicalScorer(targetText, run.target) : undefined
   // The profile's fusion weights apply only when both texts are in its language.
   const w = run.lexical ? run.target.fusion ?? {} : {}
-  const chr = run.lexical && run.target.charGrams ? charScorer(target.map((u) => u.text), run.target, run.target.charGrams) : undefined
+  const chr = run.lexical && run.target.charGrams ? charScorer(targetText, run.target, run.target.charGrams) : undefined
   const started = Date.now()
   for (const [i, s] of source.entries()) {
-    const dense = Float32Array.from(tVec, (t) => dot(sVec[i], t))
+    const denses = spaces.map((sp) => {
+      const d = Float32Array.from(sp.t, (t) => dot(sp.s[i], t))
+      glossed.forEach((j, k) => { d[j] = Math.max(d[j], dot(sp.s[i], sp.g[k])) })
+      return d
+    })
+    // The reported cosine is the mean across embedders.
+    const dense = denses.length === 1 ? denses[0] : Float32Array.from(denses[0], (_, j) => denses.reduce((a, d) => a + d[j], 0) / denses.length)
     const lexical = lex?.scores(s.text)
     const chars = chr?.scores(s.text)
     // Across languages, overlap is left out and the fused order is the embedding order.
-    const fused = fuseWeighted([[dense, w.dense ?? 1], [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
+    const fused = fuseWeighted([...denses.map((d) => [d, w.dense ?? 1]), [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical?.[j] ?? 0, fusedRank: fusedRank[j] }))

@@ -15,8 +15,9 @@ account or API key.
 
 ## How it works
 
-1. **Embed** both texts and score every target unit by meaning. English uses
-   nomic-embed-text-v1.5; every other language, and any pair of two languages, uses bge-m3.
+1. **Embed** both texts and score every target unit by meaning. English uses two models,
+   nomic-embed-text-v1.5 and bge-m3, each a ranking of its own; every other language, and any
+   pair of two languages, uses bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
    embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek, Coptic,
    Sanskrit and Hebrew also score shared character n-grams, which catch inflected forms the stems miss.
@@ -100,7 +101,7 @@ One JSON object per suggested link:
 
 ```json
 {"source":"4.14.5","target":"LUK.24.35","rank":1,"score":0.792,"dense":0.792,"lex":0.295,
- "shared":["breaking","bread","way"],"status":"suggested","method":{"embed":"nomic-embed-text-v1.5","rerank":"none"},"date":"2026-11-08"}
+ "shared":["breaking","bread","way"],"status":"suggested","method":{"embed":"nomic-embed-text-v1.5+bge-m3","rerank":"none"},"date":"2026-11-08"}
 ```
 
 `score` depends on what ranked the link:
@@ -119,13 +120,19 @@ backend, since the scales differ.
 
 | Stage | In process | Or a server you run |
 |---|---|---|
-| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for every language but English, and for mixed pairs) | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
+| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for every language but English, and for mixed pairs); `snowflake-arctic-embed-l-v2.0`, `multilingual-e5-large`, `multilingual-e5-small`, `qwen3-embedding-0.6b`. English defaults to `nomic-embed-text-v1.5+bge-m3`: join several with `+` to fuse them | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
 | Rerank | off by default; `--rerank qwen3-reranker-0.6b` | `--rerank api:<url>#<model>`: a Cohere/Jina-shaped `/rerank` endpoint (llama.cpp `llama-server`, vLLM, TEI, Infinity) |
 | Judge | – | `--rerank chat:<base-url>#<model>`: a chat model picks the links (Ollama, LM Studio, `mlx_lm.server`) |
 
 - **Speed:** the in-process reranker runs on the CPU at 0.5 to 0.75 s per pair. A 2,400-sentence
   book at `--pool 30` takes many hours. A reranker server on a GPU is much faster: the same model
   under MLX on an Apple M3 took 0.17 s per pair. Lowering `--pool` trades recall for time.
+- **Default download:** about 700 MB on first run (nomic 140 MB, bge-m3 570 MB, both q8).
+  English embeds with both, which takes about twice as long as one; vectors are cached, so a
+  rerun embeds nothing. `--embed nomic-embed-text-v1.5` is half the cost (see Results).
+- **Translations:** `--gloss <file>` takes English translations of the target's units
+  (`{"ref","text"}`, same refs). Each target unit then scores the better of its own text and its
+  translation; when overlap runs, it reads both.
 - **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
   server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura
   refuses to send it to two different servers. Keys go only over https, or to this machine.
@@ -158,14 +165,30 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Retrieval (embedding + overlap) | 32 | 42 | 42 | 44 |
+| Retrieval, default (nomic + bge-m3 + overlap) | 32 | 44 | 44 | 45 |
+| Retrieval, `--embed nomic-embed-text-v1.5` | 32 | 42 | 42 | 44 |
 | Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
 | Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
 
 Recall counts a link found when the gold verse or its neighbour is in the top k (`--neighbours 1`),
-of 49. Runs from 2026-11-09 on an Apple M3 CPU; the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
+of 49. Retrieval rows from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2;
+reranked rows from 2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
 
-Reranking costs R@1 here, so it's off by default. The cause is the q8 quantization of the only
+A second fixture, *The Waste Land* against its sources in seven languages
+(`fixtures/waste-land`, 64 links, built by a script from public-domain texts), shows why the
+default has a multilingual model. With `--gloss target-en.jsonl --neighbours 1`:
+
+| Embed | R@1 | R@3 | R@5 | R@10 |
+|---|---|---|---|---|
+| default, nomic + bge-m3 | 21 | 28 | 29 | 33 |
+| nomic only | 22 | 26 | 27 | 31 |
+| bge-m3 only | 18 | 24 | 24 | 27 |
+
+The default gives up one link at R@1 for two more from R@3 on. Without translations, nomic alone
+missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10, before the language profiles).
+Runs from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2.
+
+Reranking costs R@1 on Kempis, so it's off by default. The cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).
@@ -175,8 +198,8 @@ shared a rank; not re-run).
 More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
 is shown for each list alone, then fused. The `lxx-nt`, `augustine-vulgate` and
-`shankara-upanisads` rows and the retrieval row above were re-run 2026-11-13 under transformers.js 4.3.2,
-whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
+`shankara-upanisads` rows were re-run 2026-11-13 under transformers.js 4.3.2, whose newer ONNX
+runtime moves q8 vectors about 0.02 in cosine:
 
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
@@ -275,6 +298,9 @@ allusions.
   test but has no ONNX export yet; `--embed openai:...` can serve it.
 - **bge-m3 is large** (about 540 MB at q8). Embedding a 36,000-verse Bible takes 15 to 20 minutes
   on 10 CPU cores; later runs read the cache.
+- **Translations help where the embedder is weakest.** bge-m3 matches English against Italian,
+  French, German, Latin and Greek well, and Sanskrit poorly (MRR .49 on a held-out test).
+  `--gloss` lets an English embedder such as nomic read the target in English too.
 - **Allusions to a whole story** (the prodigal son), or sayings with no shared words, rarely reach
   the top 30, so no reranker sees them.
 - **Suggestions, not findings.** Check every link against the texts.

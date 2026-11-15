@@ -13,5 +13,5 @@ export const en: Lang = {
   words: (s) => s.toLowerCase().match(/[a-z]+/g)?.filter((w) => w.length > 2 && !STOP.has(w)) ?? [],
   stem: (w) => w.replace(/(eth|est|ed|ing|s)$/, ''),
   minKey: 3,
-  embedder: 'nomic-embed-text-v1.5',
+  embedder: 'nomic-embed-text-v1.5+bge-m3',
 }

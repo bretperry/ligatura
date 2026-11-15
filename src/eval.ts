@@ -9,6 +9,7 @@ import { checkInt, ranks } from './util.js'
 
 export interface EvalOptions extends LinkOptions {
   neighbours?: number // also count a target this many units away (a footnote citing the next verse)
+  glossFile?: string // translations of the target: a path, or a file name inside the fixture
 }
 
 const KS = [1, 3, 5, 10]
@@ -27,6 +28,7 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const run = resolve(opts)
   const source = loadUnits(join(dir, 'source.jsonl'))
   const target = loadUnits(join(dir, 'target.jsonl'))
+  const gloss = opts.glossFile ? loadUnits(existsSync(opts.glossFile) ? opts.glossFile : join(dir, opts.glossFile)) : undefined
   const tIndex = new Map(target.map((u, i) => [u.ref, i]))
   const sRefs = new Set(source.map((u) => u.ref))
   const gold = readFileSync(join(dir, 'gold.jsonl'), 'utf8').split('\n').flatMap((l, i) => {
@@ -43,7 +45,7 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const units = source.filter((u) => wanted.has(u.ref))
   const near = checkInt('neighbours', opts.neighbours, 0) ?? 0
   const rows: { source: string; target: string; dense: number; lexical: number; chars: number; fused: number; final: number }[] = []
-  for await (const r of link(units, target, opts)) {
+  for await (const r of link(units, target, { ...opts, gloss })) {
     const finalRank = new Map(r.ranked.map((c, k) => [c.index, k + 1]))
     const denseRank = ranks(r.dense)
     // A target sharing no word with the source isn't found by overlap, however few targets score.
