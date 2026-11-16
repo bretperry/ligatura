@@ -184,13 +184,14 @@ default has a multilingual model. With `--gloss target-en.jsonl --neighbours 1`:
 
 | Embed | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| default, nomic + bge-m3 | 21 | 28 | 29 | 33 |
-| nomic only | 22 | 26 | 27 | 31 |
-| bge-m3 only | 18 | 24 | 24 | 27 |
+| default, nomic + bge-m3 | 21 | 29 | 30 | 36 |
+| nomic only | 23 | 27 | 30 | 34 |
+| bge-m3 only | 18 | 24 | 27 | 32 |
 
-The default gives up one link at R@1 for two more from R@3 on. Without translations, nomic alone
-missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10, before the language profiles).
-Runs from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2.
+Against nomic alone, the default gives up two links at R@1 and gains two at R@3 and at R@10.
+Without translations, nomic alone missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10,
+before the language profiles). Runs from 2026-11-15 on a Mac mini (Apple M2 Pro CPU),
+transformers.js 4.3.2, with overlap scoring each translation as its own text.
 
 Reranking costs R@1 on Kempis, so it's off by default. The cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the

@@ -20,8 +20,10 @@ had been released: main and npm were at 0.2.1.
 - **Why:** concatenation lengthened glossed units. Their own-text matches then scored about half
   those of an identical unglossed unit (0.213 vs 0.408). A gloss should only ever add evidence.
 - **Tested by:** `test/link.test.js` → "a gloss never lowers word overlap".
-- **Follow-up:** the Waste Land `--gloss` rows in the README and `fixtures/waste-land/README.md`
-  were measured with concatenation. Re-run them before PR 9 merges to main.
+- **Measured:** Waste Land, `--gloss --neighbours 1`, recall at 1 / 3 / 5 / 10 on the Mac mini,
+  2026-11-15. The default went from 21 / 28 / 29 / 33 to 21 / 29 / 30 / 36. nomic alone went from
+  22 / 26 / 27 / 31 to 23 / 27 / 30 / 34, and bge-m3 alone from 18 / 24 / 24 / 27 to 18 / 24 / 27 / 32.
+  No cell went down. A control run of the old code on the same machine reproduced 21 / 28 / 29 / 33.
 
 ## Reverse by
 
