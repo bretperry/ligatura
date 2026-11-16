@@ -110,7 +110,7 @@ if (values.version) {
     const target = loadUnits(args[1], split, minWords, run.target)
     const gloss = values.gloss ? loadGloss(values.gloss) : undefined
     for await (const r of link(source, target, { ...opts, gloss })) {
-      for (const l of toLinks(r, target, { ...opts, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
+      for (const l of toLinks(r, target, { ...opts, gloss, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
     }
   } catch (err) {
     fail((err as Error).message)

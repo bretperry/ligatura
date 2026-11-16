@@ -133,7 +133,8 @@ backend, since the scales differ.
   rerun embeds nothing. `--embed nomic-embed-text-v1.5` is half the cost (see Results).
 - **Translations:** `--gloss <file>` takes English translations of the target's units
   (`{"ref","text"}`, same refs). Each target unit then scores the better of its own text and its
-  translation; when overlap runs, it reads both.
+  translation; when overlap runs, it reads both, and `shared` lists words from either. Links
+  from such a run carry `"gloss":true` in `method`.
 - **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
   server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura
   refuses to send it to two different servers. Keys go only over https, or to this machine.

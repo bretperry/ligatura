@@ -2,7 +2,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
-import { link, loadGloss, makeEmbedder, splitEmbedSpec } from '../dist/index.js'
+import { link, toLinks, loadGloss, makeEmbedder, splitEmbedSpec } from '../dist/index.js'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -145,4 +145,20 @@ test('a locally built embedder fingerprints its files, so a rebuild never reuses
     if (prev === undefined) delete process.env.LIGATURA_CACHE
     else process.env.LIGATURA_CACHE = prev
   }
+})
+
+test('links from a glossed run say so, and shared words include the translation', async () => {
+  const gloss = [{ ref: 'ecl.1.1', text: 'Tityrus, you who lie under the spreading beech' }]
+  // English on both sides, so overlap runs and reads the gloss.
+  const opts = { embed: `${base}#a`, rerank: 'none', gloss }
+  let r
+  for await (const x of link(source, target, opts)) r = x
+  const links = toLinks(r, target, { ...opts, top: 3 })
+  const ecl = links.find((l) => l.target === 'ecl.1.1')
+  assert.equal(ecl.method.gloss, true)
+  assert.ok(ecl.shared.includes('tityrus') && ecl.shared.includes('beech'), `shared ${ecl.shared}`)
+  // Without a gloss: no flag, and the Latin shares nothing.
+  const plain = toLinks(r, target, { embed: `${base}#a`, rerank: 'none', top: 3 }).find((l) => l.target === 'ecl.1.1')
+  assert.equal(plain.method.gloss, undefined)
+  assert.deepEqual(plain.shared, [])
 })

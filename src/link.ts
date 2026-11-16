@@ -135,7 +135,7 @@ export interface Link {
   rerank?: number
   shared: string[]
   status: 'suggested'
-  method: { embed: string; rerank: string; lang?: string }
+  method: { embed: string; rerank: string; lang?: string; gloss?: true }
   date: string
 }
 
@@ -146,6 +146,9 @@ export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top
   const run = resolve(opts)
   const date = new Date().toISOString().slice(0, 10)
   const round = (x: number) => Math.round(x * 1000) / 1000
+  // Overlap read each target unit with its translation, so shared words do too.
+  const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
+  const withGloss = (u: Unit) => (glossByRef.has(u.ref) ? `${u.text} ${glossByRef.get(u.ref)}` : u.text)
   return r.ranked
     .slice(0, opts.top)
     .filter((c) => opts.minScore === undefined || (c.rerank ?? c.dense) >= opts.minScore)
@@ -157,9 +160,9 @@ export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top
       dense: round(c.dense),
       lex: round(c.lex),
       ...(c.rerank === undefined ? {} : { rerank: round(c.rerank) }),
-      shared: run.lexical ? sharedWords(r.source.text, target[c.index].text, run.target) : [],
+      shared: run.lexical ? sharedWords(r.source.text, withGloss(target[c.index]), run.target) : [],
       status: 'suggested' as const,
-      method: { embed: run.embed, rerank: opts.rerank ?? DEFAULTS.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }) },
+      method: { embed: run.embed, rerank: opts.rerank ?? DEFAULTS.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }), ...(opts.gloss ? { gloss: true as const } : {}) },
       date,
     }))
 }
