@@ -2,7 +2,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
-import { link, loadGloss, makeEmbedder, splitEmbedSpec } from '../dist/index.js'
+import { link, toLinks, loadGloss, makeEmbedder, splitEmbedSpec } from '../dist/index.js'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -145,4 +145,39 @@ test('a locally built embedder fingerprints its files, so a rebuild never reuses
     if (prev === undefined) delete process.env.LIGATURA_CACHE
     else process.env.LIGATURA_CACHE = prev
   }
+})
+
+test('links from a glossed run say so, and shared words include the translation', async () => {
+  const gloss = [{ ref: 'ecl.1.1', text: 'Tityrus, you who lie under the spreading beech' }]
+  // English on both sides, so overlap runs and reads the gloss.
+  const opts = { embed: `${base}#a`, rerank: 'none', gloss }
+  let r
+  for await (const x of link(source, target, opts)) r = x
+  const links = toLinks(r, target, { ...opts, top: 3 })
+  const ecl = links.find((l) => l.target === 'ecl.1.1')
+  assert.equal(ecl.method.gloss, true)
+  assert.ok(ecl.shared.includes('tityrus') && ecl.shared.includes('beech'), `shared ${ecl.shared}`)
+  // Without a gloss: no flag, and the Latin shares nothing.
+  const plain = toLinks(r, target, { embed: `${base}#a`, rerank: 'none', top: 3 }).find((l) => l.target === 'ecl.1.1')
+  assert.equal(plain.method.gloss, undefined)
+  assert.deepEqual(plain.shared, [])
+})
+
+test('a gloss never lowers word overlap: a unit keeps the better of its text and its translation', async () => {
+  const src = [{ ref: 's', text: 'the sea is wide and deep' }]
+  const tgt = [
+    { ref: 'a', text: 'the sea is wide and deep today' },
+    { ref: 'b', text: 'the sea is wide and deep today' },
+    { ref: 'c', text: 'mare latum et profundum' },
+    { ref: 'd', text: 'arma virumque cano' },
+  ]
+  // a is glossed with unrelated words; b, its twin, is not. c is glossed with a match.
+  const gloss = [{ ref: 'a', text: 'arms and the man I sing' }, { ref: 'c', text: 'the sea wide and deep' }]
+  let r
+  for await (const x of link(src, tgt, { embed: `${base}#a`, rerank: 'none', gloss })) r = x
+  const lexOf = (ref) => r.ranked.find((c) => tgt[c.index].ref === ref).lex
+  assert.ok(lexOf('b') > 0)
+  assert.equal(lexOf('a'), lexOf('b'))
+  assert.ok(lexOf('c') > 0, 'the translation lifts c')
+  assert.equal(lexOf('d'), 0)
 })

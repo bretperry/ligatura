@@ -131,9 +131,12 @@ backend, since the scales differ.
 - **Default download:** about 700 MB on first run (nomic 140 MB, bge-m3 570 MB, both q8).
   English embeds with both, which takes about twice as long as one; vectors are cached, so a
   rerun embeds nothing. `--embed nomic-embed-text-v1.5` is half the cost (see Results).
+- **Fusing embedders:** with `a+b`, each embedder's list votes `dense`, so a fused pair outweighs
+  word overlap two to one in a profile with equal votes.
 - **Translations:** `--gloss <file>` takes English translations of the target's units
   (`{"ref","text"}`, same refs). Each target unit then scores the better of its own text and its
-  translation; when overlap runs, it reads both.
+  translation, in embeddings and in overlap alike, and `shared` lists words from either. Links
+  from such a run carry `"gloss":true` in `method`.
 - **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
   server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura
   refuses to send it to two different servers. Keys go only over https, or to this machine.
@@ -181,13 +184,14 @@ default has a multilingual model. With `--gloss target-en.jsonl --neighbours 1`:
 
 | Embed | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| default, nomic + bge-m3 | 21 | 28 | 29 | 33 |
-| nomic only | 22 | 26 | 27 | 31 |
-| bge-m3 only | 18 | 24 | 24 | 27 |
+| default, nomic + bge-m3 | 21 | 29 | 30 | 36 |
+| nomic only | 23 | 27 | 30 | 34 |
+| bge-m3 only | 18 | 24 | 27 | 32 |
 
-The default gives up one link at R@1 for two more from R@3 on. Without translations, nomic alone
-missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10, before the language profiles).
-Runs from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2.
+Against nomic alone, the default gives up two links at R@1 and gains two at R@3 and at R@10.
+Without translations, nomic alone missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10,
+before the language profiles). Runs from 2026-11-15 on a Mac mini (Apple M2 Pro CPU),
+transformers.js 4.3.2, with overlap scoring each translation as its own text.
 
 Reranking costs R@1 on Kempis, so it's off by default. The cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the

@@ -88,11 +88,19 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
     const g = glossed.length ? await embedder.embed(glossed.map((j) => glossByRef.get(target[j].ref)!), 'doc') : []
     spaces.push({ t, s, g })
   }
-  const targetText = target.map((u) => (glossByRef.has(u.ref) ? `${u.text} ${glossByRef.get(u.ref)}` : u.text))
-  const lex = run.lexical ? lexicalScorer(targetText, run.target) : undefined
+  // Overlap scores the translations as documents of their own, after the target's units, so both
+  // share one idf; a glossed unit then keeps the better of the two, as the embeddings do.
+  const docs = [...target.map((u) => u.text), ...glossed.map((j) => glossByRef.get(target[j].ref)!)]
+  const better = (all: Float32Array): Float32Array => {
+    const out = all.slice(0, target.length)
+    glossed.forEach((j, k) => { out[j] = Math.max(out[j], all[target.length + k]) })
+    return out
+  }
+  const lex = run.lexical ? lexicalScorer(docs, run.target) : undefined
   // The profile's fusion weights apply only when both texts are in its language.
+  // With a+b, each embedder's list votes w.dense: a fused pair outvotes overlap, as measured.
   const w = run.lexical ? run.target.fusion ?? {} : {}
-  const chr = run.lexical && run.target.charGrams ? charScorer(targetText, run.target, run.target.charGrams) : undefined
+  const chr = run.lexical && run.target.charGrams ? charScorer(docs, run.target, run.target.charGrams) : undefined
   const started = Date.now()
   for (const [i, s] of source.entries()) {
     const denses = spaces.map((sp) => {
@@ -102,8 +110,8 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
     })
     // The reported cosine is the mean across embedders.
     const dense = denses.length === 1 ? denses[0] : Float32Array.from(denses[0], (_, j) => denses.reduce((a, d) => a + d[j], 0) / denses.length)
-    const lexical = lex?.scores(s.text)
-    const chars = chr?.scores(s.text)
+    const lexical = lex && better(lex.scores(s.text))
+    const chars = chr && better(chr.scores(s.text))
     // Across languages, overlap is left out and the fused order is the embedding order.
     const fused = fuseWeighted([...denses.map((d) => [d, w.dense ?? 1]), [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
     const fusedRank = ranks(fused)
@@ -135,7 +143,7 @@ export interface Link {
   rerank?: number
   shared: string[]
   status: 'suggested'
-  method: { embed: string; rerank: string; lang?: string }
+  method: { embed: string; rerank: string; lang?: string; gloss?: true }
   date: string
 }
 
@@ -146,6 +154,9 @@ export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top
   const run = resolve(opts)
   const date = new Date().toISOString().slice(0, 10)
   const round = (x: number) => Math.round(x * 1000) / 1000
+  // Overlap read each target unit with its translation, so shared words do too.
+  const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
+  const withGloss = (u: Unit) => (glossByRef.has(u.ref) ? `${u.text} ${glossByRef.get(u.ref)}` : u.text)
   return r.ranked
     .slice(0, opts.top)
     .filter((c) => opts.minScore === undefined || (c.rerank ?? c.dense) >= opts.minScore)
@@ -157,9 +168,9 @@ export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top
       dense: round(c.dense),
       lex: round(c.lex),
       ...(c.rerank === undefined ? {} : { rerank: round(c.rerank) }),
-      shared: run.lexical ? sharedWords(r.source.text, target[c.index].text, run.target) : [],
+      shared: run.lexical ? sharedWords(r.source.text, withGloss(target[c.index]), run.target) : [],
       status: 'suggested' as const,
-      method: { embed: run.embed, rerank: opts.rerank ?? DEFAULTS.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }) },
+      method: { embed: run.embed, rerank: opts.rerank ?? DEFAULTS.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }), ...(opts.gloss ? { gloss: true as const } : {}) },
       date,
     }))
 }
