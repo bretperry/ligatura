@@ -5,7 +5,7 @@ import { LOCAL_EMBEDDERS } from './embed.js'
 import { evaluate, formatEval } from './eval.js'
 import { LANGS, MULTILINGUAL_EMBEDDER } from './lang/index.js'
 import { link, resolve, toLinks, DEFAULTS } from './link.js'
-import { loadUnits, type Split } from './units.js'
+import { loadGloss, loadUnits, type Split } from './units.js'
 import { setQuiet } from './util.js'
 
 const HELP = `ligatura: find where one text quotes, paraphrases or alludes to another.
@@ -108,7 +108,7 @@ if (values.version) {
   try {
     const source = loadUnits(args[0], split, minWords, run.source)
     const target = loadUnits(args[1], split, minWords, run.target)
-    const gloss = values.gloss ? loadUnits(values.gloss, split, 1, run.target) : undefined
+    const gloss = values.gloss ? loadGloss(values.gloss) : undefined
     for await (const r of link(source, target, { ...opts, gloss })) {
       for (const l of toLinks(r, target, { ...opts, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
     }

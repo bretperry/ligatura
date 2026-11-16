@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
-import { makeEmbedder } from '../dist/embed.js'
+import { makeEmbedder, splitEmbedSpec } from '../dist/embed.js'
 import { lexicalScorer } from '../dist/lexical.js'
 import { resolve } from '../dist/link.js'
 import { ranks } from '../dist/util.js'
@@ -19,7 +19,10 @@ const tIndex = new Map(target.map((u, i) => [u.ref, i])), sIndex = new Map(sourc
 const gold = jl('gold.jsonl').filter((g) => tIndex.has(g.target) && sIndex.has(g.source))
 const half = (ref) => (createHash('sha1').update(ref).digest()[0] & 1 ? 'test' : 'dev')
 
-const emb = makeEmbedder(run.embed)
+// One embedder only: a fused default ("a+b") would need a ranking per embedder.
+const specs = splitEmbedSpec(run.embed)
+if (specs.length > 1) { console.error(`variants reads one embedder; pass --embed ${specs[0]} (or another of ${specs.join(', ')})`); process.exit(1) }
+const emb = makeEmbedder(specs[0])
 const tVec = await emb.embed(target.map((u) => u.text), 'doc')
 // Every source unit, so a unit's neighbours have vectors too.
 const sVec = await emb.embed(source.map((u) => u.text), 'query')
