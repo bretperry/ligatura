@@ -106,8 +106,9 @@ One JSON object per suggested link:
 
 `score` depends on what ranked the link:
 
-- **No reranker (default):** the embedding cosine. With the default model it falls roughly in 0 to 1,
-  but it isn't a probability.
+- **No reranker (default):** the embedding cosine; with several embedders (`a+b`, the English
+  default), the mean of their cosines. It falls roughly in 0 to 1, but it isn't a probability, and a
+  `--min-score` tuned for one embedder doesn't carry over to another or to a fused pair.
 - **`qwen3-reranker-0.6b`:** the model's P(yes) that the pair is a link, 0 to 1.
 - **`api:`:** the server's relevance score, on whatever scale that server uses.
 - **`chat:`:** rank order only: 1 for the judge's first pick, 0.99 for the second, and so on; 0 if

@@ -4,12 +4,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { link, resolve, DEFAULTS, type LinkOptions } from './link.js'
-import { loadUnits } from './units.js'
+import { loadGloss, loadUnits } from './units.js'
 import { checkInt, ranks } from './util.js'
 
 export interface EvalOptions extends LinkOptions {
   neighbours?: number // also count a target this many units away (a footnote citing the next verse)
-  glossFile?: string // translations of the target: a path, or a file name inside the fixture
+  glossFile?: string // translations of the target: a file name inside the fixture, or a path
 }
 
 const KS = [1, 3, 5, 10]
@@ -28,7 +28,8 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const run = resolve(opts)
   const source = loadUnits(join(dir, 'source.jsonl'))
   const target = loadUnits(join(dir, 'target.jsonl'))
-  const gloss = opts.glossFile ? loadUnits(existsSync(opts.glossFile) ? opts.glossFile : join(dir, opts.glossFile)) : undefined
+  // The fixture's own file wins over a same-named one in the working directory.
+  const gloss = opts.glossFile ? loadGloss(existsSync(join(dir, opts.glossFile)) ? join(dir, opts.glossFile) : opts.glossFile) : undefined
   const tIndex = new Map(target.map((u, i) => [u.ref, i]))
   const sRefs = new Set(source.map((u) => u.ref))
   const gold = readFileSync(join(dir, 'gold.jsonl'), 'utf8').split('\n').flatMap((l, i) => {

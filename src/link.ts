@@ -1,6 +1,6 @@
 // The pipeline: embed both texts, score every target unit two ways (embedding similarity and word
 // overlap), fuse the two rankings, then let a reranker read the top of the fused list.
-import { makeEmbedder, DEFAULT_EMBEDDER } from './embed.js'
+import { makeEmbedder, splitEmbedSpec, DEFAULT_EMBEDDER } from './embed.js'
 import { defaultEmbedder, getLang, type Lang } from './lang/index.js'
 import { charScorer, lexicalScorer, sharedWords } from './lexical.js'
 import { makeReranker, DEFAULT_RERANKER } from './rerank.js'
@@ -62,12 +62,20 @@ export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, poo
 export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = {}): AsyncGenerator<UnitResult> {
   const run = resolve(opts)
   // "a+b" runs several embedders; each ranks the targets and the rankings are fused.
-  const embedders = run.embed.split('+').map(makeEmbedder)
+  const embedders = splitEmbedSpec(run.embed).map(makeEmbedder)
   const reranker = makeReranker(opts.rerank ?? DEFAULTS.rerank, opts.task)
   const pool = checkInt('pool', opts.pool, 1) ?? DEFAULTS.pool
   checkUnique('source', source.map((u) => u.ref))
   checkUnique('target', target.map((u) => u.ref))
   const glossByRef = new Map((opts.gloss ?? []).map((u) => [u.ref, u.text]))
+  if (opts.gloss) {
+    checkUnique('gloss', opts.gloss.map((u) => u.ref))
+    // A gloss keyed to another ref scheme would otherwise be ignored without a word.
+    const tRefs = new Set(target.map((u) => u.ref))
+    const stray = opts.gloss.filter((u) => !tRefs.has(u.ref))
+    if (!opts.gloss.length) throw new Error('the gloss has no units')
+    if (stray.length) throw new Error(`${stray.length} of ${opts.gloss.length} gloss refs are not target refs (first: "${stray[0].ref}"); a gloss is keyed by the target's refs`)
+  }
   const glossed = target.flatMap((u, j) => (glossByRef.has(u.ref) ? [j] : []))
   if (opts.gloss) log(`gloss: ${glossed.length} of ${target.length} target units have a translation`)
   const forEmbed = (lang: Lang, units: Unit[]) => units.map((u) => (lang.embedText ? lang.embedText(u.text) : u.text))
