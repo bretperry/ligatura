@@ -131,9 +131,11 @@ backend, since the scales differ.
 - **Default download:** about 700 MB on first run (nomic 140 MB, bge-m3 570 MB, both q8).
   English embeds with both, which takes about twice as long as one; vectors are cached, so a
   rerun embeds nothing. `--embed nomic-embed-text-v1.5` is half the cost (see Results).
+- **Fusing embedders:** with `a+b`, each embedder's list votes `dense`, so a fused pair outweighs
+  word overlap two to one in a profile with equal votes.
 - **Translations:** `--gloss <file>` takes English translations of the target's units
   (`{"ref","text"}`, same refs). Each target unit then scores the better of its own text and its
-  translation; when overlap runs, it reads both, and `shared` lists words from either. Links
+  translation, in embeddings and in overlap alike, and `shared` lists words from either. Links
   from such a run carry `"gloss":true` in `method`.
 - **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
   server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura

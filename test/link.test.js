@@ -162,3 +162,22 @@ test('links from a glossed run say so, and shared words include the translation'
   assert.equal(plain.method.gloss, undefined)
   assert.deepEqual(plain.shared, [])
 })
+
+test('a gloss never lowers word overlap: a unit keeps the better of its text and its translation', async () => {
+  const src = [{ ref: 's', text: 'the sea is wide and deep' }]
+  const tgt = [
+    { ref: 'a', text: 'the sea is wide and deep today' },
+    { ref: 'b', text: 'the sea is wide and deep today' },
+    { ref: 'c', text: 'mare latum et profundum' },
+    { ref: 'd', text: 'arma virumque cano' },
+  ]
+  // a is glossed with unrelated words; b, its twin, is not. c is glossed with a match.
+  const gloss = [{ ref: 'a', text: 'arms and the man I sing' }, { ref: 'c', text: 'the sea wide and deep' }]
+  let r
+  for await (const x of link(src, tgt, { embed: `${base}#a`, rerank: 'none', gloss })) r = x
+  const lexOf = (ref) => r.ranked.find((c) => tgt[c.index].ref === ref).lex
+  assert.ok(lexOf('b') > 0)
+  assert.equal(lexOf('a'), lexOf('b'))
+  assert.ok(lexOf('c') > 0, 'the translation lifts c')
+  assert.equal(lexOf('d'), 0)
+})
