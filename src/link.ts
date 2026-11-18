@@ -2,10 +2,10 @@
 // overlap), fuse the two rankings, then let a reranker read the top of the fused list.
 import { makeEmbedder, splitEmbedSpec, DEFAULT_EMBEDDER } from './embed.js'
 import { defaultEmbedder, getLang, type Lang } from './lang/index.js'
-import { charScorer, lexicalScorer, sharedWords } from './lexical.js'
+import { charScorer, lexicalScorer, pairScorer, sharedWords } from './lexical.js'
 import { makeReranker, DEFAULT_RERANKER } from './rerank.js'
 import type { Unit } from './units.js'
-import { checkInt, checkUnique, dot, fuseWeighted, log, ranks, topK } from './util.js'
+import { checkInt, checkUnique, dot, fuseWeighted, log, ranks, RRF_K, topK } from './util.js'
 
 export interface LinkOptions {
   embed?: string
@@ -18,6 +18,19 @@ export interface LinkOptions {
   // Translations of target units, matched by ref. A target unit then scores the better of its
   // own text and its translation, and word overlap reads both.
   gloss?: Unit[]
+  // Experimental, off by default until measured:
+  // rerankFuse: the reranker's vote when its order is fused with the retrieval order inside the
+  // pool (reciprocal rank fusion) instead of replacing it.
+  rerankFuse?: number
+  // pairs: a further ranking by shared rare word pairs (Tesserae's rule); same language only.
+  pairs?: boolean
+  // runs: a further ranking that adds, to each target's own fused score, the best fused score of
+  // the neighbouring source units at the neighbouring targets, so a run of links lifts its members.
+  runs?: boolean
+  runsWeight?: number // the runs list's vote (default 1)
+  runsGate?: number // lift only targets in the unit's own top n (default: all)
+  // Yield results only for these source refs; the rest are still read as neighbours for runs.
+  only?: Set<string>
 }
 
 export interface Resolved {
@@ -55,6 +68,7 @@ export interface UnitResult {
   dense: Float32Array
   lexical?: Float32Array
   chars?: Float32Array
+  pairs?: Float32Array
 }
 
 export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, pool: 30 }
@@ -79,11 +93,15 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   const glossed = target.flatMap((u, j) => (glossByRef.has(u.ref) ? [j] : []))
   if (opts.gloss) log(`gloss: ${glossed.length} of ${target.length} target units have a translation`)
   const forEmbed = (lang: Lang, units: Unit[]) => units.map((u) => (lang.embedText ? lang.embedText(u.text) : u.text))
+  // Source units to score: those yielded, and with runs their neighbours too.
+  const yields = source.flatMap((u, i) => (!opts.only || opts.only.has(u.ref) ? [i] : []))
+  const needed = [...new Set(yields.flatMap((i) => (opts.runs ? [i - 1, i, i + 1] : [i])).filter((i) => i >= 0 && i < source.length))].sort((a, b) => a - b)
+  const slot = new Map(needed.map((i, k) => [i, k]))
   const spaces: { t: Float32Array[]; s: Float32Array[]; g: Float32Array[] }[] = []
   for (const embedder of embedders) {
-    log(`embedding ${target.length} target (${run.target.code}) and ${source.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
+    log(`embedding ${target.length} target (${run.target.code}) and ${needed.length} source (${run.source.code}) units with ${embedder.name}${run.lexical ? '' : '; no word overlap across languages'}`)
     const t = await embedder.embed(forEmbed(run.target, target), 'doc')
-    const s = await embedder.embed(forEmbed(run.source, source), 'query')
+    const s = await embedder.embed(forEmbed(run.source, needed.map((i) => source[i])), 'query')
     if (s[0] && t[0] && s[0].length !== t[0].length) throw new Error(`source and target vectors differ in length (${s[0].length}, ${t[0].length})`)
     const g = glossed.length ? await embedder.embed(glossed.map((j) => glossByRef.get(target[j].ref)!), 'doc') : []
     spaces.push({ t, s, g })
@@ -101,19 +119,50 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
   // With a+b, each embedder's list votes w.dense: a fused pair outvotes overlap, as measured.
   const w = run.lexical ? run.target.fusion ?? {} : {}
   const chr = run.lexical && run.target.charGrams ? charScorer(docs, run.target, run.target.charGrams) : undefined
-  const started = Date.now()
-  for (const [i, s] of source.entries()) {
+  const prs = run.lexical && opts.pairs ? pairScorer(docs, source.map((u) => u.text), run.target) : undefined
+  // Every signal for one source unit, fused; kept for neighbours when runs is on.
+  const memo = new Map<number, ReturnType<typeof signals>>()
+  function signals(i: number) {
+    const k = slot.get(i)!
     const denses = spaces.map((sp) => {
-      const d = Float32Array.from(sp.t, (t) => dot(sp.s[i], t))
-      glossed.forEach((j, k) => { d[j] = Math.max(d[j], dot(sp.s[i], sp.g[k])) })
+      const d = Float32Array.from(sp.t, (t) => dot(sp.s[k], t))
+      glossed.forEach((j, x) => { d[j] = Math.max(d[j], dot(sp.s[k], sp.g[x])) })
       return d
     })
     // The reported cosine is the mean across embedders.
     const dense = denses.length === 1 ? denses[0] : Float32Array.from(denses[0], (_, j) => denses.reduce((a, d) => a + d[j], 0) / denses.length)
-    const lexical = lex && better(lex.scores(s.text))
-    const chars = chr && better(chr.scores(s.text))
+    const text = source[i].text
+    const lexical = lex && better(lex.scores(text))
+    const chars = chr && better(chr.scores(text))
+    const pairs = prs && better(prs.scores(text))
     // Across languages, overlap is left out and the fused order is the embedding order.
-    const fused = fuseWeighted([...denses.map((d) => [d, w.dense ?? 1]), [lexical, w.words ?? 1], [chars, w.chars ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
+    const fused = fuseWeighted([...denses.map((d) => [d, w.dense ?? 1]), [lexical, w.words ?? 1], [chars, w.chars ?? 1], [pairs, w.words ?? 1]].filter((x): x is [Float32Array, number] => x[0] !== undefined))
+    return { dense, lexical, chars, pairs, fused }
+  }
+  const get = (i: number) => {
+    let r = memo.get(i)
+    if (!r) memo.set(i, (r = signals(i)))
+    return r
+  }
+  const started = Date.now()
+  for (const [n, i] of yields.entries()) {
+    const s = source[i]
+    const { dense, lexical, chars, pairs, fused: own } = get(i)
+    let fused = own
+    if (opts.runs) {
+      // Support from the run: the best fused score of source i-1 or i+1 at target j-1, j or j+1.
+      const near = [i - 1, i + 1].filter((x) => slot.has(x)).map((x) => get(x).fused)
+      const ownRank = opts.runsGate ? ranks(own) : undefined
+      const support = Float32Array.from(own, (f, j) => {
+        let best = 0
+        if (ownRank && ownRank[j] > opts.runsGate!) return f
+        for (const nf of near) for (const o of [-1, 0, 1]) { const v = nf[j + o]; if (v !== undefined && v > best) best = v }
+        return f + best
+      })
+      fused = fuseWeighted([[own, 1], [support, opts.runsWeight ?? 1]])
+    }
+    // Units behind the previous one are no longer needed.
+    for (const x of memo.keys()) if (x < i - 1) memo.delete(x)
     const fusedRank = ranks(fused)
     const top = topK(fused, pool)
     const ranked: Scored[] = top.map((j) => ({ index: j, dense: dense[j], lex: lexical?.[j] ?? 0, fusedRank: fusedRank[j] }))
@@ -122,15 +171,19 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
       const ordered = [...ranked].sort((a, b) => a.index - b.index)
       const scores = await reranker.score(s, ordered.map((c) => target[c.index]))
       ordered.forEach((c, k) => { c.rerank = scores[k] })
-      ranked.sort((a, b) => b.rerank! - a.rerank! || a.fusedRank - b.fusedRank)
+      const fuseW = opts.rerankFuse
+      if (fuseW !== undefined) {
+        // Fuse inside the pool: the retrieval order votes 1, the reranker's order fuseW.
+        const rr = ranks(Float32Array.from(ranked, (c) => c.rerank!))
+        const vote = new Map(ranked.map((c, k) => [c.index, 1 / (RRF_K + c.fusedRank) + fuseW / (RRF_K + rr[k])]))
+        ranked.sort((a, b) => vote.get(b.index)! - vote.get(a.index)! || a.fusedRank - b.fusedRank)
+      } else ranked.sort((a, b) => b.rerank! - a.rerank! || a.fusedRank - b.fusedRank)
+      const each = (Date.now() - started) / (n + 1)
+      log(`rerank ${reranker.name}: ${n + 1}/${yields.length}, about ${Math.round((each * (yields.length - n - 1)) / 60000)} min left`, true)
     }
-    if (reranker) {
-      const each = (Date.now() - started) / (i + 1)
-      log(`rerank ${reranker.name}: ${i + 1}/${source.length}, about ${Math.round((each * (source.length - i - 1)) / 60000)} min left`, true)
-    }
-    yield { source: s, ranked, fusedRank, dense, lexical, chars }
+    yield { source: s, ranked, fusedRank, dense, lexical, chars, pairs }
   }
-  if (reranker) log(`reranked ${source.length} units in ${Math.round((Date.now() - started) / 1000)} s`)
+  if (reranker) log(`reranked ${yields.length} units in ${Math.round((Date.now() - started) / 1000)} s`)
 }
 
 export interface Link {

@@ -34,6 +34,12 @@ Options
   --gloss <file>      translations of the target's units, matched by ref (JSONL); for eval, a name
                       inside the fixture such as target-en.jsonl
   --task <text>       the instruction the reranker reads
+  --rerank-fuse <w>   experimental: fuse the reranker's order with the retrieval order inside the
+                      pool, the reranker voting w, instead of replacing it
+  --pairs             experimental: also rank by shared rare word pairs (same language only)
+  --runs              experimental: lift targets that neighbouring source units also link near
+  --runs-weight <w>   the vote of that lift (default 1)
+  --runs-gate <n>     lift only targets in the unit's own top n
   --split <mode>      for plain text: sentence (default), paragraph or line
   --min-words <n>     for plain text: drop units shorter than n words (default 1, keep all)
   --neighbours <n>    eval: also count a target n units away from the gold one (default 0)
@@ -61,6 +67,7 @@ function parseOpts() {
     embed: { type: 'string' }, rerank: { type: 'string' }, pool: { type: 'string' }, top: { type: 'string' },
     'min-score': { type: 'string' }, task: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' }, 'min-words': { type: 'string' }, gloss: { type: 'string' },
     lang: { type: 'string' }, 'source-lang': { type: 'string' }, 'target-lang': { type: 'string' },
+    'rerank-fuse': { type: 'string' }, pairs: { type: 'boolean' }, runs: { type: 'boolean' }, 'runs-weight': { type: 'string' }, 'runs-gate': { type: 'string' },
     json: { type: 'boolean' }, quiet: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean', short: 'v' },
   },
   })
@@ -91,6 +98,7 @@ setQuiet(!!values.quiet)
 const opts = {
   embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task,
   lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
+  rerankFuse: real('rerank-fuse'), pairs: values.pairs, runs: values.runs, runsWeight: real('runs-weight'), runsGate: int('runs-gate', 1),
 }
 let run: ReturnType<typeof resolve>
 try { run = resolve(opts) } catch (err) { fail((err as Error).message) }
