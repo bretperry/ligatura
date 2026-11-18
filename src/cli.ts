@@ -34,8 +34,8 @@ Options
   --gloss <file>      translations of the target's units, matched by ref (JSONL); for eval, a name
                       inside the fixture such as target-en.jsonl
   --task <text>       the instruction the reranker reads
-  --rerank-fuse <w>   experimental: fuse the reranker's order with the retrieval order inside the
-                      pool, the reranker voting w, instead of replacing it
+  --rerank-fuse <w>   the reranker's vote when its order is fused with the retrieval order inside
+                      the pool (default 1); replace orders by the reranker alone
   --pairs             experimental: also rank by shared rare word pairs (same language only)
   --runs              experimental: lift targets that neighbouring source units also link near
   --runs-weight <w>   the vote of that lift (default 1)
@@ -98,7 +98,7 @@ setQuiet(!!values.quiet)
 const opts = {
   embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task,
   lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
-  rerankFuse: real('rerank-fuse'), pairs: values.pairs, runs: values.runs, runsWeight: real('runs-weight'), runsGate: int('runs-gate', 1),
+  rerankFuse: values['rerank-fuse'] === 'replace' ? ('replace' as const) : real('rerank-fuse'), pairs: values.pairs, runs: values.runs, runsWeight: real('runs-weight'), runsGate: int('runs-gate', 1),
 }
 let run: ReturnType<typeof resolve>
 try { run = resolve(opts) } catch (err) { fail((err as Error).message) }

@@ -25,9 +25,10 @@ account or API key.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
    Sanskrit and Coptic give the embedder and word overlap no vote (see Results).
 4. **Rerank (opt-in):** with `--rerank`, a reranker model reads the top 30 for each unit and
-   scores each pair. It's off by default: the in-process Qwen3-Reranker-0.6B scored below plain
-   retrieval on the test fixture (see Results). A reranker server or a chat model as judge may do
-   better; measure it with `eval` first.
+   scores each pair. Its order is fused with the retrieval order (reciprocal rank fusion, one vote
+   each; `--rerank-fuse <w>` sets its vote, `--rerank-fuse replace` uses its order alone).
+   Replacing the order cost R@1 on every fixture tried; fusing beat replacing on each (see Results).
+   It's off by default because the in-process reranker is slow on a CPU; measure it with `eval` first.
 
 ## Install
 
@@ -114,6 +115,8 @@ One JSON object per suggested link:
 - **`chat:`:** rank order only: 1 for the judge's first pick, 0.99 for the second, and so on; 0 if
   not picked.
 
+With a reranker, links come in fused order, so a lower-ranked link can carry a higher `score`.
+
 `--top` (default 3) and `--min-score` decide how many links reach review. Set `--min-score` per
 backend, since the scales differ.
 
@@ -173,10 +176,26 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 | Retrieval, `--embed nomic-embed-text-v1.5` | 32 | 42 | 42 | 44 |
 | Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
 | Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
+| Reranked, q8, `--pool 20 --rerank-fuse replace` | 28 | 43 | 45 | 45 |
+| Reranked, q8, `--pool 20`, fused (default since 2026-11-18) | 34 | 44 | 45 | 45 |
 
 Recall counts a link found when the gold verse or its neighbour is in the top k (`--neighbours 1`),
 of 49. Retrieval rows from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2;
-reranked rows from 2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
+reranked rows from 2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs;
+the `--pool 20` rows from 2026-11-17 on the Mac mini. The first two reranked rows replaced the
+retrieval order, as ligatura did before 2026-11-18.
+
+Fusing, not replacing, keeps the reranker from undoing retrieval. At `--pool 20` (R@1/3/5/10; `lab/exp123.md`):
+
+| Fixture | Retrieval | Reranker order | Fused |
+|---|---|---|---|
+| kempis-gospels | 32 / 44 / 44 / 45 | 28 / 43 / 45 / 45 | 34 / 44 / 45 / 45 |
+| waste-land | 21 / 29 / 30 / 36 | 20 / 25 / 28 / 34 | 23 / 28 / 32 / 34 |
+| lxx-nt | 159 / 205 / 219 / 229 | 119 / 176 / 200 / 222 | 158 / 203 / 218 / 229 |
+
+Fusing beat replacing on all three. Against retrieval alone it is mixed: +2 at R@1 on both English
+fixtures, −2 at R@10 on *The Waste Land*, −1 at R@1 on lxx-nt. Fusing at the default `--pool 30`
+is not yet measured.
 
 A second fixture, *The Waste Land* against its sources in seven languages
 (`fixtures/waste-land`, 64 links, built by a script from public-domain texts), shows why the
@@ -193,7 +212,7 @@ Without translations, nomic alone missed most links into Dante (18 / 24 / 24 / 2
 before the language profiles). Runs from 2026-11-15 on a Mac mini (Apple M2 Pro CPU),
 transformers.js 4.3.2, with overlap scoring each translation as its own text.
 
-Reranking costs R@1 on Kempis, so it's off by default. The cause is the q8 quantization of the only
+Reranker order alone costs R@1 on Kempis. One cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).

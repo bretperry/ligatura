@@ -18,10 +18,10 @@ export interface LinkOptions {
   // Translations of target units, matched by ref. A target unit then scores the better of its
   // own text and its translation, and word overlap reads both.
   gloss?: Unit[]
+  // The reranker's vote when its order is fused with the retrieval order inside the pool
+  // (reciprocal rank fusion; retrieval votes 1). Default 1. 'replace' orders by the reranker alone.
+  rerankFuse?: number | 'replace'
   // Experimental, off by default until measured:
-  // rerankFuse: the reranker's vote when its order is fused with the retrieval order inside the
-  // pool (reciprocal rank fusion) instead of replacing it.
-  rerankFuse?: number
   // pairs: a further ranking by shared rare word pairs (Tesserae's rule); same language only.
   pairs?: boolean
   // runs: a further ranking that adds, to each target's own fused score, the best fused score of
@@ -71,7 +71,7 @@ export interface UnitResult {
   pairs?: Float32Array
 }
 
-export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, pool: 30 }
+export const DEFAULTS = { embed: DEFAULT_EMBEDDER, rerank: DEFAULT_RERANKER, pool: 30, rerankFuse: 1 as number | 'replace' }
 
 export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = {}): AsyncGenerator<UnitResult> {
   const run = resolve(opts)
@@ -171,9 +171,11 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
       const ordered = [...ranked].sort((a, b) => a.index - b.index)
       const scores = await reranker.score(s, ordered.map((c) => target[c.index]))
       ordered.forEach((c, k) => { c.rerank = scores[k] })
-      const fuseW = opts.rerankFuse
-      if (fuseW !== undefined) {
-        // Fuse inside the pool: the retrieval order votes 1, the reranker's order fuseW.
+      const fuseW = opts.rerankFuse ?? DEFAULTS.rerankFuse
+      if (fuseW !== 'replace') {
+        // Fuse inside the pool: the retrieval order votes 1, the reranker's order fuseW. Replacing
+        // the order cost lxx-nt 40 links at R@1; fusing kept it and lifted Kempis and The Waste
+        // Land (lab/exp123.md).
         const rr = ranks(Float32Array.from(ranked, (c) => c.rerank!))
         const vote = new Map(ranked.map((c, k) => [c.index, 1 / (RRF_K + c.fusedRank) + fuseW / (RRF_K + rr[k])]))
         ranked.sort((a, b) => vote.get(b.index)! - vote.get(a.index)! || a.fusedRank - b.fusedRank)
