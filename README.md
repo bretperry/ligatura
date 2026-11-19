@@ -8,15 +8,13 @@ npx ligatura link imitation.jsonl gospels.jsonl > links.jsonl
 
 ligatura reads two texts as units (verses, sentences, paragraphs). For each unit of the first, it
 finds the passages in the second that the unit echoes, and writes them as suggestions with their
-evidence. A person confirms each one: ligatura finds candidates, it doesn't decide.
-
-**The default is free and local.** Every model runs on your machine, downloads once, and needs no
-account or API key.
+evidence.
 
 ## How it works
 
-1. **Embed** both texts and score every target unit by meaning. English uses
-   nomic-embed-text-v1.5; every other language, and any pair of two languages, uses bge-m3.
+1. **Embed** both texts and score every target unit by meaning. English uses two models,
+   nomic-embed-text-v1.5 and bge-m3, each a ranking of its own; every other language, and any
+   pair of two languages, uses bge-m3.
 2. **Overlap:** score every target unit by shared rare words. This catches quotation, which
    embeddings blur. Archaic forms (followeth, walketh) fold to their stems. Latin, Greek, Coptic,
    Sanskrit and Hebrew also score shared character n-grams, which catch inflected forms the stems miss.
@@ -24,9 +22,10 @@ account or API key.
 3. **Fuse** the rankings (reciprocal rank fusion). A language profile can weight each list;
    Sanskrit and Coptic give the embedder and word overlap no vote (see Results).
 4. **Rerank (opt-in):** with `--rerank`, a reranker model reads the top 30 for each unit and
-   scores each pair. It's off by default: the in-process Qwen3-Reranker-0.6B scored below plain
-   retrieval on the test fixture (see Results). A reranker server or a chat model as judge may do
-   better; measure it with `eval` first.
+   scores each pair. Its order is fused with the retrieval order (reciprocal rank fusion, one vote
+   each; `--rerank-fuse <w>` sets its vote, `--rerank-fuse replace` uses its order alone).
+   Replacing the order cost R@1 on every fixture tried; fusing beat replacing on each (see Results).
+   It's off by default because the in-process reranker is slow on a CPU; measure it with `eval` first.
 
 ## Install
 
@@ -100,17 +99,20 @@ One JSON object per suggested link:
 
 ```json
 {"source":"4.14.5","target":"LUK.24.35","rank":1,"score":0.792,"dense":0.792,"lex":0.295,
- "shared":["breaking","bread","way"],"status":"suggested","method":{"embed":"nomic-embed-text-v1.5","rerank":"none"},"date":"2026-11-08"}
+ "shared":["breaking","bread","way"],"status":"suggested","method":{"embed":"nomic-embed-text-v1.5+bge-m3","rerank":"none"},"date":"2026-11-08"}
 ```
 
 `score` depends on what ranked the link:
 
-- **No reranker (default):** the embedding cosine. With the default model it falls roughly in 0 to 1,
-  but it isn't a probability.
+- **No reranker (default):** the embedding cosine; with several embedders (`a+b`, the English
+  default), the mean of their cosines. It falls roughly in 0 to 1, but it isn't a probability, and a
+  `--min-score` tuned for one embedder doesn't carry over to another or to a fused pair.
 - **`qwen3-reranker-0.6b`:** the model's P(yes) that the pair is a link, 0 to 1.
 - **`api:`:** the server's relevance score, on whatever scale that server uses.
 - **`chat:`:** rank order only: 1 for the judge's first pick, 0.99 for the second, and so on; 0 if
   not picked.
+
+With a reranker, links come in fused order, so a lower-ranked link can carry a higher `score`.
 
 `--top` (default 3) and `--min-score` decide how many links reach review. Set `--min-score` per
 backend, since the scales differ.
@@ -119,13 +121,21 @@ backend, since the scales differ.
 
 | Stage | In process | Or a server you run |
 |---|---|---|
-| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for every language but English, and for mixed pairs) | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
+| Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for every language but English, and for mixed pairs); `snowflake-arctic-embed-l-v2.0`, `multilingual-e5-large`, `multilingual-e5-small`, `qwen3-embedding-0.6b`. English defaults to `nomic-embed-text-v1.5+bge-m3`: join several with `+` to fuse them | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
 | Rerank | off by default; `--rerank qwen3-reranker-0.6b` | `--rerank api:<url>#<model>`: a Cohere/Jina-shaped `/rerank` endpoint (llama.cpp `llama-server`, vLLM, TEI, Infinity) |
-| Judge | – | `--rerank chat:<base-url>#<model>`: a chat model picks the links (Ollama, LM Studio, `mlx_lm.server`) |
 
 - **Speed:** the in-process reranker runs on the CPU at 0.5 to 0.75 s per pair. A 2,400-sentence
   book at `--pool 30` takes many hours. A reranker server on a GPU is much faster: the same model
   under MLX on an Apple M3 took 0.17 s per pair. Lowering `--pool` trades recall for time.
+- **Default download:** about 700 MB on first run (nomic 140 MB, bge-m3 570 MB, both q8).
+  English embeds with both, which takes about twice as long as one; vectors are cached, so a
+  rerun embeds nothing. `--embed nomic-embed-text-v1.5` is half the cost (see Results).
+- **Fusing embedders:** with `a+b`, each embedder's list votes `dense`, so a fused pair outweighs
+  word overlap two to one in a profile with equal votes.
+- **Translations:** `--gloss <file>` takes English translations of the target's units
+  (`{"ref","text"}`, same refs). Each target unit then scores the better of its own text and its
+  translation, in embeddings and in overlap alike, and `shared` lists words from either. Links
+  from such a run carry `"gloss":true` in `method`.
 - **Keys:** `LIGATURA_EMBED_API_KEY` and `LIGATURA_RERANK_API_KEY` each go only to their own
   server, as a bearer token. `LIGATURA_API_KEY` works when only one server needs a key; ligatura
   refuses to send it to two different servers. Keys go only over https, or to this machine.
@@ -135,8 +145,6 @@ backend, since the scales differ.
   `LIGATURA_CACHE`), private to your user, keyed by model, prefixes and text. Vectors from a
   server aren't cached, since a server can change the model behind a name. `LIGATURA_NO_CACHE=1`
   turns the cache off.
-- **Paid APIs bill your API account, not a chat subscription** such as Claude Pro or ChatGPT Plus.
-  ligatura has no paid backend built in. If you point it at one, you pay that provider per call.
 
 ## Measure before you trust it
 
@@ -158,14 +166,47 @@ edition's own footnotes (49 links; see `fixtures/kempis-gospels/README.md`):
 
 | Stage | R@1 | R@3 | R@5 | R@10 |
 |---|---|---|---|---|
-| Retrieval (embedding + overlap) | 32 | 42 | 42 | 44 |
+| Retrieval, default (nomic + bge-m3 + overlap) | 32 | 44 | 44 | 45 |
+| Retrieval, `--embed nomic-embed-text-v1.5` | 32 | 42 | 42 | 44 |
 | Reranked, `--rerank qwen3-reranker-0.6b` (ONNX q8, generic task) | 29 | 41 | 43 | 43 |
 | Reranked, q8, `--task` naming the two texts | 30 | 43 | 43 | 45 |
+| Reranked, q8, `--pool 20 --rerank-fuse replace` | 28 | 43 | 45 | 45 |
+| Reranked, q8, `--pool 20`, fused (default since 2026-11-18) | 34 | 44 | 45 | 45 |
 
 Recall counts a link found when the gold verse or its neighbour is in the top k (`--neighbours 1`),
-of 49. Runs from 2026-11-09 on an Apple M3 CPU; the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs.
+of 49. Retrieval rows from 2026-11-14 on a Mac mini (Apple M2 Pro CPU), transformers.js 4.3.2;
+reranked rows from 2026-11-09 on an Apple M3 CPU, where the q8 reranker took 1,100 to 2,700 s for the 1,320 pairs;
+the `--pool 20` rows from 2026-11-17 on the Mac mini. The first two reranked rows replaced the
+retrieval order, as ligatura did before 2026-11-18.
 
-Reranking costs R@1 here, so it's off by default. The cause is the q8 quantization of the only
+Fusing, not replacing, keeps the reranker from undoing retrieval. At `--pool 20` (R@1/3/5/10; `lab/exp123.md`):
+
+| Fixture | Retrieval | Reranker order | Fused |
+|---|---|---|---|
+| kempis-gospels | 32 / 44 / 44 / 45 | 28 / 43 / 45 / 45 | 34 / 44 / 45 / 45 |
+| waste-land | 21 / 29 / 30 / 36 | 20 / 25 / 28 / 34 | 23 / 28 / 32 / 34 |
+| lxx-nt | 159 / 205 / 219 / 229 | 119 / 176 / 200 / 222 | 158 / 203 / 218 / 229 |
+
+Fusing beat replacing on all three. Against retrieval alone it is mixed: +2 at R@1 on both English
+fixtures, −2 at R@10 on *The Waste Land*, −1 at R@1 on lxx-nt. Fusing at the default `--pool 30`
+is not yet measured.
+
+A second fixture, *The Waste Land* against its sources in seven languages
+(`fixtures/waste-land`, 64 links, built by a script from public-domain texts), shows why the
+default has a multilingual model. With `--gloss target-en.jsonl --neighbours 1`:
+
+| Embed | R@1 | R@3 | R@5 | R@10 |
+|---|---|---|---|---|
+| default, nomic + bge-m3 | 21 | 29 | 30 | 36 |
+| nomic only | 23 | 27 | 30 | 34 |
+| bge-m3 only | 18 | 24 | 27 | 32 |
+
+Against nomic alone, the default gives up two links at R@1 and gains two at R@3 and at R@10.
+Without translations, nomic alone missed most links into Dante (18 / 24 / 24 / 26 on 2026-11-10,
+before the language profiles). Runs from 2026-11-15 on a Mac mini (Apple M2 Pro CPU),
+transformers.js 4.3.2, with overlap scoring each translation as its own text.
+
+Reranker order alone costs R@1 on Kempis. One cause is the q8 quantization of the only
 ONNX export: an fp32 export of the same model, built locally, scores pairs within 0.006 of the
 Python (MLX) run but still reached only 32 / 43 / 44 / 45 (measured 2026-11-08, before ties
 shared a rank; not re-run).
@@ -175,8 +216,8 @@ shared a rank; not re-run).
 More fixtures, each with a README on sources, licenses and known problems. Runs of
 2026-11-09 and 2026-11-10 on a Mac mini (Apple M2 Pro CPU), bge-m3 q8, `--neighbours 1`; R@10
 is shown for each list alone, then fused. The `lxx-nt`, `augustine-vulgate` and
-`shankara-upanisads` rows and the retrieval row above were re-run 2026-11-13 under transformers.js 4.3.2,
-whose newer ONNX runtime moves q8 vectors about 0.02 in cosine:
+`shankara-upanisads` rows were re-run 2026-11-13 under transformers.js 4.3.2, whose newer ONNX
+runtime moves q8 vectors about 0.02 in cosine:
 
 | Fixture | Languages | Links | Embedding | Words | Characters | Fused R@1 / R@10 |
 |---|---|---|---|---|---|---|
@@ -275,6 +316,9 @@ allusions.
   test but has no ONNX export yet; `--embed openai:...` can serve it.
 - **bge-m3 is large** (about 540 MB at q8). Embedding a 36,000-verse Bible takes 15 to 20 minutes
   on 10 CPU cores; later runs read the cache.
+- **Translations help where the embedder is weakest.** bge-m3 matches English against Italian,
+  French, German, Latin and Greek well, and Sanskrit poorly (MRR .49 on a held-out test).
+  `--gloss` lets an English embedder such as nomic read the target in English too.
 - **Allusions to a whole story** (the prodigal son), or sayings with no shared words, rarely reach
   the top 30, so no reranker sees them.
 - **Suggestions, not findings.** Check every link against the texts.

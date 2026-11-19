@@ -19,6 +19,7 @@ export interface Lang {
   charText?(text: string): string
   // Optional: each list's vote in reciprocal rank fusion when both texts are in this language;
   // 0 leaves a list out. Unset lists vote 1, so a profile without it fuses with equal votes.
+  // With a+b, each embedder's list votes dense.
   fusion?: { dense?: number; words?: number; chars?: number }
   // Optional: the text the embedder reads, when the model wants it written otherwise than the
   // source gives it. Arabic drops its vowel marks. The links still quote the original text.

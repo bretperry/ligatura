@@ -1,7 +1,7 @@
 // Pure-function tests: no model downloads.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { splitText, lexicalScorer, sharedWords } from '../dist/index.js'
+import { splitText, lexicalScorer, pairScorer, sharedWords } from '../dist/index.js'
 import { fuse, fuseWeighted, ranks, checkInt, checkUnique } from '../dist/util.js'
 import { judgeRefs } from '../dist/rerank.js'
 import { loadUnits } from '../dist/units.js'
@@ -79,4 +79,12 @@ test('numbers and refs are checked', () => {
   assert.throws(() => loadUnits(f), /:3: ref "a" already used on line 1/)
   writeFileSync(f, '{"ref":"a","text":"x"}\nnot json\n')
   assert.throws(() => loadUnits(f), /:2: not valid JSON/)
+})
+
+test('pairScorer needs two shared stems and prefers rare ones close together', () => {
+  const docs = ['the lamp of the body is the eye', 'the eye and the body walk far apart in the dark lamp', 'the lamp shines', 'body and soul']
+  const s = pairScorer(docs, ['a lamp unto the eye of the body']).scores('a lamp unto the eye of the body')
+  assert.equal(s[2], 0) // one shared stem is not a pair
+  assert.equal(s[3], 0)
+  assert.ok(s[0] > s[1], `${s[0]} > ${s[1]}`)
 })

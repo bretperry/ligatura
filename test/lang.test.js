@@ -118,7 +118,7 @@ test('Latin fusion keeps a target that character overlap ranks first over the em
 })
 
 test('languages resolve the embedder and turn overlap off across languages', () => {
-  assert.deepEqual(resolve({}).embed, 'nomic-embed-text-v1.5')
+  assert.deepEqual(resolve({}).embed, 'nomic-embed-text-v1.5+bge-m3')
   assert.equal(resolve({}).lexical, true)
   assert.equal(resolve({ lang: 'grc' }).embed, 'bge-m3')
   assert.equal(resolve({ lang: 'la' }).lexical, true)

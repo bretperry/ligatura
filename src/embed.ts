@@ -1,7 +1,7 @@
 // Embedding backends. Local models run in process (transformers.js, ONNX); `openai:` calls any
 // OpenAI-compatible /v1/embeddings server (Ollama, LM Studio, llama.cpp, vLLM).
 import { createHash, randomBytes } from 'node:crypto'
-import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { availableParallelism } from 'node:os'
 import { createRequire } from 'node:module'
@@ -36,6 +36,9 @@ interface LocalModel {
   pooling: 'cls' | 'mean' | 'last_token'
   query?: string
   doc?: string
+  dtype?: 'q8' | 'q4' | 'fp32' // default q8
+  // A model built locally, read from <cache>/onnx/<id> and never downloaded.
+  local?: boolean
 }
 
 // Query and document prefixes follow each model card. The revision is part of the cache key;
@@ -47,9 +50,36 @@ export const LOCAL_EMBEDDERS: Record<string, LocalModel> = {
   // Multilingual (MIT): the default for Latin and Greek, and for any run across two languages.
   // ONNX export of BAAI/bge-m3, pinned to the commit measured in the README.
   'bge-m3': { id: 'Xenova/bge-m3', revision: '4de13258303883538bd53b696b452bf8099f0858', pooling: 'cls' },
+  // Others measured against English in lab/multilingual-probe.mjs and lab/yardstick.mjs, pinned to
+  // the commits current on 2026-11-15.
+  'snowflake-arctic-embed-l-v2.0': { id: 'Snowflake/snowflake-arctic-embed-l-v2.0', revision: 'ac6544c8a46e00af67e330e85a9028c66b8cfd9a', pooling: 'cls', query: 'query: ' },
+  'multilingual-e5-large': { id: 'Xenova/multilingual-e5-large', revision: '00fc3aeb3dbb95842de2ac1961d33c6319acf57b', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  'multilingual-e5-small': { id: 'Xenova/multilingual-e5-small', revision: '761b726dd34fb83930e26aab4e9ac3899aa1fa78', pooling: 'mean', query: 'query: ', doc: 'passage: ' },
+  // q8 hurts this one badly; fp32 is slow (hours for a book).
+  'qwen3-embedding-0.6b': {
+    id: 'onnx-community/Qwen3-Embedding-0.6B-ONNX', revision: 'c25a394dd583836952667c12f008335071b3f43d', pooling: 'last_token', dtype: 'fp32',
+    query: 'Instruct: Given a passage, retrieve the passage in another text, in any language, that it quotes, translates or alludes to\nQuery: ',
+  },
+  // bge-m3 tuned on English against Latin, Greek and Sanskrit (lab/finetune.py); built locally, not published.
+  'bge-m3-classics': { id: 'bge-m3-classics', revision: 'local', pooling: 'cls', local: true },
 }
-export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5'
+// English against English: two embedders fused (see "a+b" in link.ts and the README results).
+export const DEFAULT_EMBEDDER = 'nomic-embed-text-v1.5+bge-m3'
 const LOCAL_DTYPE = 'q8'
+
+// "a+b" names several embedders to fuse. A "+" inside an openai: spec (a URL or a model name)
+// stays part of it: a new part starts only at "openai:" or at a local model's name.
+export function splitEmbedSpec(spec: string): string[] {
+  const parts: string[] = []
+  for (const p of spec.split('+')) {
+    if (parts.length && !p.startsWith('openai:') && !(p in LOCAL_EMBEDDERS) && parts[parts.length - 1].startsWith('openai:')) parts[parts.length - 1] += `+${p}`
+    else parts.push(p)
+  }
+  if (parts.some((p) => !p)) throw new Error(`--embed "${spec}" has an empty name; join embedders as a+b`)
+  const dup = parts.find((p, i) => parts.indexOf(p) !== i)
+  if (dup) throw new Error(`--embed "${spec}" names ${dup} twice; fusing an embedder with itself only doubles its weight`)
+  return parts
+}
 
 export function makeEmbedder(spec: string): Embedder {
   const inner = spec.startsWith('openai:') ? openaiEmbedder(spec) : localEmbedder(spec)
@@ -120,34 +150,64 @@ function checked(vs: Float32Array[], n: number, name: string): Float32Array[] {
 function localEmbedder(name: string): Embedder {
   const cfg = LOCAL_EMBEDDERS[name]
   if (!cfg) throw new Error(`unknown embedder "${name}"; local models: ${Object.keys(LOCAL_EMBEDDERS).join(', ')}; or openai:<base-url>#<model>`)
-  let pipe: ((t: string[], o: object) => Promise<{ tolist(): number[][] }>) | undefined
+  let pipe: (((t: string[], o: object) => Promise<{ tolist(): number[][] }>) & { tokenizer?: { padding_side?: string } }) | undefined
   return {
     name,
-    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: LOCAL_DTYPE, runtime: RUNTIME }),
+    // A locally built model has no revision to pin, so its files' sizes and times stand in for one:
+    // rebuilding it never reuses the old model's vectors.
+    fingerprint: JSON.stringify({ kind: 'local', ...cfg, dtype: cfg.dtype ?? LOCAL_DTYPE, runtime: RUNTIME, ...(cfg.local ? { files: filesStamp(join(cacheDir(), 'onnx', cfg.id)) } : {}) }),
     cacheable: true,
     async embed(texts, role) {
       if (!pipe) {
-        const { pipeline } = await import('@huggingface/transformers')
+        const { pipeline, env } = await import('@huggingface/transformers')
+        const localDir = join(cacheDir(), 'onnx')
+        if (cfg.local && !existsSync(join(localDir, cfg.id))) throw new Error(`embedder "${name}" is built locally; expected it at ${join(localDir, cfg.id)}`)
         // ONNX Runtime's default left most cores idle (about one in use on an M3).
         const session_options = { intraOpNumThreads: Math.max(1, availableParallelism() - 1) }
-        pipe = (await pipeline('feature-extraction', cfg.id, { dtype: LOCAL_DTYPE, revision: cfg.revision, session_options })) as unknown as typeof pipe
+        // localModelPath is global to transformers.js: set it only for this load, so a later
+        // download of another model never picks up a local build of the same id.
+        const prev = env.localModelPath
+        if (cfg.local) env.localModelPath = `${localDir}/`
+        try {
+          pipe = (await pipeline('feature-extraction', cfg.id, { dtype: cfg.dtype ?? LOCAL_DTYPE, session_options, ...(cfg.local ? { local_files_only: true } : { revision: cfg.revision }) })) as unknown as typeof pipe
+        } finally {
+          env.localModelPath = prev
+        }
       }
       const prefix = cfg[role] ?? ''
       // Batches stay in input order: q8 quantizes each batch as a whole, so regrouping texts
       // (say, by length) changes their vectors.
+      // Last-token pooling reads the last position, padding or not: a batch is safe only when the
+      // tokenizer pads on the left. Otherwise every text but the longest would pool a pad token.
+      const batch = cfg.pooling === 'last_token' && pipe!.tokenizer?.padding_side !== 'left' ? 1 : 32
       const out: Float32Array[] = []
       const started = Date.now()
-      for (let i = 0; i < texts.length; i += 32) {
-        const t = await pipe!(texts.slice(i, i + 32).map((x) => prefix + x), { pooling: cfg.pooling, normalize: true })
+      for (let i = 0; i < texts.length; i += batch) {
+        const t = await pipe!(texts.slice(i, i + batch).map((x) => prefix + x), { pooling: cfg.pooling, normalize: true })
         out.push(...t.tolist().map((v) => Float32Array.from(v)))
-        const done = Math.min(i + 32, texts.length)
+        const done = Math.min(i + batch, texts.length)
         const msg = `embed ${name} ${role}: ${done}/${texts.length}`
         if (process.stderr.isTTY) log(msg, true)
-        else if (done % 2048 < 32 || done === texts.length) log(`${msg} (${Math.round((Date.now() - started) / 1000)} s)`)
+        else if (done % 2048 < batch || done === texts.length) log(`${msg} (${Math.round((Date.now() - started) / 1000)} s)`)
       }
       return out
     },
   }
+}
+
+// Every file under dir with its size and modification time, hashed; '' when dir is missing.
+function filesStamp(dir: string): string {
+  if (!existsSync(dir)) return ''
+  const h = createHash('sha256')
+  const walk = (d: string) => {
+    for (const e of readdirSync(d, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+      const p = join(d, e.name)
+      if (e.isDirectory()) walk(p)
+      else { const st = statSync(p); h.update(`${p.slice(dir.length)}\0${st.size}\0${st.mtimeMs}\n`) }
+    }
+  }
+  walk(dir)
+  return h.digest('hex').slice(0, 16)
 }
 
 // openai:http://localhost:11434/v1#nomic-embed-text sends {model, input} to <base>/embeddings.

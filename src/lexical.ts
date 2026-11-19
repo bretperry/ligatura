@@ -87,3 +87,48 @@ export function charScorer(docs: string[], lang: Lang, n: number) {
     },
   }
 }
+
+// Rare word pairs (Tesserae's rule): a target scores only when it shares at least two stems with
+// the query. The score grows with how rare the shared stems are in each text and shrinks with how
+// far apart the two rarest sit in each unit: ln(1 + rarity / (distance in query + distance in
+// target)). Catches two-word congruencies that single-word tf-idf ranks with ordinary overlap.
+export function pairScorer(docs: string[], queries: string[], lang: Lang = getLang('en')) {
+  const seq = (s: string) => lang.words(s).map(lang.stem).filter((w) => w.length >= lang.minKey)
+  const df = (texts: string[]) => {
+    const m = new Map<string, number>()
+    for (const t of texts) for (const w of new Set(seq(t))) m.set(w, (m.get(w) ?? 0) + 1)
+    return m
+  }
+  const dfT = df(docs)
+  const dfQ = df(queries)
+  const positions = (ws: string[]) => {
+    const m = new Map<string, number[]>()
+    ws.forEach((w, k) => { let l = m.get(w); if (!l) m.set(w, (l = [])); l.push(k) })
+    return m
+  }
+  const tpos = docs.map((d) => positions(seq(d)))
+  const index = new Map<string, number[]>()
+  tpos.forEach((p, j) => { for (const w of p.keys()) { let l = index.get(w); if (!l) index.set(w, (l = [])); l.push(j) } })
+  const gap = (a: number[], b: number[]) => {
+    let best = Infinity
+    for (const x of a) for (const y of b) best = Math.min(best, Math.abs(x - y))
+    return best
+  }
+  return {
+    scores(query: string): Float32Array {
+      const out = new Float32Array(docs.length)
+      const qpos = positions(seq(query))
+      const shared = new Map<number, string[]>()
+      for (const w of qpos.keys()) for (const j of index.get(w) ?? []) { let l = shared.get(j); if (!l) shared.set(j, (l = [])); l.push(w) }
+      // A stem's rarity counts its frequency in both texts, as Tesserae does.
+      const rarity = (w: string) => 1 / (dfT.get(w) ?? 1) + 1 / (dfQ.get(w) ?? 1)
+      for (const [j, ws] of shared) {
+        if (ws.length < 2) continue
+        const [a, b] = [...ws].sort((x, y) => rarity(y) - rarity(x))
+        const dist = gap(qpos.get(a)!, qpos.get(b)!) + gap(tpos[j].get(a)!, tpos[j].get(b)!)
+        out[j] = Math.log(1 + ws.reduce((s, w) => s + rarity(w), 0) / Math.max(dist, 1))
+      }
+      return out
+    },
+  }
+}
