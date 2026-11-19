@@ -8,10 +8,7 @@ npx ligatura link imitation.jsonl gospels.jsonl > links.jsonl
 
 ligatura reads two texts as units (verses, sentences, paragraphs). For each unit of the first, it
 finds the passages in the second that the unit echoes, and writes them as suggestions with their
-evidence. A person confirms each one: ligatura finds candidates, it doesn't decide.
-
-**The default is free and local.** Every model runs on your machine, downloads once, and needs no
-account or API key.
+evidence.
 
 ## How it works
 
@@ -126,7 +123,6 @@ backend, since the scales differ.
 |---|---|---|
 | Embed | `nomic-embed-text-v1.5`, `bge-small-en-v1.5`, `bge-large-en-v1.5`; `bge-m3` (multilingual, MIT, default for every language but English, and for mixed pairs); `snowflake-arctic-embed-l-v2.0`, `multilingual-e5-large`, `multilingual-e5-small`, `qwen3-embedding-0.6b`. English defaults to `nomic-embed-text-v1.5+bge-m3`: join several with `+` to fuse them | `--embed openai:<base-url>#<model>`: any OpenAI-compatible `/embeddings` (Ollama, LM Studio, llama.cpp, vLLM) |
 | Rerank | off by default; `--rerank qwen3-reranker-0.6b` | `--rerank api:<url>#<model>`: a Cohere/Jina-shaped `/rerank` endpoint (llama.cpp `llama-server`, vLLM, TEI, Infinity) |
-| Judge | – | `--rerank chat:<base-url>#<model>`: a chat model picks the links (Ollama, LM Studio, `mlx_lm.server`) |
 
 - **Speed:** the in-process reranker runs on the CPU at 0.5 to 0.75 s per pair. A 2,400-sentence
   book at `--pool 30` takes many hours. A reranker server on a GPU is much faster: the same model
@@ -149,8 +145,6 @@ backend, since the scales differ.
   `LIGATURA_CACHE`), private to your user, keyed by model, prefixes and text. Vectors from a
   server aren't cached, since a server can change the model behind a name. `LIGATURA_NO_CACHE=1`
   turns the cache off.
-- **Paid APIs bill your API account, not a chat subscription** such as Claude Pro or ChatGPT Plus.
-  ligatura has no paid backend built in. If you point it at one, you pay that provider per call.
 
 ## Measure before you trust it
 
