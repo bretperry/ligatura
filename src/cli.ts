@@ -5,7 +5,7 @@ import { LOCAL_EMBEDDERS } from './embed.js'
 import { evaluate, formatEval } from './eval.js'
 import { LANGS, MULTILINGUAL_EMBEDDER } from './lang/index.js'
 import { link, resolve, toLinks, DEFAULTS } from './link.js'
-import { loadUnits, type Split } from './units.js'
+import { loadGloss, loadUnits, type Split } from './units.js'
 import { setQuiet } from './util.js'
 
 const HELP = `ligatura: find where one text quotes, paraphrases or alludes to another.
@@ -24,13 +24,22 @@ Options
                       the two differ
   --embed <model>     ${Object.keys(LOCAL_EMBEDDERS).join(', ')} (in process; default ${DEFAULTS.embed}
                       for English, ${MULTILINGUAL_EMBEDDER} for any other language or pair),
-                      or openai:<base-url>#<model> for any OpenAI-compatible server
+                      or openai:<base-url>#<model> for any OpenAI-compatible server; join
+                      several with + to fuse their rankings
   --rerank <model>    none (default), qwen3-reranker-0.6b (in process), api:<url>#<model> for a
                       /v1/rerank server, or chat:<base-url>#<model> for a chat model as judge
   --pool <n>          candidates the reranker reads per unit (default ${DEFAULTS.pool})
   --top <n>           links kept per source unit (default 3)
   --min-score <x>     keep only links scoring at least x (see "score" in the README)
+  --gloss <file>      translations of the target's units, matched by ref (JSONL); for eval, a name
+                      inside the fixture such as target-en.jsonl
   --task <text>       the instruction the reranker reads
+  --rerank-fuse <w>   the reranker's vote when its order is fused with the retrieval order inside
+                      the pool (default 1); replace orders by the reranker alone
+  --pairs             experimental: also rank by shared rare word pairs (same language only)
+  --runs              experimental: lift targets that neighbouring source units also link near
+  --runs-weight <w>   the vote of that lift (default 1)
+  --runs-gate <n>     lift only targets in the unit's own top n
   --split <mode>      for plain text: sentence (default), paragraph or line
   --min-words <n>     for plain text: drop units shorter than n words (default 1, keep all)
   --neighbours <n>    eval: also count a target n units away from the gold one (default 0)
@@ -40,7 +49,8 @@ Options
 Defaults run locally and need no account. Models download on first use and are cached.
 API keys for remote servers: LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY, or
 LIGATURA_API_KEY when only one server needs a key. Keys go only over https, or to localhost.
-LIGATURA_NO_CACHE=1 turns off the vector cache.`
+LIGATURA_NO_CACHE=1 turns off the vector cache.
+LIGATURA_TIMEOUT_MS sets how long a remote server may take per request (default 300000).`
 
 let parsed: ReturnType<typeof parseOpts>
 try {
@@ -56,8 +66,9 @@ function parseOpts() {
   allowPositionals: true,
   options: {
     embed: { type: 'string' }, rerank: { type: 'string' }, pool: { type: 'string' }, top: { type: 'string' },
-    'min-score': { type: 'string' }, task: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' }, 'min-words': { type: 'string' },
+    'min-score': { type: 'string' }, task: { type: 'string' }, split: { type: 'string' }, neighbours: { type: 'string' }, 'min-words': { type: 'string' }, gloss: { type: 'string' },
     lang: { type: 'string' }, 'source-lang': { type: 'string' }, 'target-lang': { type: 'string' },
+    'rerank-fuse': { type: 'string' }, pairs: { type: 'boolean' }, runs: { type: 'boolean' }, 'runs-weight': { type: 'string' }, 'runs-gate': { type: 'string' },
     json: { type: 'boolean' }, quiet: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean', short: 'v' },
   },
   })
@@ -88,10 +99,8 @@ setQuiet(!!values.quiet)
 const opts = {
   embed: values.embed, rerank: values.rerank, pool: int('pool', 1), task: values.task,
   lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
+  rerankFuse: values['rerank-fuse'] === 'replace' ? ('replace' as const) : real('rerank-fuse'), pairs: values.pairs, runs: values.runs, runsWeight: real('runs-weight'), runsGate: int('runs-gate', 1),
 }
-let run: ReturnType<typeof resolve>
-try { run = resolve(opts) } catch (err) { fail((err as Error).message) }
-
 if (values.version) {
   console.log((JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version)
 } else if (values.help || !cmd) {
@@ -103,17 +112,19 @@ if (values.version) {
   const top = int('top', 0) ?? 3
   const minScore = real('min-score')
   try {
+    const run = resolve(opts)
     const source = loadUnits(args[0], split, minWords, run.source)
     const target = loadUnits(args[1], split, minWords, run.target)
-    for await (const r of link(source, target, opts)) {
-      for (const l of toLinks(r, target, { ...opts, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
+    const gloss = values.gloss ? loadGloss(values.gloss) : undefined
+    for await (const r of link(source, target, { ...opts, gloss })) {
+      for (const l of toLinks(r, target, { ...opts, gloss, top, minScore })) process.stdout.write(`${JSON.stringify(l)}\n`)
     }
   } catch (err) {
     fail((err as Error).message)
   }
 } else if (cmd === 'eval' && args.length === 1) {
   const neighbours = int('neighbours', 0)
-  const e = await evaluate(args[0], { ...opts, neighbours }).catch((err: Error) => fail(err.message))
+  const e = await evaluate(args[0], { ...opts, neighbours, glossFile: values.gloss }).catch((err: Error) => fail(err.message))
   console.log(values.json ? JSON.stringify(e, null, 1) : formatEval(e))
 } else {
   console.error(HELP)

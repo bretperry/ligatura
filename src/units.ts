@@ -30,6 +30,13 @@ export function loadUnits(path: string, split: Split = 'auto', minWords = 1, lan
   return units
 }
 
+// Translations of a target's units. JSONL only: a plain-text gloss would take refs from its own
+// sentence split, which needn't line up with the target's.
+export function loadGloss(path: string): Unit[] {
+  if (!path.endsWith('.jsonl')) throw new Error(`--gloss ${path}: a gloss is JSONL, one {"ref","text"} per target unit`)
+  return loadUnits(path)
+}
+
 // minWords drops units shorter than that many words (default 1: keep every nonempty unit).
 // Sentences split by the language's rules (lang defaults to English).
 export function splitText(raw: string, split: Split = 'auto', minWords = 1, lang: Lang = getLang('en')): string[] {

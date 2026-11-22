@@ -25,22 +25,12 @@ export { foldLatin } from './la.js'
 export { foldGreek } from './grc.js'
 export { foldSanskrit, devanagariToIast } from './sa.js'
 
-export const LANGS: Record<string, Lang> = { en, la, grc, sa }
-// Modern languages, kept in their own block.
-Object.assign(LANGS, { fr, es, it, de, ar, cop })
-LANGS.lzh = lzh
+export const LANGS: Record<string, Lang> = { en, la, grc, sa, fr, es, it, de, ar, cop, lzh, akk, syc, hbo }
 export { lzh, foldClassicalChinese }
 export { fr, es, it, de, ar, foldFrench, foldSpanish, foldItalian, foldGerman, foldArabic, splitClitics, unvowelArabic }
-// Akkadian, in its own block.
-LANGS.akk = akk
 export { akk, foldAkkadian }
-// Classical Syriac.
-Object.assign(LANGS, { syc })
 export { syc, foldSyriac, splitProclitics }
-// Biblical Hebrew.
-LANGS.hbo = hbo
 export { hbo, foldHebrew, splitHebrewProclitics }
-// Coptic.
 export { cop, foldCoptic }
 export const DEFAULT_LANG = 'en'
 

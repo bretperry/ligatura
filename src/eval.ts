@@ -4,11 +4,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { link, resolve, DEFAULTS, type LinkOptions } from './link.js'
-import { loadUnits } from './units.js'
+import { loadGloss, loadUnits } from './units.js'
 import { checkInt, ranks } from './util.js'
 
 export interface EvalOptions extends LinkOptions {
   neighbours?: number // also count a target this many units away (a footnote citing the next verse)
+  glossFile?: string // translations of the target: a file name inside the fixture, or a path
 }
 
 const KS = [1, 3, 5, 10]
@@ -27,6 +28,8 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const run = resolve(opts)
   const source = loadUnits(join(dir, 'source.jsonl'))
   const target = loadUnits(join(dir, 'target.jsonl'))
+  // The fixture's own file wins over a same-named one in the working directory.
+  const gloss = opts.glossFile ? loadGloss(existsSync(join(dir, opts.glossFile)) ? join(dir, opts.glossFile) : opts.glossFile) : undefined
   const tIndex = new Map(target.map((u, i) => [u.ref, i]))
   const sRefs = new Set(source.map((u) => u.ref))
   const gold = readFileSync(join(dir, 'gold.jsonl'), 'utf8').split('\n').flatMap((l, i) => {
@@ -40,10 +43,9 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
   const missingSrc = gold.filter((g) => !sRefs.has(g.source))
   const usable = gold.filter((g) => tIndex.has(g.target) && sRefs.has(g.source))
   const wanted = new Set(usable.map((g) => g.source))
-  const units = source.filter((u) => wanted.has(u.ref))
   const near = checkInt('neighbours', opts.neighbours, 0) ?? 0
   const rows: { source: string; target: string; dense: number; lexical: number; chars: number; fused: number; final: number }[] = []
-  for await (const r of link(units, target, opts)) {
+  for await (const r of link(source, target, { ...opts, gloss, only: wanted })) {
     const finalRank = new Map(r.ranked.map((c, k) => [c.index, k + 1]))
     const denseRank = ranks(r.dense)
     // A target sharing no word with the source isn't found by overlap, however few targets score.
@@ -79,7 +81,7 @@ export async function evaluate(dir: string, options: EvalOptions = {}) {
     fused: at('fused'),
     final: at('final'),
     rows,
-    method: { embed: run.embed, lang: `${run.source.code}>${run.target.code}`, rerank: opts.rerank ?? DEFAULTS.rerank, pool: opts.pool ?? DEFAULTS.pool, neighbours: near },
+    method: { embed: run.embed, lang: `${run.source.code}>${run.target.code}`, rerank: opts.rerank ?? DEFAULTS.rerank, pool: opts.pool ?? DEFAULTS.pool, neighbours: near, rerankFuse: opts.rerankFuse ?? DEFAULTS.rerankFuse, pairs: !!opts.pairs, runs: !!opts.runs, runsWeight: opts.runsWeight, runsGate: opts.runsGate },
   }
 }
 
@@ -89,7 +91,7 @@ export function formatEval(e: Awaited<ReturnType<typeof evaluate>>): string {
   const misses = e.rows.filter((r) => r.final > 10).sort((a, b) => a.final - b.final || a.fused - b.fused)
   return [
     `Gold links: ${e.scored} scored of ${e.gold}${e.missingTargets.length ? `; ${e.missingTargets.length} point at targets not in target.jsonl` : ''}${e.missingSources.length ? `; ${e.missingSources.length} name sources not in source.jsonl (${e.missingSources.join(', ')})` : ''}. Neighbours counted: ${e.method.neighbours}.`,
-    `Languages ${e.method.lang}. Embed ${e.method.embed}, rerank ${e.method.rerank} on the top ${e.method.pool}.`,
+    `Languages ${e.method.lang}. Embed ${e.method.embed}, rerank ${e.method.rerank} on the top ${e.method.pool}${e.method.rerank === 'none' ? '' : e.method.rerankFuse === 'replace' ? ', its order replacing retrieval' : `, fused with retrieval at weight ${e.method.rerankFuse}`}.${e.method.pairs ? ' Rare word pairs on.' : ''}${e.method.runs ? ' Runs on.' : ''}`,
     '',
     head,
     `|---|${KS.map(() => '---|').join('')}`,

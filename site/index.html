@@ -205,14 +205,13 @@ node dist/cli.js eval fixtures/kempis-gospels --neighbours 1</pre><button type="
     <p>Above is a real find. Thomas à Kempis wrote about knowing Jesus "in the breaking of bread". ligatura spotted that he was echoing the road to Emmaus in Luke.</p>
     <p>It goes sentence by sentence through the first book. For each one, it lists the few spots in the second book that sound most like it, and shows why. <strong>You decide if each one is real.</strong> ligatura only points; it never decides.</p>
     <p class="gloss">For editors, it drafts the <i>apparatus fontium</i>: the list of sources a critical edition prints beneath the text. For readers of reception history, it surfaces candidate intertexts across a whole corpus, ranked and with their evidence, for a human to adjudicate.</p>
-    <p><strong>Free, and it stays on your computer.</strong> No account, no sign-up, nothing sent away.</p>
     <pre>npx ligatura link imitation.jsonl gospels.jsonl &gt; links.jsonl</pre>
   </section>
 
   <section>
     <h2>How it works</h2>
     <ol class="steps">
-      <li><div><p><strong>Same meaning.</strong> A small language model reads every sentence and turns its meaning into numbers. Sentences that mean the same thing get close numbers, even in different words.</p>
+      <li><div><p><strong>Same meaning.</strong> ligatura turns every sentence into numbers (an embedding) that capture its meaning. Sentences that mean the same thing get close numbers, even in different words.</p>
         <p class="gloss">Dense retrieval: cosine similarity between <i>nomic-embed-text-v1.5</i> sentence embeddings, with the model's query and document prefixes.</p></div></li>
       <li><div><p><strong>Same words.</strong> It also counts rare words the two share, like <em>bread</em> and <em>breaking</em>. That catches direct quotes. Old spellings like <em>walketh</em> count as <em>walk</em>.</p>
         <p class="gloss">Lexical overlap: tf-idf cosine over stems, with Early Modern English inflections (<i>-eth</i>, <i>-est</i>) and archaic function words (<i>thou</i>, <i>hath</i>) normalised first.</p></div></li>
@@ -245,7 +244,6 @@ node dist/cli.js eval fixtures/kempis-gospels --neighbours 1</pre><button type="
       <tbody>
         <tr><td>Meaning</td><td><code>nomic-embed-text-v1.5</code>, <code>bge-small-en-v1.5</code>, <code>bge-large-en-v1.5</code></td><td><code>--embed openai:&lt;base-url&gt;#&lt;model&gt;</code> (Ollama, LM Studio, llama.cpp, vLLM)</td></tr>
         <tr><td>Second opinion</td><td>Off; <code>--rerank qwen3-reranker-0.6b</code></td><td><code>--rerank api:&lt;url&gt;#&lt;model&gt;</code>, any <code>/rerank</code> endpoint</td></tr>
-        <tr><td>Judge</td><td>–</td><td><code>--rerank chat:&lt;base-url&gt;#&lt;model&gt;</code>, a chat model picks the links</td></tr>
       </tbody>
     </table></div>
     <ul class="plain">

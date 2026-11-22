@@ -1,5 +1,7 @@
 # Fusion buried it: keep each list's top hits?
 
+> The scripts and raw result files this note cites were removed from the repo; they are in git history (v0.2.1 and earlier).
+
 TL;DR (2026-11-13, Mac mini M2 Pro, bge-m3 q8 / nomic for Kempis, `--neighbours 1`, rerank off):
 
 - **Keeping each list's top n in the top 10 does not help.** Reserving slots loses R@10 overall
