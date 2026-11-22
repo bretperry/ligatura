@@ -3,4 +3,3 @@ __pycache__/
 *.tgz
 .DS_Store
 dist/
-HANDOFF.md

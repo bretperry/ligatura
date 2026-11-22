@@ -63,3 +63,28 @@ export function fuseWeighted(lists: [Float32Array, number][]): Float32Array {
 }
 
 export const topK = (scores: Float32Array, k: number) => [...scores.keys()].sort((a, b) => scores[b] - scores[a]).slice(0, k)
+
+// Longest a server may take to answer one request, in ms. LIGATURA_TIMEOUT_MS overrides it; a
+// local chat judge reading a full pool can need minutes.
+export const DEFAULT_TIMEOUT_MS = 300_000
+export function timeoutMs(): number {
+  const raw = process.env.LIGATURA_TIMEOUT_MS
+  if (raw === undefined) return DEFAULT_TIMEOUT_MS
+  const n = Number(raw)
+  if (raw.trim() === '' || !Number.isInteger(n) || n < 1) throw new Error(`LIGATURA_TIMEOUT_MS must be a whole number of milliseconds, got "${raw}"`)
+  return n
+}
+
+// POST JSON and return the parsed reply. A server that doesn't answer within timeoutMs() is an
+// error naming the URL and the knob, not a hang.
+export async function postJson(url: string, headers: Record<string, string>, body: unknown): Promise<unknown> {
+  const ms = timeoutMs()
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body), signal: AbortSignal.timeout(ms) })
+    if (!res.ok) throw new Error(`${url}: ${res.status} ${await res.text()}`)
+    return await res.json()
+  } catch (err) {
+    if ((err as Error).name === 'TimeoutError') throw new Error(`${url}: no reply within ${ms / 1000} s; raise LIGATURA_TIMEOUT_MS if the server is just slow`)
+    throw err
+  }
+}

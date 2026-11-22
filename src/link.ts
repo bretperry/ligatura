@@ -58,6 +58,8 @@ export interface Scored {
 }
 
 export interface UnitResult {
+  // The languages, embedder and reranker this run used, so toLinks reports them as they were.
+  run: Resolved & { rerank: string }
   source: Unit
   // The pool, best first: reranker order if one ran, else fused order.
   ranked: Scored[]
@@ -183,7 +185,7 @@ export async function* link(source: Unit[], target: Unit[], opts: LinkOptions = 
       const each = (Date.now() - started) / (n + 1)
       log(`rerank ${reranker.name}: ${n + 1}/${yields.length}, about ${Math.round((each * (yields.length - n - 1)) / 60000)} min left`, true)
     }
-    yield { source: s, ranked, fusedRank, dense, lexical, chars, pairs }
+    yield { run: { ...run, rerank: opts.rerank ?? DEFAULTS.rerank }, source: s, ranked, fusedRank, dense, lexical, chars, pairs }
   }
   if (reranker) log(`reranked ${yields.length} units in ${Math.round((Date.now() - started) / 1000)} s`)
 }
@@ -206,7 +208,7 @@ export interface Link {
 export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top: number; minScore?: number }): Link[] {
   checkInt('top', opts.top, 0)
   if (opts.minScore !== undefined && !Number.isFinite(opts.minScore)) throw new Error(`min-score must be a number, got ${opts.minScore}`)
-  const run = resolve(opts)
+  const run = r.run ?? { ...resolve(opts), rerank: opts.rerank ?? DEFAULTS.rerank }
   const date = new Date().toISOString().slice(0, 10)
   const round = (x: number) => Math.round(x * 1000) / 1000
   // Overlap read each target unit with its translation, so shared words do too.
@@ -225,7 +227,7 @@ export function toLinks(r: UnitResult, target: Unit[], opts: LinkOptions & { top
       ...(c.rerank === undefined ? {} : { rerank: round(c.rerank) }),
       shared: run.lexical ? sharedWords(r.source.text, withGloss(target[c.index]), run.target) : [],
       status: 'suggested' as const,
-      method: { embed: run.embed, rerank: opts.rerank ?? DEFAULTS.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }), ...(opts.gloss ? { gloss: true as const } : {}) },
+      method: { embed: run.embed, rerank: run.rerank, ...(run.source.code === 'en' && run.target.code === 'en' ? {} : { lang: `${run.source.code}>${run.target.code}` }), ...(opts.gloss ? { gloss: true as const } : {}) },
       date,
     }))
 }
