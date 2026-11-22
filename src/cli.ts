@@ -49,7 +49,8 @@ Options
 Defaults run locally and need no account. Models download on first use and are cached.
 API keys for remote servers: LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY, or
 LIGATURA_API_KEY when only one server needs a key. Keys go only over https, or to localhost.
-LIGATURA_NO_CACHE=1 turns off the vector cache.`
+LIGATURA_NO_CACHE=1 turns off the vector cache.
+LIGATURA_TIMEOUT_MS sets how long a remote server may take per request (default 300000).`
 
 let parsed: ReturnType<typeof parseOpts>
 try {
