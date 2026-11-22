@@ -49,7 +49,8 @@ Options
 Defaults run locally and need no account. Models download on first use and are cached.
 API keys for remote servers: LIGATURA_EMBED_API_KEY and LIGATURA_RERANK_API_KEY, or
 LIGATURA_API_KEY when only one server needs a key. Keys go only over https, or to localhost.
-LIGATURA_NO_CACHE=1 turns off the vector cache.`
+LIGATURA_NO_CACHE=1 turns off the vector cache.
+LIGATURA_TIMEOUT_MS sets how long a remote server may take per request (default 300000).`
 
 let parsed: ReturnType<typeof parseOpts>
 try {
@@ -100,9 +101,6 @@ const opts = {
   lang: values.lang, sourceLang: values['source-lang'], targetLang: values['target-lang'],
   rerankFuse: values['rerank-fuse'] === 'replace' ? ('replace' as const) : real('rerank-fuse'), pairs: values.pairs, runs: values.runs, runsWeight: real('runs-weight'), runsGate: int('runs-gate', 1),
 }
-let run: ReturnType<typeof resolve>
-try { run = resolve(opts) } catch (err) { fail((err as Error).message) }
-
 if (values.version) {
   console.log((JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version)
 } else if (values.help || !cmd) {
@@ -114,6 +112,7 @@ if (values.version) {
   const top = int('top', 0) ?? 3
   const minScore = real('min-score')
   try {
+    const run = resolve(opts)
     const source = loadUnits(args[0], split, minWords, run.source)
     const target = loadUnits(args[1], split, minWords, run.target)
     const gloss = values.gloss ? loadGloss(values.gloss) : undefined

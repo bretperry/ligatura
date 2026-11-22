@@ -4,9 +4,8 @@
 //   chat:<base-url>#<model>   an OpenAI-compatible chat model as judge: Ollama, LM Studio, mlx_lm.server
 //   none                      keep the retrieval order (default)
 import { auth } from './embed.js'
-import { checkInt } from './util.js'
+import { checkInt, postJson } from './util.js'
 import type { Unit } from './units.js'
-import { log } from './util.js'
 
 export interface Reranker {
   name: string
@@ -93,13 +92,7 @@ function rerankApi(spec: string, task: string): Reranker {
   return {
     name: spec,
     async score(query, candidates) {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', ...auth('rerank', url) },
-        body: JSON.stringify({ model, query: `${task}\n${query.text}`, documents: candidates.map((c) => c.text), top_n: candidates.length }),
-      })
-      if (!res.ok) throw new Error(`${url}: ${res.status} ${await res.text()}`)
-      const body = (await res.json()) as { results?: { index?: unknown; relevance_score?: unknown }[] }
+      const body = (await postJson(url, auth('rerank', url), { model, query: `${task}\n${query.text}`, documents: candidates.map((c) => c.text), top_n: candidates.length })) as { results?: { index?: unknown; relevance_score?: unknown }[] }
       // Exactly one finite score per candidate; a missing one is an error, not a zero.
       const out = new Array<number | undefined>(candidates.length)
       for (const r of Array.isArray(body.results) ? body.results : []) {
@@ -136,17 +129,12 @@ function chatJudge(spec: string, task: string): Reranker {
   return {
     name: spec,
     async score(query, candidates) {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', ...auth('rerank', url) },
-        body: JSON.stringify({ model, temperature: 0, messages: [{ role: 'user', content: JUDGE(task, query, candidates) }] }),
-      })
-      if (!res.ok) throw new Error(`${url}: ${res.status} ${await res.text()}`)
-      const body = (await res.json()) as { choices?: { message?: { content?: unknown } }[] }
+      const body = (await postJson(url, auth('rerank', url), { model, temperature: 0, messages: [{ role: 'user', content: JUDGE(task, query, candidates) }] })) as { choices?: { message?: { content?: unknown } }[] }
       const content = body.choices?.[0]?.message?.content
       const refs = judgeRefs(typeof content === 'string' ? content : '', candidates.map((c) => c.ref))
-      if (!refs) log(`judge: unreadable reply for ${query.ref}`)
-      return candidates.map((c) => { const k = (refs ?? []).indexOf(c.ref); return k < 0 ? 0 : 1 - k / 100 })
+      // Scoring every candidate 0 would drop links under --min-score without a word.
+      if (!refs) throw new Error(`${url}: the judge's reply for ${query.ref} has no {"refs": [...]} object; try a larger model or --rerank none`)
+      return candidates.map((c) => { const k = refs.indexOf(c.ref); return k < 0 ? 0 : 1 - k / 100 })
     },
   }
 }

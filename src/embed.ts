@@ -5,7 +5,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync
 import { dirname, join } from 'node:path'
 import { availableParallelism } from 'node:os'
 import { createRequire } from 'node:module'
-import { cacheDir, log } from './util.js'
+import { cacheDir, log, postJson } from './util.js'
 
 // The runtime decides q8 vectors as much as the model file does: transformers.js 4 (newer
 // onnxruntime) moved them about 0.02 in cosine. Keying the cache on it keeps old vectors out.
@@ -224,13 +224,7 @@ function openaiEmbedder(spec: string): Embedder {
       const out: Float32Array[] = []
       for (let i = 0; i < texts.length; i += 64) {
         const batch = texts.slice(i, i + 64)
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', ...auth('embed', url) },
-          body: JSON.stringify({ model, input: batch }),
-        })
-        if (!res.ok) throw new Error(`${url}: ${res.status} ${await res.text()}`)
-        const body = (await res.json()) as { data?: { index?: unknown; embedding?: unknown }[] }
+        const body = (await postJson(url, auth('embed', url), { model, input: batch })) as { data?: { index?: unknown; embedding?: unknown }[] }
         const got = new Array<Float32Array | undefined>(batch.length)
         for (const d of Array.isArray(body.data) ? body.data : []) {
           const k = d.index
